@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================ -->
+        <!-- USUARIOS DE DEMOSTRACIÓN -->
+        <!-- ============================================ -->
+
+        <!-- Usuario 1: Manager de Manufactura -->
+        <record id="user_manufacturing_manager_demo" model="res.users">
+            <field name="name">Carlos Rodríguez</field>
+            <field name="login">manager@dental.com</field>
+            <field name="password">manager123</field>
+            <field name="email">manager@dental.com</field>
+            <field name="department">sistema</field>
+            <field name="groups_id" eval="[(4, ref('custom_manufacturing_dashboard.group_manufacturing_manager'))]"/>
+        </record>
+
+        <!-- Usuario 2: Empleado de Diseño -->
+        <record id="user_employee_design_demo" model="res.users">
+            <field name="name">María González</field>
+            <field name="login">maria@dental.com</field>
+            <field name="password">maria123</field>
+            <field name="email">maria@dental.com</field>
+            <field name="department">diseno</field>
+            <field name="groups_id" eval="[(4, ref('custom_manufacturing_dashboard.group_manufacturing_employee'))]"/>
+        </record>
+
+        <!-- Usuario 3: Empleado de Fresado -->
+        <record id="user_employee_milling_demo" model="res.users">
+            <field name="name">Juan Martínez</field>
+            <field name="login">juan@dental.com</field>
+            <field name="password">juan123</field>
+            <field name="email">juan@dental.com</field>
+            <field name="department">fresado</field>
+            <field name="groups_id" eval="[(4, ref('custom_manufacturing_dashboard.group_manufacturing_employee'))]"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- PRODUCTOS DENTALES -->
+        <!-- ============================================ -->
+
+        <!-- Producto 1: Corona Zirconia Multicapa -->
+        <record id="product_corona_zirconia_multicapa" model="product.product">
+            <field name="name">Corona Zirconia Multicapa</field>
+            <field name="type">goods</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">150.00</field>
+            <field name="list_price">350.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- Producto 2: Corona E-max -->
+        <record id="product_corona_emax" model="product.product">
+            <field name="name">Corona E-max</field>
+            <field name="type">goods</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">120.00</field>
+            <field name="list_price">300.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- Producto 3: Puente 3 Unidades Zirconia -->
+        <record id="product_puente_3_zirconia" model="product.product">
+            <field name="name">Puente 3 Unidades Zirconia</field>
+            <field name="type">goods</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">400.00</field>
+            <field name="list_price">900.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- Producto 4: Implante Corona Atornillada -->
+        <record id="product_implante_corona" model="product.product">
+            <field name="name">Implante Corona Atornillada</field>
+            <field name="type">goods</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">200.00</field>
+            <field name="list_price">450.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- Producto 5: Carilla E-max -->
+        <record id="product_carilla_emax" model="product.product">
+            <field name="name">Carilla E-max</field>
+            <field name="type">goods</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">100.00</field>
+            <field name="list_price">250.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- Producto 6: Incrustación Zirconia -->
+        <record id="product_incrustacion_zirconia" model="product.product">
+            <field name="name">Incrustación Zirconia</field>
+            <field name="type">goods</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">80.00</field>
+            <field name="list_price">200.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- Producto 7: Prótesis Completa Superior -->
+        <record id="product_protesis_completa_superior" model="product.product">
+            <field name="name">Prótesis Completa Superior</field>
+            <field name="type">goods</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">800.00</field>
+            <field name="list_price">1500.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- Producto 8: Puente Maryland -->
+        <record id="product_puente_maryland" model="product.product">
+            <field name="name">Puente Maryland</field>
+            <field name="type">goods</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">250.00</field>
+            <field name="list_price">550.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- Producto 9: Corona Provisional -->
+        <record id="product_corona_provisional" model="product.product">
+            <field name="name">Corona Provisional</field>
+            <field name="type">goods</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">30.00</field>
+            <field name="list_price">80.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- Producto 10: Corona Pediátrica -->
+        <record id="product_corona_pediatrica" model="product.product">
+            <field name="name">Corona Pediátrica</field>
+            <field name="type">goods</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="standard_price">50.00</field>
+            <field name="list_price">120.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- ÓRDENES DE MANUFACTURA DE DEMOSTRACIÓN -->
+        <!-- ============================================ -->
+
+        <!-- Orden 1: Retrasada y VIP -->
+        <record id="mrp_production_demo_01" model="mrp.production">
+            <field name="product_id" ref="product_corona_zirconia_multicapa"/>
+            <field name="product_qty">1</field>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="patient_name">Ana Martínez López</field>
+            <field name="doctor_name">Dr. Roberto Sánchez</field>
+            <field name="clinic_name">Clínica Dental Excellence</field>
+            <field name="product_type">corona</field>
+            <field name="work_type">digital</field>
+            <field name="teeth_numbers">["16"]</field>
+            <field name="color_scale">vita_classical</field>
+            <field name="color_selected">A2</field>
+            <field name="material">zirconia_multicapa</field>
+            <field name="translucency">alta</field>
+            <field name="has_tibase" eval="True"/>
+            <field name="has_analogo" eval="True"/>
+            <field name="has_modelo_superior" eval="True"/>
+            <field name="deadline_days">6</field>
+            <field name="manufacturing_start_date" eval="(datetime.now() - timedelta(days=8)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="is_vip" eval="True"/>
+            <field name="stage_custom">production</field>
+            <field name="state">confirmed</field>
+        </record>
+
+        <!-- Orden 2: Urgente -->
+        <record id="mrp_production_demo_02" model="mrp.production">
+            <field name="product_id" ref="product_corona_emax"/>
+            <field name="product_qty">1</field>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="patient_name">Carlos Ramírez</field>
+            <field name="doctor_name">Dra. Patricia Gómez</field>
+            <field name="clinic_name">Dental Care Center</field>
+            <field name="product_type">corona</field>
+            <field name="work_type">digital</field>
+            <field name="teeth_numbers">["11"]</field>
+            <field name="color_scale">vita_classical</field>
+            <field name="color_selected">B1</field>
+            <field name="material">emax</field>
+            <field name="translucency">media</field>
+            <field name="has_modelo_superior" eval="True"/>
+            <field name="has_antagonistas" eval="True"/>
+            <field name="deadline_days">6</field>
+            <field name="manufacturing_start_date" eval="(datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="is_vip" eval="False"/>
+            <field name="stage_custom">testing</field>
+            <field name="state">confirmed</field>
+        </record>
+
+        <!-- Orden 3: Normal en Laboratorio -->
+        <record id="mrp_production_demo_03" model="mrp.production">
+            <field name="product_id" ref="product_puente_3_zirconia"/>
+            <field name="product_qty">1</field>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="patient_name">Laura Fernández</field>
+            <field name="doctor_name">Dr. Miguel Torres</field>
+            <field name="clinic_name">Smile Dental Studio</field>
+            <field name="product_type">puente</field>
+            <field name="work_type">digital</field>
+            <field name="teeth_numbers">["14","15","16"]</field>
+            <field name="color_scale">vita_3d</field>
+            <field name="color_selected">2M2</field>
+            <field name="material">zirconia_multicapa</field>
+            <field name="translucency">alta</field>
+            <field name="has_modelo_superior" eval="True"/>
+            <field name="has_modelo_inferior" eval="True"/>
+            <field name="has_antagonistas" eval="True"/>
+            <field name="deadline_days">8</field>
+            <field name="manufacturing_start_date" eval="(datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="is_vip" eval="False"/>
+            <field name="stage_custom">laboratory</field>
+            <field name="state">confirmed</field>
+        </record>
+
+        <!-- Orden 4: Implante VIP en Producción -->
+        <record id="mrp_production_demo_04" model="mrp.production">
+            <field name="product_id" ref="product_implante_corona"/>
+            <field name="product_qty">1</field>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="patient_name">Ricardo Morales</field>
+            <field name="doctor_name">Dr. Fernando Castro</field>
+            <field name="clinic_name">Clínica Dental Excellence</field>
+            <field name="product_type">implante</field>
+            <field name="work_type">digital</field>
+            <field name="teeth_numbers">["46"]</field>
+            <field name="color_scale">vita_classical</field>
+            <field name="color_selected">A3</field>
+            <field name="material">zirconia_monolitica</field>
+            <field name="translucency">media</field>
+            <field name="has_tibase" eval="True"/>
+            <field name="has_analogo" eval="True"/>
+            <field name="has_tornillo" eval="True"/>
+            <field name="has_transfer" eval="True"/>
+            <field name="has_modelo_inferior" eval="True"/>
+            <field name="deadline_days">6</field>
+            <field name="manufacturing_start_date" eval="(datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="is_vip" eval="True"/>
+            <field name="stage_custom">production</field>
+            <field name="state">confirmed</field>
+        </record>
+
+        <!-- Orden 5: Carillas en Producción -->
+        <record id="mrp_production_demo_05" model="mrp.production">
+            <field name="product_id" ref="product_carilla_emax"/>
+            <field name="product_qty">2</field>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="patient_name">Sofía Jiménez</field>
+            <field name="doctor_name">Dra. Carmen López</field>
+            <field name="clinic_name">Aesthetic Dental Care</field>
+            <field name="product_type">carilla</field>
+            <field name="work_type">analogo</field>
+            <field name="teeth_numbers">["11","21"]</field>
+            <field name="color_scale">vita_classical</field>
+            <field name="color_selected">A1</field>
+            <field name="material">emax</field>
+            <field name="translucency">alta</field>
+            <field name="has_encerado_superior" eval="True"/>
+            <field name="has_modelo_superior" eval="True"/>
+            <field name="has_antagonistas" eval="True"/>
+            <field name="deadline_days">7</field>
+            <field name="manufacturing_start_date" eval="(datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="is_vip" eval="False"/>
+            <field name="stage_custom">production</field>
+            <field name="state">confirmed</field>
+        </record>
+
+        <!-- Orden 6: Detenidas (con problema) -->
+        <record id="mrp_production_demo_06" model="mrp.production">
+            <field name="product_id" ref="product_incrustacion_zirconia"/>
+            <field name="product_qty">1</field>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="patient_name">Diego Vargas</field>
+            <field name="doctor_name">Dr. Alberto Ruiz</field>
+            <field name="clinic_name">Dental Care Center</field>
+            <field name="product_type">incrustacion</field>
+            <field name="work_type">digital</field>
+            <field name="teeth_numbers">["26"]</field>
+            <field name="color_scale">vita_3d</field>
+            <field name="color_selected">3M3</field>
+            <field name="material">zirconia_monolitica</field>
+            <field name="translucency">baja</field>
+            <field name="has_modelo_superior" eval="True"/>
+            <field name="deadline_days">5</field>
+            <field name="manufacturing_start_date" eval="(datetime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="is_vip" eval="False"/>
+            <field name="stage_custom">stopped</field>
+            <field name="state">confirmed</field>
+        </record>
+
+        <!-- Orden 7: Prótesis Completa en Laboratorio -->
+        <record id="mrp_production_demo_07" model="mrp.production">
+            <field name="product_id" ref="product_protesis_completa_superior"/>
+            <field name="product_qty">1</field>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="patient_name">Elena Moreno</field>
+            <field name="doctor_name">Dr. Javier Díaz</field>
+            <field name="clinic_name">Smile Dental Studio</field>
+            <field name="product_type">protesis_completa</field>
+            <field name="work_type">analogo</field>
+            <field name="teeth_numbers">["11","12","13","14","15","16","17","18","21","22","23","24","25","26","27","28"]</field>
+            <field name="color_scale">vita_classical</field>
+            <field name="color_selected">A2</field>
+            <field name="material">pmma</field>
+            <field name="translucency">media</field>
+            <field name="has_encerado_superior" eval="True"/>
+            <field name="has_modelo_superior" eval="True"/>
+            <field name="has_modelo_inferior" eval="True"/>
+            <field name="has_antagonistas" eval="True"/>
+            <field name="deadline_days">10</field>
+            <field name="manufacturing_start_date" eval="datetime.now().strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="is_vip" eval="False"/>
+            <field name="stage_custom">laboratory</field>
+            <field name="state">confirmed</field>
+        </record>
+
+        <!-- Orden 8: Puente Maryland VIP en Testing -->
+        <record id="mrp_production_demo_08" model="mrp.production">
+            <field name="product_id" ref="product_puente_maryland"/>
+            <field name="product_qty">1</field>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="patient_name">Valentina Herrera</field>
+            <field name="doctor_name">Dra. Isabel Navarro</field>
+            <field name="clinic_name">Clínica Dental Excellence</field>
+            <field name="product_type">puente</field>
+            <field name="work_type">digital</field>
+            <field name="teeth_numbers">["12","11","21"]</field>
+            <field name="color_scale">vita_classical</field>
+            <field name="color_selected">B1</field>
+            <field name="material">emax</field>
+            <field name="translucency">alta</field>
+            <field name="has_modelo_superior" eval="True"/>
+            <field name="has_antagonistas" eval="True"/>
+            <field name="deadline_days">6</field>
+            <field name="manufacturing_start_date" eval="(datetime.now() - timedelta(days=5, hours=12)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="is_vip" eval="True"/>
+            <field name="stage_custom">testing</field>
+            <field name="state">confirmed</field>
+        </record>
+
+        <!-- Orden 9: Corona Provisional en Producción -->
+        <record id="mrp_production_demo_09" model="mrp.production">
+            <field name="product_id" ref="product_corona_provisional"/>
+            <field name="product_qty">1</field>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="patient_name">Andrés Silva</field>
+            <field name="doctor_name">Dr. Luis Méndez</field>
+            <field name="clinic_name">Dental Care Center</field>
+            <field name="product_type">corona</field>
+            <field name="work_type">analogo</field>
+            <field name="teeth_numbers">["36"]</field>
+            <field name="color_scale">vita_classical</field>
+            <field name="color_selected">A2</field>
+            <field name="material">pmma</field>
+            <field name="translucency">media</field>
+            <field name="has_modelo_inferior" eval="True"/>
+            <field name="deadline_days">3</field>
+            <field name="manufacturing_start_date" eval="(datetime.now() - timedelta(days=1, hours=6)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="is_vip" eval="False"/>
+            <field name="stage_custom">production</field>
+            <field name="state">confirmed</field>
+        </record>
+
+        <!-- Orden 10: Corona Pediátrica en Laboratorio -->
+        <record id="mrp_production_demo_10" model="mrp.production">
+            <field name="product_id" ref="product_corona_pediatrica"/>
+            <field name="product_qty">1</field>
+            <field name="product_uom_id" ref="uom.product_uom_unit"/>
+            <field name="patient_name">Mateo Castillo (Niño)</field>
+            <field name="doctor_name">Dra. Claudia Romero</field>
+            <field name="clinic_name">Smile Dental Studio</field>
+            <field name="product_type">corona</field>
+            <field name="work_type">analogo</field>
+            <field name="teeth_numbers">["55"]</field>
+            <field name="color_scale">vita_classical</field>
+            <field name="color_selected">A1</field>
+            <field name="material">metal</field>
+            <field name="translucency">baja</field>
+            <field name="has_modelo_superior" eval="True"/>
+            <field name="deadline_days">4</field>
+            <field name="manufacturing_start_date" eval="(datetime.now() - timedelta(hours=12)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="is_vip" eval="False"/>
+            <field name="stage_custom">laboratory</field>
+            <field name="state">confirmed</field>
+        </record>
+
+    </data>
+</odoo>

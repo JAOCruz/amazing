@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ============================================ -->
+        <!-- SERVER ACTION: Manual Check for Delayed Operations -->
+        <!-- Can be triggered from Settings > Technical > Actions > Server Actions -->
+        <!-- ============================================ -->
+
+        <record id="action_server_check_delayed_operations" model="ir.actions.server">
+            <field name="name">Check Delayed Operations Now</field>
+            <field name="model_id" ref="mrp.model_mrp_workorder"/>
+            <field name="state">code</field>
+            <field name="code">
+model.check_and_send_operation_notifications()
+            </field>
+        </record>
+
+    </data>
+</odoo>

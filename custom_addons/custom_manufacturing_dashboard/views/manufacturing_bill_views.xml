@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ============================================ -->
+        <!-- SEQUENCE                                      -->
+        <!-- ============================================ -->
+
+        <record id="seq_manufacturing_bill" model="ir.sequence">
+            <field name="name">Manufacturing Bill</field>
+            <field name="code">manufacturing.bill</field>
+            <field name="prefix">BILL/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- FORM VIEW                                     -->
+        <!-- ============================================ -->
+
+        <record id="view_manufacturing_bill_form" model="ir.ui.view">
+            <field name="name">manufacturing.bill.form</field>
+            <field name="model">manufacturing.bill</field>
+            <field name="arch" type="xml">
+                <form string="Factura de Manufactura">
+                    <header>
+                        <button name="action_confirm"
+                                type="object"
+                                string="Confirmar"
+                                class="btn-primary"
+                                invisible="state != 'draft'"/>
+                        <button name="action_create_invoice"
+                                type="object"
+                                string="Crear Factura Odoo"
+                                class="btn-success"
+                                invisible="state != 'confirmed'"
+                                groups="custom_manufacturing_dashboard.group_manufacturing_manager"/>
+                        <button name="action_cancel"
+                                type="object"
+                                string="Cancelar"
+                                class="btn-secondary"
+                                invisible="state in ('invoiced', 'cancelled')"
+                                confirm="Esta acción cancelará la factura de manufactura. ¿Continuar?"/>
+                        <button name="action_reset_to_draft"
+                                type="object"
+                                string="Volver a Borrador"
+                                class="btn-secondary"
+                                invisible="state != 'cancelled'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,invoiced"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_invoice"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-file-text-o"
+                                    invisible="not invoice_id">
+                                <span class="o_stat_text">Factura Odoo</span>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Referencia">
+                                <field name="production_id" readonly="state != 'draft'"/>
+                                <field name="patient_name" readonly="state != 'draft'"/>
+                                <field name="date_bill" readonly="state not in ('draft', 'confirmed')"/>
+                            </group>
+                            <group string="Facturación">
+                                <field name="partner_id" readonly="state not in ('draft', 'confirmed')"/>
+                                <field name="currency_id" readonly="state != 'draft'" groups="base.group_multi_currency"/>
+                                <field name="fiscal_receipt" widget="radio" readonly="state not in ('draft', 'confirmed')"/>
+                                <field name="fiscal_position_id"
+                                       readonly="state not in ('draft', 'confirmed')"
+                                       invisible="fiscal_receipt == 'without'"/>
+                                <field name="company_id" invisible="1"/>
+                                <field name="invoice_id" invisible="1"/>
+                            </group>
+                        </group>
+
+                        <separator string="Líneas"/>
+                        <field name="line_ids" readonly="state not in ('draft', 'confirmed')">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="product_type"/>
+                                <field name="name" optional="hide"/>
+                                <field name="quantity"/>
+                                <field name="price_unit"/>
+                                <field name="price_subtotal" sum="Total"/>
+                            </list>
+                        </field>
+
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="amount_untaxed" widget="monetary"/>
+                            <field name="extra_percentage" widget="percentage" string="% Recargo Extra"
+                                   invisible="extra_percentage == 0" readonly="1"/>
+                            <field name="extra_percentage_reason" string="Motivo del Recargo"
+                                   invisible="extra_percentage == 0" readonly="1"/>
+                            <field name="amount_discount" widget="monetary" readonly="state not in ('draft', 'confirmed')"/>
+                            <div class="oe_subtotal_footer_separator">
+                                <field name="amount_total" widget="monetary" class="oe_subtotal_footer_separator"/>
+                            </div>
+                        </group>
+
+                        <separator string="Notas"/>
+                        <field name="notes" placeholder="Notas internas..." readonly="state not in ('draft', 'confirmed')"/>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- TREE VIEW                                     -->
+        <!-- ============================================ -->
+
+        <record id="view_manufacturing_bill_tree" model="ir.ui.view">
+            <field name="name">manufacturing.bill.list</field>
+            <field name="model">manufacturing.bill</field>
+            <field name="arch" type="xml">
+                <list string="Facturas de Manufactura" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'cancelled'">
+                    <field name="name"/>
+                    <field name="date_bill"/>
+                    <field name="production_id"/>
+                    <field name="partner_id"/>
+                    <field name="patient_name"/>
+                    <field name="amount_total" widget="monetary"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'draft'"
+                           decoration-success="state == 'confirmed'"
+                           decoration-warning="state == 'invoiced'"
+                           decoration-danger="state == 'cancelled'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- SEARCH VIEW                                   -->
+        <!-- ============================================ -->
+
+        <record id="view_manufacturing_bill_search" model="ir.ui.view">
+            <field name="name">manufacturing.bill.search</field>
+            <field name="model">manufacturing.bill</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Facturas">
+                    <field name="name"/>
+                    <field name="production_id"/>
+                    <field name="partner_id"/>
+                    <field name="patient_name"/>
+                    <separator/>
+                    <filter string="Borrador" name="draft" domain="[('state', '=', 'draft')]"/>
+                    <filter string="Confirmada" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                    <filter string="Facturada" name="invoiced" domain="[('state', '=', 'invoiced')]"/>
+                    <separator/>
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
+                        <filter string="Cliente" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                        <filter string="Fecha" name="group_date" context="{'group_by': 'date_bill'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- ACTION                                        -->
+        <!-- ============================================ -->
+
+        <record id="action_manufacturing_bill" model="ir.actions.act_window">
+            <field name="name">Facturas de Manufactura</field>
+            <field name="res_model">manufacturing.bill</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No hay facturas de manufactura aún
+                </p>
+                <p>Cree una factura desde una orden de manufactura.</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

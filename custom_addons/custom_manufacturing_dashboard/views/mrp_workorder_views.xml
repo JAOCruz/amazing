@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ============================================ -->
+        <!-- KANBAN VIEW: POR EMPLEADO ASIGNADO -->
+        <!-- ============================================ -->
+
+        <record id="view_mrp_workorder_kanban_dashboard" model="ir.ui.view">
+            <field name="name">mrp.workorder.kanban.dashboard</field>
+            <field name="model">mrp.workorder</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="workcenter_id" class="o_kanban_small_column">
+                    <field name="name"/>
+                    <field name="production_id"/>
+                    <field name="workcenter_id"/>
+                    <field name="state"/>
+
+                    <templates>
+                        <t t-name="kanban-box">
+                            <article
+                                class="o_kanban_record d-flex cursor-pointer"
+                                tabindex="0"
+                            >
+                                <div class="d-flex mb-1">
+                                    <strong>
+                                        <field name="name"/>
+                                    </strong>
+                                    <span class="text-muted ms-2">
+                                        <field name="production_id"/>
+                                    </span>
+                                </div>
+
+                                <div class="o_kanban_record_body">
+                                    <field name="workcenter_id"/>
+                                </div>
+
+                                <footer class="o_kanban_record_bottom">
+                                    <t t-if="record.state.raw_value == 'progress'">
+                                        <span class="badge text-bg-primary">▶️ En Progreso</span>
+                                    </t>
+                                    <t t-if="record.state.raw_value == 'done'">
+                                        <span class="badge text-bg-success">✅ Completado</span>
+                                    </t>
+                                </footer>
+                            </article>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- ACCIONES -->
+        <!-- ============================================ -->
+
+        <record id="action_all_mrp_workorders" model="ir.actions.act_window">
+            <field name="name">Todas las Operaciones</field>
+            <field name="res_model">mrp.workorder</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="domain">[('production_id.active', '=', True)]</field>
+        </record>
+
+        <record id="action_my_mrp_workorders" model="ir.actions.act_window">
+            <field name="name">Mis Operaciones</field>
+            <field name="res_model">mrp.workorder</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="domain">[('production_id.active', '=', True)]</field>
+        </record>
+
+        <record id="action_delayed_workorders" model="ir.actions.act_window">
+            <field name="name">Operaciones Retrasadas</field>
+            <field name="res_model">mrp.workorder</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="domain">[('production_id.active', '=', True)]</field>
+        </record>
+
+        <record id="action_urgent_workorders" model="ir.actions.act_window">
+            <field name="name">Operaciones Urgentes</field>
+            <field name="res_model">mrp.workorder</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="domain">[('production_id.active', '=', True)]</field>
+        </record>   
+
+    </data>
+</odoo>

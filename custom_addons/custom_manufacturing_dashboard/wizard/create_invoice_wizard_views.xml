@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- WIZARD: Crear Factura desde MO               -->
+    <!-- ============================================ -->
+
+    <record id="view_create_invoice_wizard_form" model="ir.ui.view">
+        <field name="name">create.invoice.wizard.form</field>
+        <field name="model">create.invoice.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Crear Factura">
+                <group>
+                    <group string="Orden">
+                        <field name="production_id" readonly="1"/>
+                        <field name="partner_id"/>
+                    </group>
+                    <group string="Facturación">
+                        <field name="invoice_date"/>
+                        <field name="payment_term_id"/>
+                        <field name="fiscal_receipt" widget="radio"/>
+                        <field name="fiscal_position_id"
+                               invisible="fiscal_receipt == 'without'"/>
+                    </group>
+                </group>
+
+                <separator string="Líneas de Factura"/>
+                <field name="line_ids">
+                    <list editable="bottom">
+                        <field name="name"/>
+                        <field name="product_id" optional="hide"/>
+                        <field name="quantity"/>
+                        <field name="price_unit"/>
+                        <field name="price_subtotal"/>
+                    </list>
+                </field>
+
+                <group>
+                    <field name="notes" placeholder="Notas adicionales para la factura..." nolabel="1" colspan="2"/>
+                </group>
+
+                <footer>
+                    <button name="action_create_invoice"
+                            type="object"
+                            string="Crear Factura"
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_create_invoice_wizard" model="ir.actions.act_window">
+        <field name="name">Crear Factura</field>
+        <field name="res_model">create.invoice.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

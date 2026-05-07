@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_report_tooth_chart" model="ir.actions.report">
+            <field name="name">🦷 Diagrama de Dientes y Colores</field>
+            <field name="model">mrp.production</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_manufacturing_dashboard.report_tooth_chart</field>
+            <field name="report_file">custom_manufacturing_dashboard.report_tooth_chart</field>
+            <field name="print_report_name">'Dientes_%s' % object.name</field>
+            <field name="binding_model_id" ref="model_mrp_production"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_tooth_chart_document">
+            <t t-call="web.external_layout">
+                <t t-set="doc" t-value="doc.with_context(lang=doc.user_id.lang)"/>
+
+                <div class="page" style="font-family:'Work Sans',Helvetica,Arial,sans-serif;color:#1f2937;">
+                    <style>
+                        /* ── Brand tokens (match Hoja de Trabajo exactly) ── */
+                        .tc-navy       { background-color:#2e4159; color:white; }
+                        .tc-gold       { background-color:#f4a259; color:white; }
+                        .tc-text-navy  { color:#2e4159; }
+                        .tc-text-gold  { color:#f4a259; }
+
+                        /* ── Order header row ── */
+                        .tc-order-num  { font-size:22px; font-weight:800; color:#2e4159; margin-bottom:4px; }
+                        .tc-order-sub  { font-size:11px; color:#6b7280; margin-bottom:16px; }
+                        .tc-order-sub span { color:#f4a259; font-weight:700; }
+
+                        /* ── Card system (identical to Hoja de Trabajo) ── */
+                        .tc-card { border:1px solid #d1d5db; border-radius:0; margin-bottom:16px; overflow:hidden; }
+                        .tc-card-header {
+                            padding:8px 14px;
+                            font-size:11px; font-weight:700;
+                            text-transform:uppercase; letter-spacing:.6px;
+                        }
+                        .tc-card-body  { padding:14px; }
+
+                        /* ── Two-column patient/specs row ── */
+                        .tc-two-col    { display:flex; gap:0; margin-bottom:16px; }
+                        .tc-col-left   { flex:1; border:1px solid #d1d5db; border-right:none; overflow:hidden; }
+                        .tc-col-right  { flex:1; border:1px solid #d1d5db; overflow:hidden; }
+
+                        /* ── Info table inside cards ── */
+                        .tc-info-table { width:100%; border-collapse:collapse; font-size:11px; }
+                        .tc-info-table td { padding:5px 10px; vertical-align:top; }
+                        .tc-info-table .lbl { color:#6b7280; font-weight:600; width:40%; font-size:10px; text-transform:uppercase; letter-spacing:.4px; }
+                        .tc-info-table .val { color:#1f2937; font-weight:600; }
+
+                        /* ── Shade table ── */
+                        .tc-shade-table { width:100%; border-collapse:collapse; font-size:11px; }
+                        .tc-shade-table th {
+                            background-color:#2e4159; color:white;
+                            padding:7px 12px; text-align:center;
+                            font-weight:700; font-size:10px;
+                            text-transform:uppercase; letter-spacing:.5px;
+                        }
+                        .tc-shade-table td { padding:6px 12px; border-bottom:1px solid #f3f4f6; text-align:center; color:#1f2937; }
+                        .tc-shade-table tr:nth-child(even) td { background:#f9fafb; }
+                        .tc-shade-table .tooth-num { font-weight:800; color:#2e4159; font-size:13px; }
+
+                        /* ── Diagram wrap ── */
+                        .tc-chart-wrap {
+                            border:1px solid #d1d5db;
+                            padding:16px; text-align:center;
+                            background:#ffffff; margin-bottom:0;
+                        }
+                        .tc-chart-legend { font-size:9px; color:#9ca3af; margin-top:8px; }
+
+                        /* ── Color general badge ── */
+                        .tc-color-badge {
+                            display:inline-block;
+                            background:#2e4159; color:white;
+                            font-size:18px; font-weight:900;
+                            padding:4px 14px; border-radius:4px;
+                            letter-spacing:.5px;
+                        }
+
+                        /* ── Footer ── */
+                        .tc-footer { font-size:9px; color:#9ca3af; text-align:center; margin-top:20px; border-top:1px solid #e5e7eb; padding-top:10px; }
+                    </style>
+
+                    <!-- Order number header (matches Hoja de Trabajo style) -->
+                    <div class="tc-order-num">
+                        🦷 <t t-esc="doc.name"/>
+                    </div>
+                    <div class="tc-order-sub">
+                        Paciente: <span><t t-esc="doc.patient_name or '-'"/></span>
+                        &#160;·&#160; Fecha:
+                        <span><span t-field="doc.date_start" t-options='{"widget":"date"}'/></span>
+                    </div>
+
+                    <!-- Two-column: Datos del Paciente (navy) + Especificaciones (gold) -->
+                    <div class="tc-two-col">
+                        <!-- Left: Patient data -->
+                        <div class="tc-col-left">
+                            <div class="tc-card-header tc-navy">Datos del Paciente</div>
+                            <div class="tc-card-body">
+                                <table class="tc-info-table">
+                                    <tr>
+                                        <td class="lbl">Paciente</td>
+                                        <td class="val"><t t-esc="doc.patient_name or '-'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="lbl">Doctor</td>
+                                        <td class="val"><t t-esc="doc.doctor_id.name or '-'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="lbl">Clínica</td>
+                                        <td class="val"><t t-esc="doc.doctor_id.name or '-'"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Right: Specifications (gold header) -->
+                        <div class="tc-col-right">
+                            <div class="tc-card-header tc-gold">Especificaciones</div>
+                            <div class="tc-card-body">
+                                <table class="tc-info-table">
+                                    <tr>
+                                        <td class="lbl">Tipo de Trabajo</td>
+                                        <td class="val"><t t-esc="doc.work_type or '-'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="lbl">Dientes</td>
+                                        <td class="val"><t t-esc="doc.teeth_count"/> pzas · [<t t-esc="doc.teeth_numbers"/>]</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="lbl">Color General</td>
+                                        <td class="val">
+                                            <span class="tc-color-badge"><t t-esc="doc.color_selected or '-'"/></span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diagram + Shade table: side by side to fit on one page -->
+                    <t t-set="shades_dict" t-value="doc._get_tooth_shades_parsed()"/>
+                    <div style="display:table;width:100%;border-collapse:collapse;margin-bottom:16px;">
+                        <!-- Left: Dental diagram (65%) -->
+                        <div style="display:table-cell;width:65%;vertical-align:top;padding-right:10px;">
+                            <div class="tc-card" style="margin-bottom:0;">
+                                <div class="tc-card-header tc-navy">Diagrama Dental — FDI</div>
+                                <div class="tc-chart-wrap" style="padding:8px;">
+                                    <t t-out="doc._generate_tooth_chart_svg(scale=0.55)"/>
+                                    <div class="tc-chart-legend">
+                                        Gris = no seleccionado · Color = shade Vita · Línea = midline
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Right: Shade table (35%) -->
+                        <div style="display:table-cell;width:35%;vertical-align:top;">
+                            <t t-if="shades_dict">
+                                <div class="tc-card" style="margin-bottom:0;">
+                                    <div class="tc-card-header tc-gold">Color por Diente</div>
+                                    <div style="padding:0;">
+                                        <table class="tc-shade-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Incisal</th>
+                                                    <th>Medio</th>
+                                                    <th>Cervical</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="shades_dict" t-as="tooth_n">
+                                                    <tr>
+                                                        <td class="tooth-num"><t t-esc="tooth_n"/></td>
+                                                        <td><t t-esc="shades_dict[tooth_n].get('incisal','')"/></td>
+                                                        <td><t t-esc="shades_dict[tooth_n].get('middle','')"/></td>
+                                                        <td><t t-esc="shades_dict[tooth_n].get('cervical','')"/></td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div style="border:1px solid #d1d5db;padding:12px;font-size:11px;color:#6b7280;">
+                                    Color general: <strong class="tc-text-navy"><t t-esc="doc.color_selected or 'A2'"/></strong>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <div class="tc-footer">
+                        Amazing Prosthetics · <t t-esc="doc.name"/> · Generado por sistema
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_tooth_chart">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="custom_manufacturing_dashboard.report_tooth_chart_document"/>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

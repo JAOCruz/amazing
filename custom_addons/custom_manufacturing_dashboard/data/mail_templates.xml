@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================ -->
+        <!-- TEMPLATES DE EMAIL COMENTADOS TEMPORALMENTE -->
+        <!-- Para activar después de la instalación inicial -->
+        <!-- ============================================ -->
+
+        <!--
+        Templates de email comentados para instalación inicial
+        Activar después de verificar que el módulo funciona
+        -->
+
+    </data>
+</odoo>

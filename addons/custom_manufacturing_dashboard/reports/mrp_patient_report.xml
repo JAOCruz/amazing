@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_report_patient_sheet" model="ir.actions.report">
+            <field name="name">📋 Hoja de Trabajo (Estilo Amazing)</field>
+            <field name="model">mrp.production</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_manufacturing_dashboard.report_patient_sheet</field>
+            <field name="report_file">custom_manufacturing_dashboard.report_patient_sheet</field>
+            <field name="print_report_name">'Hoja_Trabajo_%s' % object.name</field>
+            <field name="binding_model_id" ref="model_mrp_production"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_patient_sheet_document">
+            <t t-call="web.external_layout">
+                <t t-set="doc" t-value="doc.with_context(lang=doc.user_id.lang)"/>
+                
+                <div class="page" style="font-family: 'Work Sans', Helvetica, Arial, sans-serif; color: #1f2937;">
+                    
+                    <style>
+                        /* Colores de Marca */
+                        .text-brand { color: #2e4159; }
+                        .bg-brand { background-color: #2e4159; color: white; }
+                        .text-gold { color: #f4a259; }
+                        
+                        /* Tarjetas */
+                        .custom-card {
+                            background: white;
+                            border-radius: 8px;
+                            border: 1px solid #9ca3af; /* Borde más oscuro para visibilidad */
+                            overflow: hidden;
+                            margin-bottom: 20px;
+                        }
+
+                        .custom-card-header {
+                            background-color: #2e4159;
+                            color: white;
+                            padding: 10px 15px; /* Más padding */
+                            font-weight: 700;
+                            font-size: 14px;
+                            text-transform: uppercase;
+                            border-bottom: 1px solid #1f2937;
+                        }
+                        
+                        .custom-card-body {
+                            padding: 15px;
+                        }
+
+                        /* Tablas de Información (Paciente/Specs) */
+                        .info-table td {
+                            padding: 6px 0; /* Espaciado vertical entre filas de datos */
+                            vertical-align: middle;
+                        }
+                        .info-label {
+                            color: #6b7280;
+                            font-weight: 500;
+                            width: 35%; /* Ancho fijo para etiquetas */
+                        }
+                        .info-value {
+                            color: #111827;
+                            font-weight: 600;
+                            font-size: 1.05em; /* Letra un poco más grande */
+                        }
+
+                        /* Tablas de Datos (Materiales/Técnicos) */
+                        .data-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                        .data-table th {
+                            background-color: #f3f4f6; /* Fondo gris suave para headers */
+                            color: #2e4159;
+                            border: 1px solid #9ca3af; /* Bordes visibles */
+                            padding: 10px; /* Buen padding */
+                            font-size: 12px;
+                            text-transform: uppercase;
+                            font-weight: 700;
+                        }
+                        .data-table td {
+                            border: 1px solid #9ca3af; /* Bordes visibles en todas las celdas */
+                            padding: 10px; /* Buen padding para que no se vea apretado */
+                            color: #374151;
+                            font-size: 13px;
+                            vertical-align: middle;
+                        }
+
+                        /* Badges */
+                        .badge-pill-custom {
+                            padding: 4px 12px;
+                            border-radius: 4px;
+                            font-size: 11px;
+                            font-weight: bold;
+                            display: inline-block;
+                            border: 1px solid transparent;
+                        }
+                        .badge-vip { background-color: #fffbeb; color: #b45309; border-color: #fcd34d; }
+                        .badge-urgent { background-color: #fef2f2; color: #991b1b; border-color: #fecaca; }
+
+                        /* Título Principal */
+                        h2.brand-title {
+                            color: #2e4159;
+                            font-weight: 800;
+                            font-size: 28px;
+                            margin: 0;
+                            line-height: 1.2;
+                        }
+                    </style>
+
+                    <div class="row mb-4 pb-3" style="border-bottom: 3px solid #f4a259;">
+                        <div class="col-8">
+                            <h2 class="brand-title">
+                                <span t-field="doc.name"/>
+                            </h2>
+                            <div class="mt-2">
+                                <span t-if="doc.is_vip" class="badge-pill-custom badge-vip mr-1">⭐ CLIENTE VIP</span>
+                                <span t-if="doc.is_urgent" class="badge-pill-custom badge-urgent">🔥 URGENTE</span>
+                            </div>
+                            <div class="mt-2" style="color: #4b5563; font-size: 14px;">
+                                <strong>Inicio:</strong> <span t-field="doc.manufacturing_start_date" t-options='{"widget": "datetime", "tz_name": "America/Santo_Domingo", "format": "dd/MM/yyyy hh:mm:ss a"}'/> <span class="mx-2">|</span> 
+                                <strong>Deadline:</strong> <span t-field="doc.date_deadline" t-options='{"widget": "date", "format": "dd/MM/yyyy"}' class="text-danger"/>
+                            </div>
+                        </div>
+                        <div class="col-4 text-right">
+                             <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', doc.name, 600, 100)" style="width:100%; height:60px;"/>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="custom-card">
+                                <div class="custom-card-header">
+                                    👤 Datos del Paciente
+                                </div>
+                                <div class="custom-card-body">
+                                    <table class="info-table" style="width:100%">
+                                        <tr>
+                                            <td class="info-label">Paciente:</td>
+                                            <td class="info-value"><span t-field="doc.patient_name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Doctor:</td>
+                                            <td class="info-value" style="font-weight: 400;"><span t-field="doc.doctor_id"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Clínica:</td>
+                                            <td class="info-value" style="font-weight: 400;"><span t-field="doc.clinic_id"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="custom-card" style="border-color: #f4a259;">
+                                <div class="custom-card-header" style="background-color: #f4a259;">
+                                    🦷 Especificaciones
+                                </div>
+                                <div class="custom-card-body">
+                                    <table class="info-table" style="width:100%">
+                                        <tr>
+                                            <td class="info-label">Producto:</td>
+                                            <td class="info-value"><span t-field="doc.product_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Tipo:</td>
+                                            <td class="info-value" style="font-weight: 400;"><span t-field="doc.work_type"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="info-label">Dientes:</td>
+                                            <td class="info-value">
+                                                [<span t-field="doc.teeth_numbers"/>] 
+                                                <small class="text-muted ml-1">(<span t-field="doc.teeth_count"/> pzas)</small>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 mb-4">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" width="25%">Escala Color</th>
+                                    <th class="text-center" width="25%">Color</th>
+                                    <th class="text-center" width="25%">Material</th>
+                                    <th class="text-center" width="25%">Translucidez</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-center"><span t-field="doc.color_scale"/></td>
+                                    <td class="text-center" style="font-size: 1.4em; font-weight: bold; color: #2e4159;"><span t-field="doc.color_selected"/></td>
+                                    <td class="text-center"><span t-field="doc.material"/></td>
+                                    <td class="text-center"><span t-field="doc.translucency"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Colores por Tercio (si existen) -->
+                    <t t-set="shade_data" t-value="doc.tooth_shades or '{}'"/>
+                    <t t-if="shade_data and shade_data != '{}'">
+                        <div class="mt-4">
+                            <h4 class="text-brand mb-2" style="font-weight:700;border-bottom:2px solid #e5e7eb;padding-bottom:5px;">
+                                🎨 Color por Diente y Tercio
+                            </h4>
+                            <table class="data-table" style="font-size:11px;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Diente</th>
+                                        <th class="text-center">Incisal</th>
+                                        <th class="text-center">Tercio Medio</th>
+                                        <th class="text-center">Cervical</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="shades_dict" t-value="doc._get_tooth_shades_parsed()"/>
+                                    <t t-foreach="shades_dict" t-as="tooth_n">
+                                        <tr>
+                                            <td class="text-center" style="font-weight:700;"><t t-esc="tooth_n"/></td>
+                                            <td class="text-center"><t t-esc="shades_dict[tooth_n].get('incisal','')"/></td>
+                                            <td class="text-center"><t t-esc="shades_dict[tooth_n].get('middle','')"/></td>
+                                            <td class="text-center"><t t-esc="shades_dict[tooth_n].get('cervical','')"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                    <div class="mt-4">
+                        <h4 class="text-brand mb-3" style="font-weight: 700; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px;">
+                            📦 Materiales Recibidos
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th width="35%">Componente</th>
+                                            <th width="15%" class="text-center">Cant.</th>
+                                            <th width="35%">Modelo / Encerado</th>
+                                            <th width="15%" class="text-center">Cant.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>TiBase</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_tibase > 0" t-field="doc.qty_tibase"/><span t-else="" class="text-muted">-</span></td>
+                                            <td>Antagonistas</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_antagonistas > 0" t-field="doc.qty_antagonistas"/><span t-else="" class="text-muted">-</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Análogo</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_analogo > 0" t-field="doc.qty_analogo"/><span t-else="" class="text-muted">-</span></td>
+                                            <td>Encerado Superior</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_encerado_superior > 0" t-field="doc.qty_encerado_superior"/><span t-else="" class="text-muted">-</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tornillo</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_tornillo > 0" t-field="doc.qty_tornillo"/><span t-else="" class="text-muted">-</span></td>
+                                            <td>Encerado Inferior</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_encerado_inferior > 0" t-field="doc.qty_encerado_inferior"/><span t-else="" class="text-muted">-</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Transfer</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_transfer > 0" t-field="doc.qty_transfer"/><span t-else="" class="text-muted">-</span></td>
+                                            <td>Modelo Superior</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_modelo_superior > 0" t-field="doc.qty_modelo_superior"/><span t-else="" class="text-muted">-</span></td>
+                                        </tr>
+                                         <tr>
+                                            <td>Mini Pilares</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_mini_pilares > 0" t-field="doc.qty_mini_pilares"/><span t-else="" class="text-muted">-</span></td>
+                                            <td>Modelo Inferior</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_modelo_inferior > 0" t-field="doc.qty_modelo_inferior"/><span t-else="" class="text-muted">-</span></td>
+                                        </tr>
+                                         <tr>
+                                            <td>Mordida Superior</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_mordida_superior > 0" t-field="doc.qty_mordida_superio"/><span t-else="" class="text-muted">-</span></td>
+                                            <td>Mordida Inferior</td>
+                                            <td class="text-center font-weight-bold"><span t-if="doc.qty_mordida_inferior > 0" t-field="doc.qty_mordida_inferior"/><span t-else="" class="text-muted">-</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4" t-if="doc.doctor_comments">
+                        <div class="custom-card" style="border-color: #f4a259; background-color: #fffaf0;">
+                            <div class="custom-card-body">
+                                <strong class="text-gold">📝 Nota del Doctor:</strong><br/>
+                                <span style="font-style: italic; color: #374151; font-size: 14px;" t-field="doc.doctor_comments"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 50px; page-break-inside: avoid;">
+                        <div class="col-6 text-center">
+                            <div style="border-top: 1px solid #1f2937; width: 80%; margin: 0 auto 10px auto;"></div>
+                            <p class="font-weight-bold text-brand" style="font-size: 12px; letter-spacing: 1px;">CONTROL DE CALIDAD</p>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div style="border-top: 1px solid #1f2937; width: 80%; margin: 0 auto 10px auto;"></div>
+                            <p class="font-weight-bold text-brand" style="font-size: 12px; letter-spacing: 1px;">TÉCNICO RESPONSABLE</p>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+        </template>
+
+        <template id="report_patient_sheet">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="custom_manufacturing_dashboard.report_patient_sheet_document"/>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

@@ -1,0 +1,142 @@
+// Simplified Dashboard Styles for Portal
+.o_portal_my_home_dental_cases {
+    margin-top: 2rem;
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2e4159;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #2e4159;
+        padding-bottom: 0.5rem;
+    }
+
+    .summary-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border-left: 5px solid #3498db;
+
+            &:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            &.card-span-2 {
+                grid-column: span 2;
+            }
+
+            &.card-span-4 {
+                grid-column: span 4;
+            }
+
+            .card-icon {
+                font-size: 2.5rem;
+                margin-right: 1.25rem;
+                color: #3498db;
+            }
+
+            .card-value {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #3498db;
+            }
+
+            .card-label {
+                font-size: 0.875rem;
+                text-transform: uppercase;
+                color: #666;
+            }
+        }
+    }
+}
+
+// Kanban Styles for Cases List
+.o_portal_kanban {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding-top: 1rem;
+
+    .kanban-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        padding: 1.25rem;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        text-decoration: none !important;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            border-color: #3498db;
+        }
+
+        &.vip-border {
+            border-left: 6px solid #f39c12;
+        }
+
+        .card-header-kanban {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+
+            .case-name {
+                font-weight: 700;
+                color: #2e4159;
+                font-size: 1.1rem;
+            }
+        }
+
+        .patient-info {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+
+            i {
+                margin-right: 8px;
+                color: #3498db;
+            }
+        }
+
+        .product-info {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+
+        .card-footer-kanban {
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid #f7fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .deadline-box {
+                font-size: 0.85rem;
+                color: #e53e3e;
+                font-weight: 600;
+
+                i {
+                    margin-right: 4px;
+                }
+            }
+        }
+    }
+}

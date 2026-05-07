@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ============================================ -->
+        <!-- ACCIÓN CLIENTE: DASHBOARD GENERAL (MANAGERS) -->
+        <!-- ============================================ -->
+
+        <record id="action_manufacturing_dashboard" model="ir.actions.client">
+            <field name="name">Dashboard de Manufactura</field>
+            <field name="tag">manufacturing_dashboard</field>
+            <field name="target">current</field>
+            <field name="context">{}</field>
+        </record>
+
+    </data>
+</odoo>

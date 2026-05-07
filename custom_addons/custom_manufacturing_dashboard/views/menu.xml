@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ============================================ -->
+        <!-- MENÚ RAÍZ: DASHBOARD MANUFACTURA -->
+        <!-- ============================================ -->
+
+        <menuitem
+            id="menu_manufacturing_dashboard_root"
+            name="Dashboard Manufactura"
+            action="action_manufacturing_dashboard"
+            sequence="10"
+            web_icon="custom_manufacturing_dashboard,static/description/icon.png"/>
+
+        <!-- ============================================ -->
+        <!-- SUBMENÚ: ÓRDENES Y OPERACIONES -->
+        <!-- ============================================ -->
+
+        <menuitem
+            id="menu_manufacturing_orders"
+            name="Órdenes y Operaciones"
+            parent="menu_manufacturing_dashboard_root"
+            groups="custom_manufacturing_dashboard.group_manufacturing_manager"
+            sequence="20"/>
+
+        <!-- Nueva Orden (Wizard) -->
+        <menuitem
+            id="menu_create_order_wizard"
+            name="➕ Nueva Orden de Manufactura"
+            parent="menu_manufacturing_orders"
+            action="action_create_order_wizard"
+            sequence="5"
+            groups="custom_manufacturing_dashboard.group_manufacturing_manager"/>
+
+        <!-- Todas las Órdenes -->
+        <menuitem
+            id="menu_all_productions"
+            name="📦 Todas las Órdenes"
+            parent="menu_manufacturing_orders"
+            action="mrp.mrp_production_action" 
+            sequence="10"
+            groups="custom_manufacturing_dashboard.group_manufacturing_manager"/>
+
+        <!-- Todas las Operaciones -->
+        <menuitem
+            id="menu_all_workorders"
+            name="⚙️ Todas las Operaciones"
+            parent="menu_manufacturing_orders"
+            action="action_all_mrp_workorders"
+            sequence="20"
+            groups="custom_manufacturing_dashboard.group_manufacturing_manager"/>
+
+        <!-- Mis Operaciones (Empleados) -->
+        <menuitem
+            id="menu_my_workorders"
+            name="🎯 Mis Operaciones"
+            parent="menu_manufacturing_orders"
+            action="action_my_mrp_workorders"
+            groups="custom_manufacturing_dashboard.group_manufacturing_manager"
+            sequence="30"/>
+
+        <!-- Facturación de Manufactura -->
+        <menuitem
+            id="menu_manufacturing_billing"
+            name="🧾 Facturación"
+            parent="menu_manufacturing_orders"
+            action="action_manufacturing_bill"
+            groups="custom_manufacturing_dashboard.group_manufacturing_manager"
+            sequence="40"/>
+
+        <!-- ============================================ -->
+        <!-- SUBMENÚ: REPORTES Y CONFIGURACIÓN -->
+        <!-- ============================================ -->
+
+        <menuitem
+            id="menu_manufacturing_config"
+            name="Configuración"
+            parent="menu_manufacturing_dashboard_root"
+            groups="group_manufacturing_manager"
+            sequence="100"/>
+
+        <!-- Empleados por Departamento -->
+        <menuitem
+            id="menu_employees_by_department"
+            name="👥 Empleados por Departamento"
+            parent="menu_manufacturing_config"
+            action="base.action_res_users"
+            sequence="10"/>
+
+    </data>
+</odoo>

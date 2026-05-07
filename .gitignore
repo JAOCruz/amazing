@@ -1,0 +1,61 @@
+# Database & Backups
+*.sql
+*.sql.gz
+*.dump
+*.tar.gz
+backup/
+postgresql/
+postgresql-bk/
+postgresql-bk1/
+
+# Odoo
+filestore/
+filestore
+addons/*/static/description/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Docker
+.docker/
+docker-compose.override.yml
+docker-compose.yml.backup
+Dockerfile.save
+.env
+.env.local
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*~
+.claude/
+
+# Large archives
+*.zip
+full_backup.tar.gz
+odoo18_*.tar.gz
+odoo18_*.dump
+amazing-prosthetics-deploy.zip
+
+# Runtime files
+etc/
+
+# Temporary files
+*.tmp
+*.log
+logs/
+
+# Credentials
+secrets/
+.credentials
+credentials.json
+
+# Node modules
+node_modules/
+
+addons/theme_grocery_bizople/
+custom_addons/theme_grocery_bizople/

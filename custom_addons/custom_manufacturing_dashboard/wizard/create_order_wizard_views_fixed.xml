@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ============================================ -->
+        <!-- TREE VIEW FOR OPERATIONS -->
+        <!-- ============================================ -->
+
+        <record id="view_create_order_wizard_operation_tree" model="ir.ui.view">
+            <field name="name">create.order.wizard.operation.tree</field>
+            <field name="model">create.order.wizard.operation</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name" placeholder="Ej: Diseño CAD"/>
+                    <field name="department"/>
+                    <field name="employee_id"
+                           placeholder="Seleccionar empleado..."
+                           options="{'no_create': True}"/>
+                    <field name="duration"
+                           string="Duración (horas)"
+                           widget="float_time"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- SINGLE DYNAMIC WIZARD VIEW - ALL 4 STEPS -->
+        <!-- ============================================ -->
+
+        <record id="view_create_order_wizard_form" model="ir.ui.view">
+            <field name="name">create.order.wizard.form</field>
+            <field name="model">create.order.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Nueva Orden de Manufactura">
+                    <field name="step" invisible="1"/>
+
+                    <header>
+                        <div class="alert alert-info" role="alert" style="margin-bottom: 0;">
+                            <strong invisible="step != '1'">📋 Paso 1 de 4:</strong>
+                            <strong invisible="step != '2'">🦷 Paso 2 de 4:</strong>
+                            <strong invisible="step != '3'">📦 Paso 3 de 4:</strong>
+                            <strong invisible="step != '4'">⚙️ Paso 4 de 4:</strong>
+
+                            <span invisible="step != '1'"> Información Básica del Caso</span>
+                            <span invisible="step != '2'"> Selección de Dientes y Especificaciones</span>
+                            <span invisible="step != '3'"> Materiales Recibidos del Doctor</span>
+                            <span invisible="step != '4'"> Configuración de Operaciones</span>
+                        </div>
+                    </header>
+
+                    <sheet>
+                    <!-- ========== PASO 1: INFORMACIÓN BÁSICA ========== -->
+                        <group invisible="step != '1'">
+                            <group string="Datos del Paciente">
+                                <field name="patient_name" placeholder="Ej: María González" required="1"/>
+                                <field name="doctor_id"
+                                       placeholder="Buscar doctor en contactos CRM..."
+                                       required="1"
+                                       context="{'default_is_company': False}"
+                                       options="{'no_quick_create': True}"/>
+                                <field name="clinic_id"
+                                       placeholder="Buscar clínica en contactos CRM..."
+                                       required="1"
+                                       context="{'default_is_company': True}"
+                                       options="{'no_quick_create': True}"/>
+                            </group>
+
+                            <group string="Especificaciones del Caso">
+                                <field name="work_type" widget="radio" options="{'horizontal': true}"/>
+                                <field name="product_id" options="{'no_create': True}" string="Producto Odoo Base"/>
+
+                                <newline/>
+                                <separator string="Productos a Fabricar" colspan="2"/>
+
+                                <group col="4" colspan="2">
+                                    <field name="product_type" string="1. Producto Principal" required="1"/>
+                                    <field name="quantity" string="Cant."/>
+                                </group>
+
+                                <group col="4" colspan="2">
+                                    <field name="product_type_2" string="2. Producto (Opcional)" placeholder="Seleccionar otro..."/>
+                                    <field name="quantity_2" string="Cant." invisible="not product_type_2"/>
+                                </group>
+
+                                <group col="4" colspan="2">
+                                    <field name="product_type_3" string="3. Producto (Opcional)" placeholder="Seleccionar otro..."/>
+                                    <field name="quantity_3" string="Cant." invisible="not product_type_3"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="is_vip" invisible="1"/>
+                                
+                                <field name="priority" widget="radio" options="{'horizontal': true}" string="Prioridad"/>
+
+                                <separator string="📅 Planificación / Deadline" colspan="2"/>
+                                <field name="date_start"
+                                       string="Fecha de Inicio"
+                                       widget="datetime"/>
+                                <field name="date_deadline"
+                                       string="Fecha Límite (Deadline)"
+                                       widget="datetime"/>
+
+                                <separator string="💰 Recargo Extra (Opcional)" colspan="2"/>
+                                <field name="extra_percentage"
+                                       string="% de Recargo"
+                                       widget="percentage"
+                                       placeholder="0"
+                                       help="Ingrese el porcentaje adicional a cobrar. Ej: 20 = +20% sobre el precio base."/>
+                                <field name="extra_percentage_reason"
+                                       string="Motivo"
+                                       placeholder="Ej: VIP, Urgente, Fin de semana..."
+                                       invisible="extra_percentage == 0"/>
+                            </group>
+                        </group>
+
+                        <!-- ========== PASO 2: DIENTES Y ESPECIFICACIONES ========== -->
+                        <group invisible="step != '2'">
+                            <!-- SVG Interactive Dental Chart -->
+                            <div colspan="2" style="padding: 8px 0 16px;">
+                                <field name="tooth_11" widget="teeth_selector" nolabel="1"/>
+                            </div>
+
+                            <!-- Hidden boolean fields (updated by widget) -->
+                            <field name="tooth_shades" invisible="1"/>
+                            <field name="tooth_11" invisible="1"/>
+                            <field name="tooth_12" invisible="1"/>
+                            <field name="tooth_13" invisible="1"/>
+                            <field name="tooth_14" invisible="1"/>
+                            <field name="tooth_15" invisible="1"/>
+                            <field name="tooth_16" invisible="1"/>
+                            <field name="tooth_17" invisible="1"/>
+                            <field name="tooth_18" invisible="1"/>
+                            <field name="tooth_21" invisible="1"/>
+                            <field name="tooth_22" invisible="1"/>
+                            <field name="tooth_23" invisible="1"/>
+                            <field name="tooth_24" invisible="1"/>
+                            <field name="tooth_25" invisible="1"/>
+                            <field name="tooth_26" invisible="1"/>
+                            <field name="tooth_27" invisible="1"/>
+                            <field name="tooth_28" invisible="1"/>
+                            <field name="tooth_31" invisible="1"/>
+                            <field name="tooth_32" invisible="1"/>
+                            <field name="tooth_33" invisible="1"/>
+                            <field name="tooth_34" invisible="1"/>
+                            <field name="tooth_35" invisible="1"/>
+                            <field name="tooth_36" invisible="1"/>
+                            <field name="tooth_37" invisible="1"/>
+                            <field name="tooth_38" invisible="1"/>
+                            <field name="tooth_41" invisible="1"/>
+                            <field name="tooth_42" invisible="1"/>
+                            <field name="tooth_43" invisible="1"/>
+                            <field name="tooth_44" invisible="1"/>
+                            <field name="tooth_45" invisible="1"/>
+                            <field name="tooth_46" invisible="1"/>
+                            <field name="tooth_47" invisible="1"/>
+                            <field name="tooth_48" invisible="1"/>
+
+                            <group string="Resumen">
+                                <field name="teeth_count" readonly="1" string="Cantidad"/>
+                                <field name="teeth_display" readonly="1" string="Dientes"/>
+                                <field name="teeth_numbers" readonly="1" invisible="1"/>
+                            </group>
+
+                            <group string="Especificaciones del Material">
+                                <field name="color_scale"/>
+                                <field name="color_selected"/>
+                                <field name="material"/>
+                                <field name="translucency"/>
+                            </group>
+                        </group>
+
+                        <!-- ========== PASO 3: MATERIALES RECIBIDOS ========== -->
+                        <group invisible="step != '3'">
+                            <group string="Componentes Principales (Cantidades)">
+                                <field name="qty_tibase"/>
+                                <field name="qty_analogo"/>
+                                <field name="qty_tornillo"/>
+                                <field name="qty_transfer"/>
+                                <field name="qty_calcinable"/>
+                                <field name="qty_mini_pilares"/>
+                            </group>
+
+                            <group string="Modelos y Encerados">
+                                <field name="qty_antagonistas"/>
+                                <field name="qty_encerado_superior"/>
+                                <field name="qty_encerado_inferior"/>
+                                <field name="qty_modelo_superior"/>
+                                <field name="qty_modelo_inferior"/>
+                                <field name="qty_mordida_superior"/>
+                                <field name="qty_mordida_inferior"/>
+                            </group>
+
+                            <group string="📝 Comentarios del Doctor" colspan="2">
+                                <field name="doctor_comments"
+                                       nolabel="1"
+                                       placeholder="Instrucciones especiales, detalles del caso, preferencias del paciente, etc."
+                                       widget="text"/>
+                            </group>
+
+                            <group string="📷 Fotos del Caso" colspan="2">
+                                <field name="photo_ids"
+                                       nolabel="1"
+                                       widget="many2many_binary"
+                                       class="oe_inline"
+                                       options="{'accepted_file_extensions': '.jpg,.jpeg,.png,.gif,.bmp'}"/>
+                            </group>
+                        </group>
+
+                        <!-- ========== PASO 4: OPERACIONES ========== -->
+                        <group invisible="step != '4'">
+                            <field name="operation_ids" nolabel="1" colspan="2"/>
+
+                            <group string="📊 Resumen del Caso">
+                                <field name="patient_name" readonly="1" string="Paciente"/>
+                                <field name="date_start" readonly="1" string="Inicio" widget="datetime"/>
+                                <field name="date_deadline" readonly="1" string="Deadline" widget="datetime"/>
+                                <field name="product_type" readonly="1" string="Producto"/>
+                                <field name="teeth_count" readonly="1" string="Cantidad de Dientes"/>
+                                <field name="teeth_display" readonly="1" string="Dientes Seleccionados"/>
+                                <field name="priority" readonly="1" string="Prioridad" widget="badge"/>
+                            </group>
+                        </group>
+                    </sheet>
+
+                    <footer>
+                        <button string="Anterior"
+                                name="action_previous_step"
+                                type="object"
+                                class="btn-secondary"
+                                invisible="step == '1'"/>
+                        <button string="Siguiente"
+                                name="action_next_step"
+                                type="object"
+                                class="btn-primary"
+                                invisible="step == '4'"/>
+                        <button string="✅ Crear Orden"
+                                name="action_create_order"
+                                type="object"
+                                class="btn-success"
+                                invisible="step != '4'"/>
+                        <button string="Cancelar"
+                                special="cancel"
+                                class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- ACCIÓN PARA ABRIR EL WIZARD -->
+        <!-- ============================================ -->
+
+        <record id="action_create_order_wizard" model="ir.actions.act_window">
+            <field name="name">Nueva Orden de Manufactura</field>
+            <field name="res_model">create.order.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_create_order_wizard_form"/>
+            <field name="target">new</field>
+            <field name="context">{}</field>
+        </record>
+
+    </data>
+</odoo>

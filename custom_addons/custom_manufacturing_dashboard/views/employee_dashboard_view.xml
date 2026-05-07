@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ============================================ -->
+        <!-- ACCIÓN CLIENTE: DASHBOARD DE EMPLEADO -->
+        <!-- ============================================ -->
+
+        <record id="action_employee_workload_dashboard" model="ir.actions.client">
+            <field name="name">Mi Dashboard</field>
+            <field name="tag">employee_workload_dashboard</field>
+            <field name="target">current</field>
+            <field name="context">{}</field>
+        </record>
+
+    </data>
+</odoo>

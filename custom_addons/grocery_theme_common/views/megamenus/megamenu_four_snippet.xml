@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<template id="s_mega_menu_four_snippet" name="Mega Menu Two" groups="base.group_user">
+		<section class="s_mega_menu_one_snippet py-3 bg-white grocery_mega_menu" style="background-image: url(/theme_grocery_bizople/static/src/img/grocery/light_contactus_bg.jpg); background-position: center;">
+			<div class="container">
+				<div class="row justify-content-center">
+					<div class="col-xl-3 mb16">
+						<div class="heading-contents">
+							<a class="headeing" href="#">Fruits</a>
+							<ul>
+								<li><a class="menu_item" href="#">Pineapple</a></li>
+								<li><a class="menu_item" href="#">Red Apple</a></li>
+								<li><a class="menu_item" href="#">Ruby Grapefruit</a></li>
+							</ul>
+						</div>
+						<div class="heading-contents">
+							<a class="headeing" href="#">Vegetables</a>
+							<ul>
+								<li><a href="#" class="menu_item">Tomatos</a></li>
+								<li><a href="#" class="menu_item">Cauliflower</a></li>
+								<li><a href="#" class="menu_item">Capsicum</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-xl-3 mb16">
+						<div class="heading-contents">
+							<a class="headeing" href="#">Spices</a>
+							<ul>
+								<li><a href="#" class="menu_item">Turmeric Powder</a></li>
+								<li><a href="#" class="menu_item">Chilli Powder</a></li>
+								<li><a href="#" class="menu_item">Coriander Powder</a></li>
+							</ul>
+						</div>
+						<div class="heading-contents">
+							<a class="headeing" href="#">Beans</a>
+							<ul>
+								<li><a href="#" class="menu_item">Kidney Beans</a></li>
+								<li><a href="#" class="menu_item">Black Beans</a></li>
+								<li><a href="#" class="menu_item">Soya Beans</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-xl-4 mb16">
+						<div class="heading-contents">
+							<a class="headeing" href="#">Latest Posts</a>
+							<div class="oe_structure oe_empty">
+								<section data-snippet="s_blog_posts" class="s_blog_posts s_dynamic_snippet_blog_posts s_blog_posts_effect_marley s_dynamic o_colored_level s_blog_post_list" data-name="Blog Posts" style="background-image: none;" data-filter-id="1" data-template-key="website_blog.dynamic_filter_template_blog_post_list" data-number-of-elements="1" data-filter-by-blog-id="-1" data-number-of-elements-small-devices="1" data-number-of-records="3" data-original-title="" title="">
+						          <div class="container o_not_editable">
+						            <div class="css_non_editable_mode_hidden">
+						              	<div class="missing_option_warning alert alert-info rounded-0 fade show d-none d-print-none o_default_snippet_text">
+											Your Dynamic Snippet will be displayed here... This message is displayed because you did not provided both a filter and a template to use.<br/>
+										</div>
+						            </div>
+						            <div class="dynamic_snippet_template"/>
+						          </div>
+						        </section>
+							</div>
+				      	</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</template>
+</odoo>

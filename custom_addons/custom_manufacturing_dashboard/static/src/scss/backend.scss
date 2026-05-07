@@ -1,0 +1,26 @@
+/* Root backend styles - Odoo 18 */
+
+/* TIME STATUS COLORS FOR KANBAN CARDS */
+.o_time_green {
+    border-left: 5px solid #27ae60 !important;
+    background-color: #f0fff4 !important;
+}
+
+.o_time_yellow {
+    border-left: 5px solid #f39c12 !important;
+    background-color: #fffbf0 !important;
+}
+
+.o_time_red {
+    border-left: 5px solid #e67e22 !important;
+    background-color: #fff5f0 !important;
+}
+
+.o_time_late {
+    border-left: 5px solid #e74c3c !important;
+    background-color: #ffebee !important;
+}
+.o_time_frozen {
+    background-color: #e0f2fe !important; /* azul suave */
+    border-left: 6px solid #0284c7;
+}

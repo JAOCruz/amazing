@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<!-- ── Reusable sub-template: upper + lower jaw + legend ── -->
+<t t-name="custom_manufacturing_dashboard.TeethDiagramContent">
+
+    <!-- ── Upper jaw ── -->
+    <div t-attf-style="display:flex;justify-content:space-between;max-width:#{maxW || '740'}px;margin:0 auto 3px;font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">
+        <span>Superior Derecho</span><span>Superior Izquierdo</span>
+    </div>
+
+    <t t-set="upper" t-value="getUpperLayout()"/>
+    <t t-set="uMaxH" t-value="getMaxH(upper)"/>
+    <svg t-attf-viewBox="0 0 #{getTotalWidth(upper)} #{uMaxH + 18}"
+         t-attf-style="width:100%;max-width:#{maxW || '740'}px;display:block;margin:0 auto;overflow:visible;">
+        <line t-att-x1="getTotalWidth(upper)/2" y1="0"
+              t-att-x2="getTotalWidth(upper)/2" t-att-y2="uMaxH+12"
+              stroke="#ebebeb" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+        <t t-foreach="upper" t-as="tooth" t-key="tooth.n">
+            <t t-set="tH" t-value="getToothH(tooth)"/>
+            <t t-set="rtH" t-value="getRootHeight(tooth)"/>
+            <t t-set="offsetY" t-value="uMaxH - tH"/>
+            <t t-set="sel" t-value="isSelected(tooth.n)"/>
+
+            <!-- Roots pointing up -->
+            <t t-foreach="getRootPaths(tooth)" t-as="rp" t-key="rp_index">
+                <path t-att-d="rp"
+                      t-att-transform="`translate(${tooth.x}, ${offsetY})`"
+                      t-att-fill="sel ? getStrokeColor(tooth.n) : '#e4e4e4'"
+                      t-att-stroke="sel ? getStrokeColor(tooth.n) : '#bbb'"
+                      stroke-width="0.8" stroke-linejoin="round"/>
+            </t>
+
+            <!-- Crown: 3 sections when selected -->
+            <t t-if="sel">
+                <g t-att-transform="`translate(${tooth.x}, ${offsetY + rtH + 4})`">
+                    <defs>
+                        <clipPath t-att-id="`dui${tooth.n}`">
+                            <rect x="-2" y="-2" t-att-width="tooth.w + 4" height="20.5"/>
+                        </clipPath>
+                        <clipPath t-att-id="`dum${tooth.n}`">
+                            <rect x="-2" y="18.5" t-att-width="tooth.w + 4" height="19"/>
+                        </clipPath>
+                        <clipPath t-att-id="`duc${tooth.n}`">
+                            <rect x="-2" y="37" t-att-width="tooth.w + 4" height="22"/>
+                        </clipPath>
+                    </defs>
+                    <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#dui${tooth.n})`"
+                          t-att-fill="getIncisalColor(tooth.n)"
+                          t-att-stroke="getStrokeColor(tooth.n)" stroke-width="0.5"/>
+                    <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#dum${tooth.n})`"
+                          t-att-fill="getMiddleColor(tooth.n)"
+                          t-att-stroke="getStrokeColor(tooth.n)" stroke-width="0.5"/>
+                    <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#duc${tooth.n})`"
+                          t-att-fill="getCervicalColor(tooth.n)"
+                          t-att-stroke="getStrokeColor(tooth.n)" stroke-width="0.5"/>
+                    <path t-att-d="getCrownPath(tooth)" fill="none"
+                          t-att-stroke="getStrokeColor(tooth.n)"
+                          stroke-width="1.0" stroke-linejoin="round"/>
+                    <t t-if="hasMixedShades(tooth.n)">
+                        <line x1="-1" t-att-x2="tooth.w + 1" y1="18.5" y2="18.5"
+                              stroke="#888" stroke-width="0.5" stroke-dasharray="2,1.5"/>
+                        <line x1="-1" t-att-x2="tooth.w + 1" y1="37" y2="37"
+                              stroke="#888" stroke-width="0.5" stroke-dasharray="2,1.5"/>
+                    </t>
+                    <text t-att-x="tooth.w / 2" y="32" text-anchor="middle" font-size="6"
+                          t-att-fill="getStrokeColor(tooth.n)" font-weight="700">
+                        <t t-esc="getShadeLabel(tooth.n)"/>
+                    </text>
+                </g>
+            </t>
+            <t t-else="">
+                <path t-att-d="getCrownPath(tooth)"
+                      t-att-transform="`translate(${tooth.x}, ${offsetY + rtH + 4})`"
+                      fill="#f7f7f7" stroke="#c0c0c0"
+                      stroke-width="1.2" stroke-linejoin="round"/>
+            </t>
+
+            <!-- Tooth number -->
+            <text t-att-x="tooth.x + tooth.w / 2" t-att-y="uMaxH + 16"
+                  text-anchor="middle" font-size="9.5"
+                  t-att-fill="sel ? getStrokeColor(tooth.n) : '#999'" font-weight="600">
+                <t t-esc="tooth.n"/>
+            </text>
+        </t>
+    </svg>
+
+    <!-- ── Lower jaw ── -->
+    <div t-attf-style="display:flex;justify-content:space-between;max-width:#{maxW || '740'}px;margin:6px auto 3px;font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">
+        <span>Inferior Derecho</span><span>Inferior Izquierdo</span>
+    </div>
+
+    <t t-set="lower" t-value="getLowerLayout()"/>
+    <t t-set="lMaxH" t-value="getMaxH(lower)"/>
+    <svg t-attf-viewBox="0 0 #{getTotalWidth(lower)} #{lMaxH + 18}"
+         t-attf-style="width:100%;max-width:#{maxW || '740'}px;display:block;margin:0 auto;overflow:visible;">
+        <line t-att-x1="getTotalWidth(lower)/2" y1="0"
+              t-att-x2="getTotalWidth(lower)/2" t-att-y2="lMaxH+12"
+              stroke="#ebebeb" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+        <t t-foreach="lower" t-as="tooth" t-key="tooth.n">
+            <t t-set="tH" t-value="getToothH(tooth)"/>
+            <t t-set="rtH" t-value="getRootHeight(tooth)"/>
+            <t t-set="sel" t-value="isSelected(tooth.n)"/>
+
+            <!-- Crown at top (flipped) -->
+            <t t-if="sel">
+                <g t-att-transform="`translate(${tooth.x + tooth.w}, ${getCrownH()}) scale(-1,-1)`">
+                    <defs>
+                        <clipPath t-att-id="`dli${tooth.n}`">
+                            <rect x="-2" y="37" t-att-width="tooth.w + 4" height="22"/>
+                        </clipPath>
+                        <clipPath t-att-id="`dlm${tooth.n}`">
+                            <rect x="-2" y="18.5" t-att-width="tooth.w + 4" height="19"/>
+                        </clipPath>
+                        <clipPath t-att-id="`dlc${tooth.n}`">
+                            <rect x="-2" y="-2" t-att-width="tooth.w + 4" height="20.5"/>
+                        </clipPath>
+                    </defs>
+                    <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#dli${tooth.n})`"
+                          t-att-fill="getIncisalColor(tooth.n)"
+                          t-att-stroke="getStrokeColor(tooth.n)" stroke-width="0.5"/>
+                    <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#dlm${tooth.n})`"
+                          t-att-fill="getMiddleColor(tooth.n)"
+                          t-att-stroke="getStrokeColor(tooth.n)" stroke-width="0.5"/>
+                    <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#dlc${tooth.n})`"
+                          t-att-fill="getCervicalColor(tooth.n)"
+                          t-att-stroke="getStrokeColor(tooth.n)" stroke-width="0.5"/>
+                    <path t-att-d="getCrownPath(tooth)" fill="none"
+                          t-att-stroke="getStrokeColor(tooth.n)"
+                          stroke-width="1.0" stroke-linejoin="round"/>
+                    <t t-if="hasMixedShades(tooth.n)">
+                        <line x1="-1" t-att-x2="tooth.w + 1" y1="18.5" y2="18.5"
+                              stroke="#888" stroke-width="0.5" stroke-dasharray="2,1.5"/>
+                        <line x1="-1" t-att-x2="tooth.w + 1" y1="37" y2="37"
+                              stroke="#888" stroke-width="0.5" stroke-dasharray="2,1.5"/>
+                    </t>
+                    <text t-att-x="tooth.w / 2" y="32" text-anchor="middle" font-size="6"
+                          t-att-fill="getStrokeColor(tooth.n)" font-weight="700">
+                        <t t-esc="getShadeLabel(tooth.n)"/>
+                    </text>
+                </g>
+            </t>
+            <t t-else="">
+                <path t-att-d="getCrownPath(tooth)"
+                      t-att-transform="`translate(${tooth.x + tooth.w}, ${getCrownH()}) scale(-1,-1)`"
+                      fill="#f7f7f7" stroke="#c0c0c0"
+                      stroke-width="1.2" stroke-linejoin="round"/>
+            </t>
+
+            <!-- Roots pointing down -->
+            <t t-foreach="getRootPaths(tooth)" t-as="rp" t-key="rp_index">
+                <path t-att-d="rp"
+                      t-att-transform="`translate(${tooth.x}, ${getCrownH() + 4})`"
+                      t-att-fill="sel ? getStrokeColor(tooth.n) : '#e4e4e4'"
+                      t-att-stroke="sel ? getStrokeColor(tooth.n) : '#bbb'"
+                      stroke-width="0.8" stroke-linejoin="round"/>
+            </t>
+
+            <!-- Tooth number -->
+            <text t-att-x="tooth.x + tooth.w / 2" t-att-y="tH + 16"
+                  text-anchor="middle" font-size="9.5"
+                  t-att-fill="sel ? getStrokeColor(tooth.n) : '#999'" font-weight="600">
+                <t t-esc="tooth.n"/>
+            </text>
+        </t>
+    </svg>
+
+    <!-- ── Color legend ── -->
+    <t t-if="usedShades.length > 0">
+        <div t-attf-style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;max-width:#{maxW || '740'}px;margin:10px auto 0;padding:8px 12px;background:#fafafa;border:1px solid #e8e8e8;border-radius:4px;">
+            <span style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-right:4px;">Leyenda:</span>
+            <t t-foreach="usedShades" t-as="s" t-key="s.n">
+                <div style="display:flex;align-items:center;gap:5px;">
+                    <svg width="18" height="22" viewBox="0 0 18 22" style="flex-shrink:0;">
+                        <rect x="1" y="1" width="16" height="7" rx="1" t-att-fill="s.color" t-att-stroke="s.stroke" stroke-width="0.8"/>
+                        <rect x="1" y="8" width="16" height="7" rx="0" t-att-fill="s.color" t-att-stroke="s.stroke" stroke-width="0.8"/>
+                        <rect x="1" y="15" width="16" height="6" rx="1" t-att-fill="s.color" t-att-stroke="s.stroke" stroke-width="0.8"/>
+                    </svg>
+                    <span t-attf-style="font-size:11px;font-weight:600;color:#{s.stroke};">
+                        <t t-esc="s.label"/>
+                    </span>
+                    <span style="font-size:10px;color:#999;">· D.<t t-esc="s.n"/></span>
+                </div>
+                <t t-if="!s_last">
+                    <span style="color:#ddd;font-size:14px;">|</span>
+                </t>
+            </t>
+        </div>
+    </t>
+</t>
+
+<!-- ── Main widget template ── -->
+<t t-name="custom_manufacturing_dashboard.TeethDisplay">
+    <div class="o_teeth_display" style="font-family:sans-serif;user-select:none;padding:4px 0;position:relative;">
+
+        <!-- Expand button -->
+        <div style="display:flex;justify-content:flex-end;max-width:740px;margin:0 auto 4px;">
+            <button t-on-click="toggleExpand"
+                    style="background:none;border:1px solid #ddd;border-radius:4px;padding:2px 8px;font-size:10px;color:#888;cursor:pointer;line-height:1.4;">
+                &#8853; Ampliar
+            </button>
+        </div>
+
+        <!-- Inline diagram -->
+        <t t-call="custom_manufacturing_dashboard.TeethDiagramContent">
+            <t t-set="maxW" t-value="'740'"/>
+        </t>
+
+    </div>
+
+    <!-- ── Fullscreen expand modal ── -->
+    <t t-if="expanded.value">
+        <div t-on-click="toggleExpand"
+             style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.75);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;">
+            <div t-on-click.stop=""
+                 style="background:#fff;border-radius:8px;padding:24px 32px;max-width:900px;width:95vw;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.4);cursor:default;">
+                <!-- Close button -->
+                <button t-on-click="toggleExpand"
+                        style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#666;line-height:1;">×</button>
+                <div style="font-size:13px;font-weight:700;color:#333;margin-bottom:16px;text-transform:uppercase;letter-spacing:.5px;">
+                    Diagrama de Dientes — Vista Ampliada
+                </div>
+                <t t-call="custom_manufacturing_dashboard.TeethDiagramContent">
+                    <t t-set="maxW" t-value="'860'"/>
+                </t>
+            </div>
+        </div>
+    </t>
+</t>
+
+</templates>

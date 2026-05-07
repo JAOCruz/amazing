@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================ -->
+        <!-- CATEGORÍAS DE CONTACTOS PARA DOCTORES Y CLÍNICAS -->
+        <!-- ============================================ -->
+
+        <!-- Categoría: Doctor -->
+        <record id="category_doctor" model="res.partner.category">
+            <field name="name">Doctor</field>
+            <field name="color">3</field>
+        </record>
+
+        <!-- Categoría: Clínica Dental -->
+        <record id="category_clinica_dental" model="res.partner.category">
+            <field name="name">Clínica Dental</field>
+            <field name="color">4</field>
+        </record>
+
+    </data>
+</odoo>

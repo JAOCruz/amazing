@@ -1,0 +1,1401 @@
+// ============================================
+// Manufacturing Dashboard - SCSS Styles
+// ============================================
+
+// Color Variables
+$primary-color: #2e4159;
+$laboratory-color: #9b59b6;
+$production-color: #3498db;
+$stopped-color: #e74c3c;
+$testing-color: #2ecc71;
+$vip-color: #f39c12;
+
+$delayed-color: #e74c3c;
+$urgent-color: #ff9800;
+$pending-color: #3498db;
+
+$background-light: #f5f7fa;
+$card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+$card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+/* Orden a tiempo (verde) */
+.delay-ok {
+    background-color: #e8f5e9 !important;
+}
+
+/* Ligeramente retrasada (amarillo) */
+.delay-warning {
+    background-color: #fff3e0 !important;
+}
+
+/* Muy retrasada (rojo) */
+.delay-critical {
+    background-color: #ffebee !important;
+}
+
+/* Que el hover no lo tape */
+.delayed-table tbody tr:hover {
+    background-color: #e0e0e0 !important;
+}
+
+// ============================================
+// Main Container
+// ============================================
+.manufacturing-dashboard-container {
+    padding: 24px;
+    padding-bottom: 60px;  // Extra padding at bottom for metrics
+    background-color: $background-light;
+    min-height: 100vh;
+    overflow-y: auto;  // Enable vertical scrolling
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+// ============================================
+// Loading State
+// ============================================
+.dashboard-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+
+    .loading-spinner {
+        text-align: center;
+
+        i {
+            color: $primary-color;
+        }
+
+        p {
+            font-size: 16px;
+            color: #666;
+        }
+    }
+}
+
+// ============================================
+// Dashboard Header
+// ============================================
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding: 20px 24px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: $card-shadow;
+
+    .header-left {
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: $primary-color;
+            margin: 0 0 8px 0;
+
+            i {
+                margin-right: 12px;
+            }
+        }
+
+        .last-update {
+            font-size: 14px;
+            color: #888;
+
+            i {
+                margin-right: 6px;
+            }
+        }
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 12px;
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+
+            i {
+                margin-right: 6px;
+            }
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: $card-shadow-hover;
+            }
+        }
+    }
+}
+
+// ============================================
+// Section Titles
+// ============================================
+.section-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: $primary-color;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid $primary-color;
+
+    i {
+        margin-right: 10px;
+    }
+}
+
+// ============================================
+// Summary Section - Stage Cards
+// ============================================
+.summary-section {
+    margin-bottom: 40px;
+
+    .summary-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: $card-shadow;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 5px solid;
+
+            &:hover {
+                transform: translateY(-4px);
+                box-shadow: $card-shadow-hover;
+            }
+
+            .card-icon {
+                font-size: 48px;
+                margin-right: 20px;
+                opacity: 0.9;
+            }
+
+            .card-content {
+                flex: 1;
+
+                .card-value {
+                    font-size: 42px;
+                    font-weight: 700;
+                    line-height: 1;
+                    margin-bottom: 8px;
+                }
+
+                .card-label {
+                    font-size: 14px;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    opacity: 0.8;
+                }
+            }
+
+            // Specific card colors
+            &.card-laboratory {
+                border-left-color: $laboratory-color;
+
+                .card-icon {
+                    color: $laboratory-color;
+                }
+
+                .card-value {
+                    color: $laboratory-color;
+                }
+            }
+
+            &.card-production {
+                border-left-color: $production-color;
+
+                .card-icon {
+                    color: $production-color;
+                }
+
+                .card-value {
+                    color: $production-color;
+                }
+            }
+
+            &.card-stopped {
+                border-left-color: $stopped-color;
+
+                .card-icon {
+                    color: $stopped-color;
+                }
+
+                .card-value {
+                    color: $stopped-color;
+                }
+            }
+
+            &.card-testing {
+                border-left-color: $testing-color;
+
+                .card-icon {
+                    color: $testing-color;
+                }
+
+                .card-value {
+                    color: $testing-color;
+                }
+            }
+
+            &.card-completed {
+                border-left-color: #27ae60;  // Green for completed
+
+                .card-icon {
+                    color: #27ae60;
+                }
+
+                .card-value {
+                    color: #27ae60;
+                }
+            }
+
+            &.card-vip {
+                border-left-color: $vip-color;
+
+                .card-icon {
+                    color: $vip-color;
+                }
+
+                .card-value {
+                    color: $vip-color;
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// Alerts Section
+// ============================================
+.alerts-section {
+    margin-bottom: 40px;
+
+    .alerts-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+
+        .alert-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: $card-shadow;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+
+            &:hover {
+                transform: translateY(-4px);
+                box-shadow: $card-shadow-hover;
+            }
+
+            .alert-icon {
+                font-size: 36px;
+                margin-right: 20px;
+                opacity: 0.9;
+            }
+
+            .alert-content {
+                flex: 1;
+
+                .alert-value {
+                    font-size: 48px;
+                    font-weight: 700;
+                    line-height: 1;
+                    margin-bottom: 8px;
+                }
+
+                .alert-label {
+                    font-size: 16px;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                .alert-emoji {
+                    position: absolute;
+                    top: 12px;
+                    right: 12px;
+                    font-size: 28px;
+                    opacity: 0.6;
+                }
+            }
+
+            // Alert card colors
+            &.alert-delayed {
+                border-left: 5px solid $delayed-color;
+
+                .alert-icon {
+                    color: $delayed-color;
+                }
+
+                .alert-value {
+                    color: $delayed-color;
+                }
+
+                .alert-label {
+                    color: darken($delayed-color, 10%);
+                }
+            }
+
+            &.alert-urgent {
+                border-left: 5px solid $urgent-color;
+
+                .alert-icon {
+                    color: $urgent-color;
+                }
+
+                .alert-value {
+                    color: $urgent-color;
+                }
+
+                .alert-label {
+                    color: darken($urgent-color, 10%);
+                }
+            }
+
+            &.alert-pending {
+                border-left: 5px solid $pending-color;
+
+                .alert-icon {
+                    color: $pending-color;
+                }
+
+                .alert-value {
+                    color: $pending-color;
+                }
+
+                .alert-label {
+                    color: darken($pending-color, 10%);
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// Delayed Orders Table Section
+// ============================================
+.delayed-section {
+    margin-bottom: 40px;
+
+    .table-responsive {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: $card-shadow;
+        overflow-x: auto;
+
+        .delayed-table {
+            margin-bottom: 0;
+
+            thead {
+                tr {
+                    background-color: $primary-color;
+
+                    th {
+                        color: white;
+                        font-weight: 600;
+                        padding: 14px 12px;
+                        border: none;
+                        white-space: nowrap;
+                    }
+                }
+            }
+
+            tbody {
+                tr {
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        background-color: #f8f9fa;
+                        transform: scale(1.01);
+                    }
+
+                    &.vip-row {
+                        background-color: #fffbf0;
+                        border-left: 4px solid $vip-color;
+
+                        &:hover {
+                            background-color: #fff8e6;
+                        }
+                    }
+
+                    td {
+                        padding: 14px 12px;
+                        vertical-align: middle;
+                    }
+                }
+            }
+
+            .stage-badge {
+                padding: 4px 10px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+
+                &.badge-laboratory {
+                    background-color: lighten($laboratory-color, 35%);
+                    color: darken($laboratory-color, 10%);
+                }
+
+                &.badge-production {
+                    background-color: lighten($production-color, 35%);
+                    color: darken($production-color, 10%);
+                }
+
+                &.badge-stopped {
+                    background-color: lighten($stopped-color, 35%);
+                    color: darken($stopped-color, 10%);
+                }
+
+                &.badge-testing {
+                    background-color: lighten($testing-color, 35%);
+                    color: darken($testing-color, 10%);
+                }
+            }
+
+            .vip-badge {
+                font-size: 20px;
+                filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            }
+        }
+    }
+}
+
+// No Delayed Orders
+.no-delayed-section {
+    margin-bottom: 40px;
+
+    .success-message {
+        background: white;
+        padding: 60px 40px;
+        border-radius: 12px;
+        box-shadow: $card-shadow;
+        text-align: center;
+
+        i {
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: $testing-color;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 0;
+        }
+    }
+}
+
+// ============================================
+// Metrics Section
+// ============================================
+.metrics-section {
+    margin-bottom: 40px;
+
+    .metrics-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+
+        .metric-card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: $card-shadow;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+
+            &:hover {
+                box-shadow: $card-shadow-hover;
+            }
+
+            .metric-icon {
+                font-size: 48px;
+                color: $primary-color;
+                margin-right: 24px;
+                opacity: 0.8;
+            }
+
+            .metric-content {
+                flex: 1;
+
+                .metric-label {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: #666;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    margin-bottom: 8px;
+                }
+
+                .metric-value {
+                    font-size: 36px;
+                    font-weight: 700;
+                    color: $primary-color;
+                    line-height: 1;
+                    margin-bottom: 8px;
+                }
+
+                .metric-description {
+                    font-size: 12px;
+                    color: #999;
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// Responsive Design
+// ============================================
+
+@media (max-width: 768px) {
+    .manufacturing-dashboard-container {
+        padding: 16px;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .header-actions {
+            margin-top: 16px;
+            width: 100%;
+
+            .btn {
+                flex: 1;
+            }
+        }
+    }
+
+    .summary-cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .alerts-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .metrics-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-title {
+        font-size: 18px;
+    }
+
+    .stat-card .card-value {
+        font-size: 32px;
+    }
+
+    .alert-card .alert-value {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+
+        .card-icon {
+            margin-right: 0;
+            margin-bottom: 12px;
+        }
+    }
+
+    .alert-card {
+        .alert-content .alert-emoji {
+            position: static;
+            margin-top: 12px;
+            display: block;
+        }
+    }
+
+    .metric-card {
+        flex-direction: column;
+        text-align: center;
+
+        .metric-icon {
+            margin-right: 0;
+            margin-bottom: 16px;
+        }
+    }
+}
+
+// ============================================
+// Animations
+// ============================================
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.summary-section,
+.alerts-section,
+.delayed-section,
+.metrics-section {
+    animation: fadeIn 0.5s ease-out;
+}
+
+// ============================================
+// EMPLOYEE DASHBOARD STYLES
+// ============================================
+
+.employee-dashboard-container {
+    padding: 24px;
+    background-color: $background-light;
+    min-height: 100vh;
+}
+
+// ============================================
+// Employee Header
+// ============================================
+.employee-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: $card-shadow;
+
+    .header-left {
+        flex: 1;
+
+        .employee-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+
+            .employee-avatar {
+                font-size: 48px;
+                color: $primary-color;
+                margin-right: 20px;
+            }
+
+            .employee-details {
+                .employee-name {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: $primary-color;
+                    margin: 0 0 8px 0;
+                }
+
+                .employee-department {
+                    font-size: 14px;
+                    color: #666;
+                    margin-bottom: 8px;
+
+                    i {
+                        margin-right: 6px;
+                    }
+                }
+
+                .workload-status {
+                    display: inline-flex;
+                    align-items: center;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    font-size: 13px;
+                    font-weight: 600;
+
+                    i {
+                        margin-right: 6px;
+                    }
+
+                    &.status-available {
+                        background-color: lighten($testing-color, 35%);
+                        color: darken($testing-color, 10%);
+                    }
+
+                    &.status-busy {
+                        background-color: lighten($urgent-color, 35%);
+                        color: darken($urgent-color, 10%);
+                    }
+
+                    &.status-overloaded {
+                        background-color: lighten($delayed-color, 35%);
+                        color: darken($delayed-color, 10%);
+                    }
+                }
+            }
+        }
+
+        .last-update {
+            font-size: 13px;
+            color: #888;
+            margin-left: 68px;
+
+            i {
+                margin-right: 6px;
+            }
+        }
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 12px;
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+
+            i {
+                margin-right: 6px;
+            }
+        }
+    }
+}
+
+// ============================================
+// Personal Stats Section
+// ============================================
+.stats-section {
+    margin-bottom: 32px;
+
+    .stats-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: $card-shadow;
+            display: flex;
+            align-items: center;
+            border-left: 5px solid;
+
+            .card-icon {
+                font-size: 40px;
+                margin-right: 16px;
+                opacity: 0.9;
+            }
+
+            .card-content {
+                .card-value {
+                    font-size: 36px;
+                    font-weight: 700;
+                    line-height: 1;
+                    margin-bottom: 6px;
+                }
+
+                .card-label {
+                    font-size: 13px;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    opacity: 0.8;
+                }
+            }
+
+            &.card-total {
+                border-left-color: $primary-color;
+
+                .card-icon {
+                    color: $primary-color;
+                }
+
+                .card-value {
+                    color: $primary-color;
+                }
+            }
+
+            &.card-delayed {
+                border-left-color: $delayed-color;
+
+                .card-icon {
+                    color: $delayed-color;
+                }
+
+                .card-value {
+                    color: $delayed-color;
+                }
+            }
+
+            &.card-urgent {
+                border-left-color: $urgent-color;
+
+                .card-icon {
+                    color: $urgent-color;
+                }
+
+                .card-value {
+                    color: $urgent-color;
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// Current Operation Timer Section
+// ============================================
+.current-operation-section {
+    margin-bottom: 32px;
+
+    .current-operation-card {
+        background: linear-gradient(135deg, $primary-color 0%, lighten($primary-color, 10%) 100%);
+        color: white;
+        padding: 32px;
+        border-radius: 12px;
+        box-shadow: $card-shadow-hover;
+
+        .operation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+
+            .operation-name {
+                font-size: 20px;
+                font-weight: 600;
+
+                .vip-badge {
+                    background: $vip-color;
+                    padding: 4px 10px;
+                    border-radius: 12px;
+                    font-size: 14px;
+                }
+            }
+
+            .operation-order {
+                font-size: 14px;
+                opacity: 0.9;
+
+                a {
+                    color: white;
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .timer-display {
+            text-align: center;
+            margin: 32px 0;
+
+            .timer-value {
+                font-size: 72px;
+                font-weight: 700;
+                font-family: 'Courier New', monospace;
+                letter-spacing: 4px;
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            }
+
+            .timer-label {
+                font-size: 16px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                margin-top: 8px;
+                opacity: 0.9;
+            }
+        }
+
+        .operation-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+
+            .info-item {
+                padding: 12px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+
+                i {
+                    margin-right: 8px;
+                }
+            }
+        }
+
+        .operation-progress-section {
+            margin-bottom: 24px;
+
+            .progress-bar-container {
+                background: rgba(255, 255, 255, 0.2);
+                height: 12px;
+                border-radius: 6px;
+                overflow: hidden;
+                margin-bottom: 8px;
+
+                .progress-bar {
+                    height: 100%;
+                    transition: width 0.5s ease;
+                }
+            }
+
+            .progress-label {
+                text-align: center;
+                font-size: 14px;
+                opacity: 0.9;
+            }
+        }
+
+        .operation-actions {
+            text-align: center;
+
+            .btn {
+                padding: 14px 32px;
+                font-size: 18px;
+                font-weight: 600;
+                border: none;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+                &:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// Operations Queue Section
+// ============================================
+.queue-section {
+    margin-bottom: 32px;
+
+    .operations-list {
+        .operation-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: $card-shadow;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: $card-shadow-hover;
+            }
+
+            &.vip-operation {
+                border: 2px solid $vip-color;
+                background: #fffbf0;
+            }
+
+            .operation-card-header {
+                background: $primary-color;
+                color: white;
+                padding: 16px 20px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+
+                .operation-number {
+                    font-size: 24px;
+                    font-weight: 700;
+                    padding: 8px 16px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 8px;
+                }
+
+                .operation-title {
+                    flex: 1;
+
+                    h4 {
+                        margin: 0 0 6px 0;
+                        font-size: 18px;
+                        font-weight: 600;
+
+                        .vip-badge {
+                            font-size: 16px;
+                        }
+                    }
+
+                    .operation-subtitle {
+                        font-size: 13px;
+                        opacity: 0.9;
+
+                        a {
+                            color: white;
+                            text-decoration: underline;
+                        }
+                    }
+                }
+
+                .operation-state-badge {
+                    .badge {
+                        font-size: 13px;
+                        padding: 6px 12px;
+                        border-radius: 12px;
+                    }
+                }
+            }
+
+            .operation-card-body {
+                padding: 20px;
+
+                .operation-info {
+                    margin-bottom: 16px;
+                    font-size: 14px;
+
+                    i {
+                        margin-right: 8px;
+                        color: $primary-color;
+                    }
+                }
+
+                .operation-time-info {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 12px;
+                    margin-bottom: 16px;
+
+                    .time-item {
+                        padding: 10px;
+                        background: $background-light;
+                        border-radius: 8px;
+                        font-size: 13px;
+
+                        i {
+                            margin-right: 8px;
+                            color: $primary-color;
+                        }
+                    }
+                }
+
+                .operation-progress {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+
+                    .progress-bar-container {
+                        flex: 1;
+                        background: $background-light;
+                        height: 24px;
+                        border-radius: 12px;
+                        overflow: hidden;
+
+                        .progress-bar {
+                            height: 100%;
+                            border-radius: 12px;
+                            transition: width 0.5s ease;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 11px;
+                            font-weight: 600;
+                            color: white;
+
+                            &.progress-bar-success {
+                                background: linear-gradient(90deg, $testing-color 0%, lighten($testing-color, 10%) 100%);
+                            }
+
+                            &.progress-bar-warning {
+                                background: linear-gradient(90deg, $urgent-color 0%, lighten($urgent-color, 10%) 100%);
+                            }
+
+                            &.progress-bar-danger {
+                                background: linear-gradient(90deg, $delayed-color 0%, lighten($delayed-color, 10%) 100%);
+                            }
+                        }
+                    }
+
+                    .progress-percentage {
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: $primary-color;
+                        min-width: 45px;
+                        text-align: right;
+                    }
+                }
+            }
+
+            .operation-card-footer {
+                padding: 16px 20px;
+                background: $background-light;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .operation-actions-left,
+                .operation-actions-right {
+                    display: flex;
+                    gap: 8px;
+                }
+            }
+        }
+    }
+
+    .empty-queue {
+        background: white;
+        padding: 60px 40px;
+        border-radius: 12px;
+        box-shadow: $card-shadow;
+        text-align: center;
+
+        i {
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 22px;
+            font-weight: 600;
+            color: $primary-color;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #666;
+        }
+    }
+}
+
+// ============================================
+// Cascade Alerts Section
+// ============================================
+.cascade-alerts-section {
+    margin-bottom: 32px;
+
+    .cascade-alerts-list {
+        .cascade-alert-card {
+            background: white;
+            border-left: 5px solid $delayed-color;
+            border-radius: 12px;
+            box-shadow: $card-shadow;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+
+            .alert-icon {
+                color: $delayed-color;
+                flex-shrink: 0;
+            }
+
+            .alert-content {
+                flex: 1;
+
+                .alert-title {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: $delayed-color;
+                    margin-bottom: 16px;
+                }
+
+                .alert-details {
+                    margin-bottom: 16px;
+
+                    .alert-item {
+                        padding: 8px 0;
+                        font-size: 14px;
+                        border-bottom: 1px solid #f0f0f0;
+
+                        &:last-child {
+                            border-bottom: none;
+                        }
+
+                        strong {
+                            color: $primary-color;
+                            margin-right: 8px;
+                        }
+
+                        &.alert-delay {
+                            color: $delayed-color;
+                            font-weight: 600;
+
+                            i {
+                                margin-right: 6px;
+                            }
+                        }
+                    }
+                }
+
+                .alert-message {
+                    background: lighten($delayed-color, 45%);
+                    padding: 12px;
+                    border-radius: 8px;
+                    font-size: 13px;
+                    color: darken($delayed-color, 10%);
+
+                    i {
+                        margin-right: 8px;
+                    }
+
+                    strong {
+                        color: darken($delayed-color, 15%);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ============================================
+// TIME STATUS COLORS FOR KANBAN CARDS
+// ============================================
+
+// Kanban cards - time status colors
+.o_time_green {
+    border-left: 5px solid #27ae60 !important;  // Verde - En tiempo
+    background-color: #f0fff4 !important;
+}
+
+.o_time_yellow {
+    border-left: 5px solid #f39c12 !important;  // Amarillo - Atención
+    background-color: #fffbf0 !important;
+}
+
+.o_time_red {
+    border-left: 5px solid #e67e22 !important;  // Naranja - Crítico
+    background-color: #fff5f0 !important;
+}
+
+.o_time_late {
+    border-left: 5px solid #e74c3c !important;  // Rojo - Retrasado
+    background-color: #ffebee !important;
+}
+.o_time_frozen {
+    background-color: #e0f2fe !important; /* azul suave */
+    border-left: 6px solid #0284c7;
+}
+.o_action_client_scrollable {
+    overflow-y: auto !important;
+    height: 100% !important;
+}
+
+.o_action_client_scrollable .o_content {
+    overflow-y: auto !important;
+    height: 100% !important;
+}
+
+
+
+// ============================================
+// Employee Dashboard Responsive
+// ============================================
+
+@media (max-width: 768px) {
+    .employee-dashboard-container {
+        padding: 16px;
+    }
+
+    .employee-header {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .header-left {
+            width: 100%;
+            margin-bottom: 16px;
+
+            .employee-info {
+                flex-direction: column;
+                text-align: center;
+
+                .employee-avatar {
+                    margin-right: 0;
+                    margin-bottom: 12px;
+                }
+            }
+
+            .last-update {
+                margin-left: 0;
+                text-align: center;
+            }
+        }
+
+        .header-actions {
+            width: 100%;
+
+            .btn {
+                flex: 1;
+            }
+        }
+    }
+
+    .current-operation-card .timer-display .timer-value {
+        font-size: 48px;
+    }
+
+    .operation-card .operation-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .operation-state-badge {
+            margin-top: 12px;
+        }
+    }
+
+    .cascade-alert-card {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-cards-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .current-operation-card {
+        padding: 20px !important;
+
+        .timer-display .timer-value {
+            font-size: 36px !important;
+        }
+    }
+
+    .operation-card-footer {
+        flex-direction: column;
+        gap: 12px;
+
+        .operation-actions-left,
+        .operation-actions-right {
+            width: 100%;
+
+            .btn {
+                flex: 1;
+            }
+        }
+    }
+}
+// ============================================
+// Odoo Action Container FIX (SCROLL)
+// ============================================
+
+.o_action_manager {
+    height: 100%;
+}
+
+.o_action_manager .manufacturing-dashboard-container {
+    height: 100%;
+    overflow-y: auto;
+}

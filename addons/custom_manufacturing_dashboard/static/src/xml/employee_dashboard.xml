@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- ============================================ -->
+    <!-- DASHBOARD DE EMPLEADO -->
+    <!-- ============================================ -->
+
+    <t t-name="custom_manufacturing_dashboard.EmployeeDashboard">
+        <div class="employee-dashboard-container">
+
+            <!-- ============================================ -->
+            <!-- LOADING STATE -->
+            <!-- ============================================ -->
+            <t t-if="state.loading and !state.data">
+                <div class="dashboard-loading">
+                    <div class="loading-spinner">
+                        <i class="fa fa-spinner fa-spin fa-3x text-primary"/>
+                        <p class="mt-3">Cargando tu dashboard...</p>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ============================================ -->
+            <!-- DASHBOARD CONTENT -->
+            <!-- ============================================ -->
+            <t t-else="">
+                <!-- Dashboard Header -->
+                <div class="employee-header">
+                    <div class="header-left">
+                        <div class="employee-info">
+                            <div class="employee-avatar">
+                                <i class="fa fa-user-circle fa-3x"/>
+                            </div>
+                            <div class="employee-details">
+                                <h1 class="employee-name" t-esc="state.data.user.name"/>
+                                <div class="employee-department">
+                                    <i class="fa fa-building"/>
+                                    <span t-esc="getDepartmentLabel(state.data.user.department)"/>
+                                </div>
+                                <div class="workload-status" t-att-class="getWorkloadStatusClass(state.data.user.workload_status)">
+                                    <i class="fa" t-att-class="getWorkloadStatusIcon(state.data.user.workload_status)"/>
+                                    <span t-esc="getWorkloadStatusLabel(state.data.user.workload_status)"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="last-update">
+                            <i class="fa fa-clock-o"/>
+                            <span t-esc="getLastUpdateFormatted()"/>
+                        </div>
+                    </div>
+
+                    <div class="header-actions">
+                        <!-- Auto-refresh Toggle -->
+                        <button
+                            class="btn btn-sm"
+                            t-att-class="state.autoRefresh ? 'btn-success' : 'btn-secondary'"
+                            t-on-click="toggleAutoRefresh"
+                            title="Toggle Auto-refresh (30s)">
+                            <i t-att-class="state.autoRefresh ? 'fa fa-toggle-on' : 'fa fa-toggle-off'"/>
+                            Auto-refresh
+                        </button>
+
+                        <!-- Manual Refresh Button -->
+                        <button
+                            class="btn btn-primary btn-sm"
+                            t-on-click="refreshDashboard"
+                            title="Refrescar ahora">
+                            <i class="fa fa-refresh"/>
+                            Actualizar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- PERSONAL STATS SECTION -->
+                <!-- ============================================ -->
+                <div class="stats-section">
+                    <div class="stats-cards-grid">
+                        <!-- Total Operations -->
+                        <div class="stat-card card-total">
+                            <div class="card-icon">
+                                <i class="fa fa-tasks"/>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-value" t-esc="state.data.stats.total_operations"/>
+                                <div class="card-label">Total Operaciones</div>
+                            </div>
+                        </div>
+
+                        <!-- Delayed Operations -->
+                        <div class="stat-card card-delayed">
+                            <div class="card-icon">
+                                <i class="fa fa-times-circle"/>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-value" t-esc="state.data.stats.delayed_operations"/>
+                                <div class="card-label">🔴 Retrasadas</div>
+                            </div>
+                        </div>
+
+                        <!-- Urgent Operations -->
+                        <div class="stat-card card-urgent">
+                            <div class="card-icon">
+                                <i class="fa fa-exclamation-circle"/>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-value" t-esc="state.data.stats.urgent_operations"/>
+                                <div class="card-label">⚠️ Urgentes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- CURRENT OPERATION TIMER (if any) -->
+                <!-- ============================================ -->
+                <t t-if="getCurrentOperation()">
+                    <div class="current-operation-section">
+                        <h2 class="section-title">
+                            <i class="fa fa-play-circle"/> Operación Actual en Progreso
+                        </h2>
+
+                        <div class="current-operation-card">
+                            <div class="operation-header">
+                                <div class="operation-name">
+                                    <strong t-esc="getCurrentOperation().name"/>
+                                    <t t-if="getCurrentOperation().is_vip">
+                                        <span class="vip-badge ml-2" title="Cliente VIP">⭐ VIP</span>
+                                    </t>
+                                </div>
+                                <div class="operation-order">
+                                    Orden:
+                                    <a href="#"
+                                       t-on-click.prevent="() => this.openProducción(getCurrentOperation().production_id)"
+                                       class="text-primary">
+                                        <t t-esc="getCurrentOperation().production_name"/>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="timer-display">
+                                <div class="timer-value">
+                                    <t t-esc="formatTime(getCurrentOperationElapsed())"/>
+                                </div>
+                                <div class="timer-label">Tiempo Transcurrido</div>
+                            </div>
+
+                            <div class="operation-info-grid">
+                                <div class="info-item">
+                                    <i class="fa fa-clock-o"/>
+                                    Tiempo estimado: <strong><t t-esc="getCurrentOperation().alert_time_hours.toFixed(1)"/>h</strong>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fa fa-user"/>
+                                    Paciente: <strong><t t-esc="getCurrentOperation().patient_name"/></strong>
+                                </div>
+                            </div>
+
+                            <div class="operation-progress-section">
+                                <div class="progress-bar-container">
+                                    <div
+                                        class="progress-bar"
+                                        t-att-class="getProgressBarClass(getCurrentOperation())"
+                                        t-att-style="`width: ${getOperationProgress(getCurrentOperation())}%`">
+                                    </div>
+                                </div>
+                                <div class="progress-label">
+                                    <span t-esc="getOperationProgress(getCurrentOperation()).toFixed(0)"/>% completado
+                                </div>
+                            </div>
+
+                            <div class="operation-actions">
+                                <button
+                                    class="btn btn-success btn-lg"
+                                    t-on-click="() => this.finishOperation(getCurrentOperation().id)">
+                                    <i class="fa fa-check"/> Finalizar Operación
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ============================================ -->
+                <!-- OPERATIONS QUEUE -->
+                <!-- ============================================ -->
+                <div class="queue-section">
+                    <h2 class="section-title">
+                        <i class="fa fa-list-ol"/> Mi Cola de Operaciones
+                    </h2>
+
+                    <t t-if="state.data.queue and state.data.queue.length > 0">
+                        <div class="operations-list">
+                            <t t-foreach="state.data.queue" t-as="operation" t-key="operation.id">
+                                <div class="operation-card" t-att-class="operation.is_vip ? 'vip-operation' : ''">
+                                    <!-- Operation Header -->
+                                    <div class="operation-card-header">
+                                        <div class="operation-number">
+                                            #<t t-esc="operation.sequence"/>
+                                        </div>
+                                        <div class="operation-title">
+                                            <h4>
+                                                <t t-esc="operation.name"/>
+                                                <t t-if="operation.is_vip">
+                                                    <span class="vip-badge ml-2">⭐</span>
+                                                </t>
+                                            </h4>
+                                            <div class="operation-subtitle">
+                                                <span class="text-muted">
+                                                    <i class="fa fa-industry"/>
+                                                    <t t-esc="operation.workcenter"/>
+                                                </span>
+                                                <span class="ml-3">
+                                                    <i class="fa fa-file-text-o"/>
+                                                    <a href="#"
+                                                       t-on-click.prevent="() => this.openProducción(operation.production_id)"
+                                                       class="text-primary">
+                                                        <t t-esc="operation.production_name"/>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="operation-state-badge">
+                                            <span class="badge" t-att-class="getOperationStateClass(operation)" t-esc="getOperationStateLabel(operation)"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Operation Body -->
+                                    <div class="operation-card-body">
+                                        <!-- Patient Info -->
+                                        <div class="operation-info">
+                                            <i class="fa fa-user"/>
+                                            <strong>Paciente:</strong>
+                                            <span t-esc="operation.patient_name"/>
+                                        </div>
+
+                                        <!-- Time Info -->
+                                        <div class="operation-time-info">
+                                            <div class="time-item">
+                                                <i class="fa fa-hourglass-start"/>
+                                                <span>Estimado: <strong><t t-esc="operation.alert_time_hours.toFixed(1)"/>h</strong></span>
+                                            </div>
+                                            <div class="time-item">
+                                                <i class="fa fa-clock-o"/>
+                                                <span>Transcurrido: <strong><t t-esc="operation.operation_time.toFixed(1)"/>h</strong></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Progress Bar -->
+                                        <div class="operation-progress">
+                                            <div class="progress-bar-container">
+                                                <div
+                                                    class="progress-bar"
+                                                    t-att-class="getProgressBarClass(operation)"
+                                                    t-att-style="`width: ${getOperationProgress(operation)}%`">
+                                                </div>
+                                            </div>
+                                            <div class="progress-percentage">
+                                                <t t-esc="getOperationProgress(operation).toFixed(0)"/>%
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Operation Footer / Actions -->
+                                    <div class="operation-card-footer">
+                                        <div class="operation-actions-left">
+                                            <button
+                                                class="btn btn-sm btn-info"
+                                                t-on-click="() => this.openOperation(operation.id)"
+                                                title="Ver detalles">
+                                                <i class="fa fa-eye"/> Ver
+                                            </button>
+                                        </div>
+
+                                        <div class="operation-actions-right">
+                                            <!-- Start Button -->
+                                            <t t-if="canStartOperation(operation)">
+                                                <button
+                                                    class="btn btn-sm btn-success"
+                                                    t-on-click="() => this.startOperation(operation.id)"
+                                                    title="Iniciar operación">
+                                                    <i class="fa fa-play"/> Iniciar
+                                                </button>
+                                            </t>
+
+                                            <!-- Finish Button -->
+                                            <t t-if="canFinishOperation(operation)">
+                                                <button
+                                                    class="btn btn-sm btn-primary"
+                                                    t-on-click="() => this.finishOperation(operation.id)"
+                                                    title="Finalizar operación">
+                                                    <i class="fa fa-check"/> Finalizar
+                                                </button>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- Empty State -->
+                    <t t-else="">
+                        <div class="empty-queue">
+                            <i class="fa fa-inbox fa-3x text-muted"/>
+                            <h3 class="mt-3">No tienes operaciones pendientes</h3>
+                            <p class="text-muted">¡Excelente trabajo! Tu cola está vacía.</p>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- CASCADE ALERTS SECTION -->
+                <!-- ============================================ -->
+                <t t-if="state.data.cascade_alerts and state.data.cascade_alerts.length > 0">
+                    <div class="cascade-alerts-section">
+                        <h2 class="section-title">
+                            <i class="fa fa-warning"/> Alertas en Cascada
+                        </h2>
+
+                        <div class="cascade-alerts-list">
+                            <t t-foreach="state.data.cascade_alerts" t-as="alert" t-key="alert_index">
+                                <div class="cascade-alert-card">
+                                    <div class="alert-icon">
+                                        <i class="fa fa-exclamation-triangle fa-2x"/>
+                                    </div>
+                                    <div class="alert-content">
+                                        <h4 class="alert-title">
+                                            ⛔ Tu operación está bloqueada
+                                        </h4>
+                                        <div class="alert-details">
+                                            <div class="alert-item">
+                                                <strong>Tu operación:</strong>
+                                                <span t-esc="alert.affected_operation"/>
+                                            </div>
+                                            <div class="alert-item">
+                                                <strong>Bloqueada por:</strong>
+                                                <span t-esc="alert.blocked_by_operation"/>
+                                                <span class="text-muted ml-2">
+                                                    (Usuario: <t t-esc="alert.blocked_by_user"/>)
+                                                </span>
+                                            </div>
+                                            <div class="alert-item">
+                                                <strong>Orden:</strong>
+                                                <span t-esc="alert.production_name"/>
+                                            </div>
+                                            <div class="alert-item alert-delay">
+                                                <i class="fa fa-clock-o"/>
+                                                Retraso causante: <strong><t t-esc="alert.delay_hours.toFixed(1)"/>h</strong>
+                                            </div>
+                                        </div>
+                                        <div class="alert-message">
+                                            <i class="fa fa-info-circle"/>
+                                            Coordina con <strong><t t-esc="alert.blocked_by_user"/></strong> para resolver el bloqueo.
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+
+            </t>
+
+        </div>
+    </t>
+
+</templates>

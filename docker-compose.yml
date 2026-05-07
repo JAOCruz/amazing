@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16
+    container_name: db
+    user: root
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo17@2023
+      POSTGRES_DB: postgres
+    volumes:
+      - ./postgresql:/var/lib/postgresql/data
+    restart: always
+
+  odoo:
+    build: .
+    container_name: odoo
+    user: root
+    depends_on:
+      - db
+    ports:
+      - "10017:8069"
+      - "20017:8072"
+    command: >
+      bash -c "
+      until pg_isready -h db -p 5432 -U odoo; do
+        echo 'Waiting for Postgres...';
+        sleep 2;
+      done &&
+      odoo -d odoo18
+           --db_host=db
+           --db_user=odoo
+           --db_password=odoo17@2023
+           -c /etc/odoo/odoo.conf
+           --log-level=info
+      "
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo17@2023
+      NODE_BIN: /usr/bin/node
+    volumes:
+      - ./addons:/mnt/extra-addons
+      - ./etc:/etc/odoo
+      - odoo-data:/var/lib/odoo
+    restart: always
+
+volumes:
+  odoo-data:
+  odoo_db_data:

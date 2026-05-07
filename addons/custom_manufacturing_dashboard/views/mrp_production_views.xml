@@ -1,0 +1,655 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="view_mrp_production_form_inherit_dashboard" model="ir.ui.view">
+            <field name="name">mrp.production.form.inherit.dashboard</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                
+                <xpath expr="//field[@name='priority']" position="after">
+                    <field name="is_vip" widget="boolean_toggle" string="⭐ VIP"/>
+                </xpath>
+
+                <xpath expr="//page[@name='components']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//notebook" position="inside">
+                    <page string="Información del Paciente" name="patient_info">
+                        <group>
+                            <group string="Datos del Paciente">
+                                <field name="patient_name"/>
+                                <field name="doctor_id" context="{'default_is_company': False}"/>
+                                <field name="clinic_id" context="{'default_is_company': True}"/>
+                            </group>
+                            <group string="Especificaciones del Producto">
+                                <field name="product_type"/>
+                                <field name="work_type"/>
+                                <field name="teeth_numbers" widget="text"/>
+                                <field name="teeth_count"/>
+                            </group>
+                        </group>
+                        <group>
+                            <div colspan="2" style="padding:4px 0 12px;">
+                                <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">🦷 Diagrama de Dientes</div>
+                                <!-- teeth_display: read-only diagram (always visible) -->
+                                <field name="teeth_numbers" nolabel="1" readonly="1" widget="teeth_display"/>
+                                <!-- Edit button — managers only, bound to tooth_shades to avoid duplicate teeth_numbers declaration -->
+                                <div style="margin-top:10px;" invisible="state == 'cancel'"
+                                     groups="custom_manufacturing_dashboard.group_manufacturing_manager">
+                                    <field name="tooth_shades" widget="teeth_selector_edit" nolabel="1"/>
+                                </div>
+                            </div>
+                        </group>
+                        <group>
+                            <group string="Color y Material">
+                                <field name="color_scale"/>
+                                <field name="color_selected"/>
+                                <field name="material"/>
+                                <field name="translucency"/>
+                                <!-- tooth_shades is now rendered inside the teeth_selector above -->
+                            </group>
+                            <group string="Timeline y Estado">
+                                <field name="deadline_days"/>
+                                <field name="manufacturing_start_date"/>
+                                <field name="manufacturing_time" widget="float_time"/>
+                                <field name="stage_custom"/>
+                            </group>
+                        </group>
+                        <group string="Alertas y Prioridad">
+                            <field name="is_delayed" readonly="1"/>
+                            <field name="is_urgent" readonly="1"/>
+                            <field name="is_pending" readonly="1"/>
+                            <field name="is_vip"/>
+                        </group>
+                        <group string="💰 Recargo Extra" invisible="extra_percentage == 0">
+                            <field name="extra_percentage" widget="percentage" string="% de Recargo"/>
+                            <field name="extra_percentage_reason" string="Motivo"/>
+                        </group>
+                    </page>
+                    <page string="Materiales Recibidos" name="materials_checklist">
+                        <group>
+                            <group string="Componentes (Cantidades)">
+                                <field name="qty_tibase"/>
+                                <field name="qty_analogo"/>
+                                <field name="qty_tornillo"/>
+                                <field name="qty_transfer"/>
+                                <field name="qty_calcinable"/>
+                                <field name="qty_mini_pilares"/>
+                            </group>
+                            <group string="Modelos y Encerados">
+                                <field name="qty_antagonistas"/>
+                                <field name="qty_encerado_superior"/>
+                                <field name="qty_encerado_inferior"/>
+                                <field name="qty_modelo_superior"/>
+                                <field name="qty_modelo_inferior"/>
+                                <field name="qty_mordida_superior"/>
+                                <field name="qty_mordida_inferior"/>
+                            </group>
+                        </group>
+                        <group string="📝 Comentarios del Doctor" colspan="2">
+                            <field name="doctor_comments" nolabel="1" widget="text"/>
+                        </group>
+                        <group string="📷 Fotos del Caso" colspan="2">
+                            <field name="photo_ids" nolabel="1" widget="many2many_binary"/>
+                        </group>
+                    </page>
+                </xpath>
+
+                <xpath expr="//header" position="inside">
+                    <div class="alert alert-danger" invisible="time_priority != 4" role="alert">
+                        <strong>⚠️ ORDEN RETRASADA</strong> - Tiempo transcurrido excede el deadline
+                    </div>
+                    <div class="alert alert-warning" invisible="time_priority != 3" role="alert">
+                        <strong>⏰ ORDEN URGENTE</strong> - Tiempo transcurrido cerca del deadline (80%)
+                    </div>
+                    <div class="alert alert-info" invisible="not is_vip" role="alert">
+                        <strong>⭐ CLIENTE VIP</strong> - Prioridad alta
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_mrp_workorder_custom_list_fix" model="ir.ui.view">
+            <field name="name">mrp.workorder.custom.list.fix</field>
+            <field name="model">mrp.workorder</field> 
+            <field name="inherit_id" ref="mrp.mrp_production_workorder_tree_editable_view_mo_form"/>
+            <field name="arch" type="xml">
+                
+                <xpath expr="//field[@name='duration']" position="before">
+                    <field name="date_start" column_invisible="1"/>
+                    <field name="state" column_invisible="1"/>
+                    <field name="is_user_working" column_invisible="1"/>
+                    <field name="working_state" column_invisible="1"/> 
+                </xpath>
+
+                <xpath expr="//field[@name='duration']" position="attributes">
+                    <attribute name="column_invisible">0</attribute>
+                    <attribute name="string">T. Real</attribute>
+                    
+                    <attribute name="widget">mrp_timer</attribute> 
+                    
+                    <attribute name="sum">Total Real</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='duration_expected']" position="replace">
+                    <field name="alert_time_hours" 
+                           string="T. Estimado" 
+                           widget="float_time" 
+                           sum="Total Est."/>
+                </xpath>
+
+                <xpath expr="//field[@name='qty_remaining']" position="attributes">
+                    <attribute name="column_invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='button_finish']" position="attributes">
+                    <attribute name="confirm">¿Estás seguro de que deseas cerrar esta orden de trabajo?</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="mrp_production_form_view_lock_employee" model="ir.ui.view">
+            <field name="name">mrp.production.form.lock.employee</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="view_mrp_production_form_inherit_dashboard"/>
+            <field name="arch" type="xml">
+
+                <field name="name" position="after">
+                    <field name="is_manager" invisible="1"/>
+                </field>
+
+                <field name="product_id" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="product_qty" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="bom_id" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="date_start" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="user_id" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+
+                <field name="patient_name" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="doctor_id" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="clinic_id" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                
+                <xpath expr="//field[@name='is_vip']" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </xpath>
+                <xpath expr="//page[@name='patient_info']//field[@name='is_vip']" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </xpath>
+                <xpath expr="//field[@name='doctor_comments']" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                    <attribute name="force_save">1</attribute>
+                </xpath>
+
+                <field name="product_type" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="work_type" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="teeth_numbers" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="color_scale" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="color_selected" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="material" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="translucency" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+
+                <field name="deadline_days" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="manufacturing_start_date" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="stage_custom" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+
+                <field name="qty_tibase" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_analogo" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_tornillo" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_transfer" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_calcinable" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_mini_pilares" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                
+                <field name="qty_antagonistas" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_encerado_superior" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_encerado_inferior" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_modelo_superior" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_modelo_inferior" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_mordida_superior" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                <field name="qty_mordida_inferior" position="attributes">
+                    <attribute name="readonly">not is_manager</attribute>
+                </field>
+                
+
+                </field>
+        </record>
+
+        <record id="view_mrp_production_tree_inherit_dashboard" model="ir.ui.view">
+            <field name="name">mrp.production.tree.inherit.dashboard</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="product_id" position="after">
+                    <field name="patient_name" optional="show"/>
+                    <field name="doctor_id" optional="hide"/>
+                    <field name="teeth_count" optional="show"/>
+                </field>
+                <field name="date_deadline" position="after">
+                    <field name="deadline_days" optional="hide"/>
+                    <field name="manufacturing_time" optional="show" widget="float_time"/>
+                </field>
+                <field name="state" position="before">
+                    <field name="stage_custom" optional="show"/>
+                    <field name="is_delayed" optional="show" widget="boolean"/>
+                    <field name="is_urgent" optional="show" widget="boolean"/>
+                    <field name="is_vip" optional="show" widget="boolean"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_mrp_production_search_inherit_dashboard" model="ir.ui.view">
+            <field name="name">mrp.production.search.inherit.dashboard</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
+            <field name="arch" type="xml">
+                <field name="product_id" position="after">
+                    <field name="patient_name" string="Paciente" filter_domain="[('patient_name','ilike',self)]"/>
+                    <field name="doctor_id" string="Doctor"/>
+                    <field name="clinic_id" string="Clínica"/>
+                </field>
+                <xpath expr="//filter[@name='todo']" position="after">
+                    <separator/>
+                    <filter string="VIP" name="vip" domain="[('is_vip', '=', True)]"/>
+                    <separator/>
+                    <filter string="Laboratorio" name="stage_laboratory" domain="[('stage_custom', '=', 'laboratory')]"/>
+                    <filter string="Producción" name="stage_production" domain="[('stage_custom', '=', 'production')]"/>
+                    <filter string="Detenidas" name="stage_stopped" domain="[('stage_custom', '=', 'stopped')]"/>
+                    <filter string="Testing" name="stage_testing" domain="[('stage_custom', '=', 'testing')]"/>
+                </xpath>
+                <xpath expr="//group" position="inside">
+                    <filter string="Etapa Custom" name="group_stage_custom" context="{'group_by': 'stage_custom'}"/>
+                    <filter string="Doctor" name="group_doctor" context="{'group_by': 'doctor_id'}"/>
+                    <filter string="Tipo de Producto" name="group_product_type" context="{'group_by': 'product_type'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="mrp_production_form_inherit_change_button" model="ir.ui.view">
+            <field name="name">mrp.production.form.change.produce.button</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="priority">300</field>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='button_mark_done']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[1]" position="before">
+                    <button name="button_mark_done" type="object" class="btn-primary" string="Enviar a Terminado"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="mrp_production_form_add_freeze_button" model="ir.ui.view">
+            <field name="name">mrp.production.form.freeze.button</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button 
+                        name="action_toggle_freeze" 
+                        type="object" 
+                        string="❄️ Congelar Orden" 
+                        class="btn-secondary" 
+                        groups="custom_manufacturing_dashboard.group_manufacturing_manager"
+                        invisible="is_frozen"/>
+                    
+                    <button 
+                        name="action_toggle_freeze" 
+                        type="object" 
+                        string="▶️ Reanudar Orden" 
+                        class="btn-primary" 
+                        groups="custom_manufacturing_dashboard.group_manufacturing_manager"
+                        invisible="not is_frozen"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="mrp_production_form_add_test_button" model="ir.ui.view">
+            <field name="name">mrp.production.form.test.button</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="action_send_to_test" 
+                            type="object" 
+                            string="🧪 Enviar a Prueba" 
+                            class="btn-warning" 
+                            invisible="state in ('done','cancel') or stage_custom in ('laboratory', 'testing', 'stopped')"/>
+                    
+                    <button name="action_approve_test" 
+                            type="object" 
+                            string="✅ Aprobar Prueba" 
+                            class="btn-success" 
+                            invisible="stage_custom != 'testing'"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="mrp_production_form_add_billing_button" model="ir.ui.view">
+            <field name="name">mrp.production.form.billing.button</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="action_create_bill"
+                            type="object"
+                            string="Crear Factura Mfg"
+                            class="btn-info"
+                            groups="custom_manufacturing_dashboard.group_manufacturing_manager"
+                            invisible="state in ('draft', 'cancel')"/>
+                </xpath>
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="action_view_bills"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file-text-o"
+                            groups="custom_manufacturing_dashboard.group_manufacturing_manager"
+                            invisible="bill_count == 0">
+                        <field name="bill_count" widget="statinfo" string="Facturas Mfg"/>
+                    </button>
+                    <button name="action_view_invoices"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-pencil-square-o"
+                            groups="custom_manufacturing_dashboard.group_manufacturing_manager"
+                            invisible="invoice_count == 0">
+                        <field name="invoice_count" widget="statinfo" string="Factura(s)"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="mrp_production_form_add_frozen_ribbon" model="ir.ui.view">
+            <field name="name">mrp.production.form.frozen.ribbon</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="inside">
+                    <ribbon title="CONGELADA" bg_color="bg-info" invisible="not is_frozen"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_all_mrp_productions" model="ir.actions.act_window">
+            <field name="name">Todas las Órdenes de Manufactura</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record id="action_delayed_productions_v2" model="ir.actions.act_window">
+            <field name="name">Órdenes Retrasadas</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="domain">[('state', 'in', ['confirmed', 'progress', 'to_close']),('time_priority', '=', 4)]</field>
+        </record>
+
+        <record id="action_urgent_productions_v2" model="ir.actions.act_window">
+            <field name="name">Órdenes Urgentes</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="domain">[('state', 'in', ['confirmed', 'progress', 'to_close']), ('is_urgent', '=', True)]</field>
+        </record>
+
+        <record id="action_vip_productions" model="ir.actions.act_window">
+            <field name="name">Órdenes VIP</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="domain">[('is_vip', '=', True)]</field>
+        </record>
+
+        <record id="action_stage_laboratory" model="ir.actions.act_window">
+            <field name="name">Laboratorio</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('stage_custom', '=', 'laboratory')]</field>
+        </record>
+
+        <record id="action_stage_production" model="ir.actions.act_window">
+            <field name="name">Producción</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('stage_custom', '=', 'production')]</field>
+        </record>
+
+        <record id="action_stage_stopped" model="ir.actions.act_window">
+            <field name="name">Detenidas</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('stage_custom', '=', 'stopped')]</field>
+        </record>
+
+        <record id="action_stage_testing" model="ir.actions.act_window">
+            <field name="name">Testing</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('stage_custom', '=', 'testing')]</field>
+        </record>
+
+        <record id="action_pending_productions" model="ir.actions.act_window">
+            <field name="name">Órdenes Pendientes</field>
+            <field name="res_model">mrp.production</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="domain">[('state', 'in', ['confirmed', 'progress', 'to_close']), ('time_priority', '=', 1), ('is_urgent', '=', False)]</field>
+        </record>
+
+        <record id="view_mrp_production_kanban_dashboard" model="ir.ui.view">
+            <field name="name">mrp.production.kanban.dashboard</field>
+            <field name="model">mrp.production</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="stage_custom" class="o_kaanban_small_column">
+                    <field name="name"/>
+                    <field name="product_id"/>
+                    <field name="patient_name"/>
+                    <field name="state"/>
+                    <field name="stage_custom"/>
+                    <field name="is_delayed"/>
+                    <field name="is_urgent"/>
+                    <field name="is_vip"/>
+                    <field name="manufacturing_time"/>
+                    <field name="deadline_days"/>
+                    <field name="teeth_count"/>
+                    <field name="time_status"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-att-class="'o_kanban_record o_kanban_global_click ' + (record.time_status.raw_value ? 'o_time_' + record.time_status.raw_value : 'o_time_green')">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                            <t t-if="record.is_vip.raw_value">
+                                                <span class="badge badge-warning">⭐ VIP</span>
+                                            </t>
+                                        </strong>
+                                        <br/>
+                                        <small><field name="product_id"/></small>
+                                        <br/>
+                                        <small t-if="record.patient_name.raw_value">
+                                            Paciente: <field name="patient_name"/>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <t t-if="record.teeth_count.raw_value">
+                                        Dientes: <field name="teeth_count"/> |
+                                    </t>
+                                    Tiempo: <field name="manufacturing_time" widget="float_time"/>
+                                    <br/>
+                                    Deadline: <field name="deadline_days"/> días
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <t t-if="record.is_delayed.raw_value">
+                                            <span class="badge badge-danger">🚨 Retrasado</span>
+                                        </t>
+                                        <t t-if="record.is_urgent.raw_value and !record.is_delayed.raw_value">
+                                            <span class="badge badge-warning">⏰ Urgente</span>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'confirmed'">
+                                            <span class="badge badge-info">✓ Confirmado</span>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'progress'">
+                                            <span class="badge badge-primary">▶️ En Progreso</span>
+                                        </t>
+                                        <t t-if="record.state.raw_value == 'done'">
+                                            <span class="badge badge-success">✅ Completado</span>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+    </data>
+    <data>
+        <record id="view_mrp_production_form_custom_header" model="ir.ui.view">
+            <field name="name">mrp.production.form.custom.header</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="priority" eval="100"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='date_finished']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_deadline']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//label[@for='date_start']" position="replace">
+                </xpath>
+
+                <xpath expr="//div[hasclass('o_row')]/field[@name='date_start']/.." position="replace">
+                    
+                    <field name="date_start" string="Iniciado" widget="datetime"/>
+                    
+                    <field name="date_deadline" 
+                        string="Entrega" 
+                        widget="datetime" 
+                        readonly="0" 
+                        force_save="1"/>
+                    
+                    <field name="manufacturing_time" widget="float_time" string="Tiempo" decoration-danger="is_delayed"/>
+                    <field name="stage_custom" widget="badge" decoration-info="True"/>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+    <data>
+
+        <record id="action_server_employee_active_orders" model="ir.actions.server">
+            <field name="name">Mis Órdenes Activas</field>
+            <field name="model_id" ref="mrp.model_mrp_production"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = model.action_open_employee_active_orders()
+            </field>
+        </record>
+
+        <menuitem id="menu_mrp_employee_active_orders"
+                  name="Órdenes Activas"
+                  parent="mrp.menu_mrp_root"
+                  action="action_server_employee_active_orders"
+                  sequence="10"/>
+
+    </data>
+    <data>
+        <record id="action_mrp_recompute_dashboard_data" model="ir.actions.server">
+            <field name="name">🔄 Refrescar Colores y Días</field>
+            <field name="model_id" ref="mrp.model_mrp_production"/>
+            <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+for record in records:
+    # 1. Si la orden tiene fecha, actualizamos el contador de días
+    if record.date_deadline:
+        record._compute_deadline_days()
+    
+    # 2. Actualizamos el color (Rojo/Verde) basado en la fecha existente
+    record._compute_alert_status()
+            </field>
+        </record>
+    </data>
+    <record id="view_mrp_production_form_cleanup_dates_final" model="ir.ui.view">
+        <field name="name">mrp.production.form.cleanup.dates.final</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="priority" eval="200"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//group[@name='group_extra_info']//label[@for='date_start']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//group[@name='group_extra_info']//field[@name='date_finished']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

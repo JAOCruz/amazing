@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List view -->
+    <record id="view_appbot_appointment_tree" model="ir.ui.view">
+        <field name="name">appbot.appointment.tree</field>
+        <field name="model">appbot.appointment</field>
+        <field name="arch" type="xml">
+            <list string="Citas AppBot" default_order="date desc">
+                <field name="date"/>
+                <field name="date_string"/>
+                <field name="doctor_id"/>
+                <field name="client_name"/>
+                <field name="client_number"/>
+                <field name="service_name"/>
+                <field name="branch_name"/>
+                <field name="confirmation"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_appbot_appointment_form" model="ir.ui.view">
+        <field name="name">appbot.appointment.form</field>
+        <field name="model">appbot.appointment</field>
+        <field name="arch" type="xml">
+            <form string="Cita AppBot">
+                <sheet>
+                    <group>
+                        <group string="Información de la Cita">
+                            <field name="appbot_id"/>
+                            <field name="doctor_id"/>
+                            <field name="service_name"/>
+                            <field name="date"/>
+                            <field name="date_end"/>
+                            <field name="date_string"/>
+                            <field name="state"/>
+                            <field name="confirmation"/>
+                        </group>
+                        <group string="Cliente">
+                            <field name="client_name"/>
+                            <field name="client_number"/>
+                            <field name="branch_name"/>
+                            <field name="address"/>
+                            <field name="reminder_sent"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Datos AppBot">
+                            <field name="raw_data" widget="code"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_appbot_appointment" model="ir.actions.act_window">
+        <field name="name">Citas AppBot</field>
+        <field name="res_model">appbot.appointment</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+    </record>
+
+    <!-- Menu under Manufacturing -->
+    <menuitem id="menu_appbot_appointments"
+              name="Citas AppBot"
+              parent="mrp.menu_mrp_root"
+              action="action_appbot_appointment"
+              sequence="90"
+              groups="custom_manufacturing_dashboard.group_manufacturing_manager"/>
+
+</odoo>

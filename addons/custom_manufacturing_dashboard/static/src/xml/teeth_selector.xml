@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="custom_manufacturing_dashboard.TeethSelector">
+        <div class="o_teeth_selector" style="font-family:sans-serif;user-select:none;padding:4px 0;position:relative;">
+
+            <!-- ── Upper jaw labels ── -->
+            <div style="display:flex;justify-content:space-between;max-width:740px;margin:0 auto 3px;font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">
+                <span>Superior Derecho</span><span>Superior Izquierdo</span>
+            </div>
+
+            <!-- ── UPPER JAW ── -->
+            <t t-set="upper" t-value="getUpperLayout()"/>
+            <t t-set="uMaxH" t-value="getMaxH(upper)"/>
+            <svg t-attf-viewBox="0 0 #{getTotalWidth(upper)} #{uMaxH + 18}"
+                 style="width:100%;max-width:740px;display:block;margin:0 auto;overflow:visible;">
+                <line t-att-x1="getTotalWidth(upper)/2" y1="0"
+                      t-att-x2="getTotalWidth(upper)/2" t-att-y2="uMaxH+12"
+                      stroke="#ebebeb" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                <t t-foreach="upper" t-as="tooth" t-key="tooth.n">
+                    <t t-set="tH" t-value="getToothH(tooth)"/>
+                    <t t-set="rtH" t-value="getRootHeight(tooth)"/>
+                    <t t-set="offsetY" t-value="uMaxH - tH"/>
+                    <t t-set="sel" t-value="isSelected(tooth.n)"/>
+
+                    <g t-on-click="() => this.onToothClick(tooth.n)" style="cursor:pointer;">
+                        <!-- Roots -->
+                        <t t-foreach="getRootPaths(tooth)" t-as="rp" t-key="rp_index">
+                            <path t-att-d="rp"
+                                  t-att-transform="`translate(${tooth.x}, ${offsetY})`"
+                                  t-att-fill="sel ? getToothStrokeColor(tooth.n) : '#e4e4e4'"
+                                  t-att-stroke="sel ? getToothStrokeColor(tooth.n) : '#bbb'"
+                                  stroke-width="0.8" stroke-linejoin="round"/>
+                        </t>
+                        <!-- Crown: 3 sections for selected teeth, single for unselected -->
+                        <t t-if="sel">
+                            <!-- clipPath defs in local space (crown h=56px, incisal=top) -->
+                            <g t-att-transform="`translate(${tooth.x}, ${offsetY + rtH + 4})`">
+                                <defs>
+                                    <clipPath t-att-id="`ui${tooth.n}`">
+                                        <rect x="-2" y="-2" t-att-width="tooth.w + 4" height="20.5"/>
+                                    </clipPath>
+                                    <clipPath t-att-id="`um${tooth.n}`">
+                                        <rect x="-2" y="18.5" t-att-width="tooth.w + 4" height="19"/>
+                                    </clipPath>
+                                    <clipPath t-att-id="`uc${tooth.n}`">
+                                        <rect x="-2" y="37" t-att-width="tooth.w + 4" height="22"/>
+                                    </clipPath>
+                                </defs>
+                                <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#ui${tooth.n})`"
+                                      t-att-fill="getIncisalColor(tooth.n)"
+                                      t-att-stroke="getToothStrokeColor(tooth.n)" stroke-width="0.5"/>
+                                <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#um${tooth.n})`"
+                                      t-att-fill="getMiddleColor(tooth.n)"
+                                      t-att-stroke="getToothStrokeColor(tooth.n)" stroke-width="0.5"/>
+                                <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#uc${tooth.n})`"
+                                      t-att-fill="getCervicalColor(tooth.n)"
+                                      t-att-stroke="getToothStrokeColor(tooth.n)" stroke-width="0.5"/>
+                                <!-- Crown outline -->
+                                <path t-att-d="getCrownPath(tooth)" fill="none"
+                                      t-att-stroke="getToothStrokeColor(tooth.n)"
+                                      stroke-width="1.0" stroke-linejoin="round"/>
+                                <!-- Section dividers (only when mixed) -->
+                                <t t-if="hasMixedShades(tooth.n)">
+                                    <line x1="-1" t-att-x2="tooth.w + 1" y1="18.5" y2="18.5"
+                                          stroke="#888" stroke-width="0.6" stroke-dasharray="2,1.5"/>
+                                    <line x1="-1" t-att-x2="tooth.w + 1" y1="37" y2="37"
+                                          stroke="#888" stroke-width="0.6" stroke-dasharray="2,1.5"/>
+                                </t>
+                                <!-- Shade label in middle -->
+                                <text t-att-x="tooth.w / 2" y="32" text-anchor="middle" font-size="6"
+                                      t-att-fill="getToothStrokeColor(tooth.n)" font-weight="700">
+                                    <t t-esc="getToothShadeLabel(tooth.n)"/>
+                                </text>
+                            </g>
+                        </t>
+                        <t t-else="">
+                            <path t-att-d="getCrownPath(tooth)"
+                                  t-att-transform="`translate(${tooth.x}, ${offsetY + rtH + 4})`"
+                                  fill="#f7f7f7" stroke="#c0c0c0"
+                                  stroke-width="1.2" stroke-linejoin="round"/>
+                        </t>
+                        <!-- Tooth number -->
+                        <text t-att-x="tooth.x + tooth.w / 2" t-att-y="uMaxH + 16"
+                              text-anchor="middle" font-size="9.5"
+                              t-att-fill="sel ? getToothStrokeColor(tooth.n) : '#999'" font-weight="600">
+                            <t t-esc="tooth.n"/>
+                        </text>
+                    </g>
+                </t>
+            </svg>
+
+            <div style="height:12px;"/>
+
+            <!-- ── LOWER JAW ── -->
+            <t t-set="lower" t-value="getLowerLayout()"/>
+            <t t-set="lMaxH" t-value="getMaxH(lower)"/>
+            <svg t-attf-viewBox="0 0 #{getTotalWidth(lower)} #{lMaxH + 18}"
+                 style="width:100%;max-width:740px;display:block;margin:0 auto;overflow:visible;">
+                <line t-att-x1="getTotalWidth(lower)/2" y1="0"
+                      t-att-x2="getTotalWidth(lower)/2" t-att-y2="lMaxH+12"
+                      stroke="#ebebeb" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+                <t t-foreach="lower" t-as="tooth" t-key="tooth.n">
+                    <t t-set="tH" t-value="getToothH(tooth)"/>
+                    <t t-set="rtH" t-value="getRootHeight(tooth)"/>
+                    <t t-set="sel" t-value="isSelected(tooth.n)"/>
+
+                    <g t-on-click="() => this.onToothClick(tooth.n)" style="cursor:pointer;">
+                        <!-- Crown at top (flipped) -->
+                        <!-- Crown with 3 sections — lower arch is scale(-1,-1) so clips are reversed -->
+                        <t t-if="sel">
+                            <g t-att-transform="`translate(${tooth.x + tooth.w}, ${getCrownH()}) scale(-1,-1)`">
+                                <defs>
+                                    <!-- Lower arch reversed: incisal=y 37-56, cervical=y 0-18.5 in local space -->
+                                    <clipPath t-att-id="`li${tooth.n}`">
+                                        <rect x="-2" y="37" t-att-width="tooth.w + 4" height="22"/>
+                                    </clipPath>
+                                    <clipPath t-att-id="`lm${tooth.n}`">
+                                        <rect x="-2" y="18.5" t-att-width="tooth.w + 4" height="19"/>
+                                    </clipPath>
+                                    <clipPath t-att-id="`lc${tooth.n}`">
+                                        <rect x="-2" y="-2" t-att-width="tooth.w + 4" height="20.5"/>
+                                    </clipPath>
+                                </defs>
+                                <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#li${tooth.n})`"
+                                      t-att-fill="getIncisalColor(tooth.n)"
+                                      t-att-stroke="getToothStrokeColor(tooth.n)" stroke-width="0.5"/>
+                                <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#lm${tooth.n})`"
+                                      t-att-fill="getMiddleColor(tooth.n)"
+                                      t-att-stroke="getToothStrokeColor(tooth.n)" stroke-width="0.5"/>
+                                <path t-att-d="getCrownPath(tooth)" t-att-clip-path="`url(#lc${tooth.n})`"
+                                      t-att-fill="getCervicalColor(tooth.n)"
+                                      t-att-stroke="getToothStrokeColor(tooth.n)" stroke-width="0.5"/>
+                                <path t-att-d="getCrownPath(tooth)" fill="none"
+                                      t-att-stroke="getToothStrokeColor(tooth.n)"
+                                      stroke-width="1.0" stroke-linejoin="round"/>
+                                <t t-if="hasMixedShades(tooth.n)">
+                                    <line x1="-1" t-att-x2="tooth.w + 1" y1="18.5" y2="18.5"
+                                          stroke="#888" stroke-width="0.6" stroke-dasharray="2,1.5"/>
+                                    <line x1="-1" t-att-x2="tooth.w + 1" y1="37" y2="37"
+                                          stroke="#888" stroke-width="0.6" stroke-dasharray="2,1.5"/>
+                                </t>
+                                <text t-att-x="tooth.w / 2" y="32" text-anchor="middle" font-size="6"
+                                      t-att-fill="getToothStrokeColor(tooth.n)" font-weight="700">
+                                    <t t-esc="getToothShadeLabel(tooth.n)"/>
+                                </text>
+                            </g>
+                        </t>
+                        <t t-else="">
+                            <path t-att-d="getCrownPath(tooth)"
+                                  t-att-transform="`translate(${tooth.x + tooth.w}, ${getCrownH()}) scale(-1,-1)`"
+                                  fill="#f7f7f7" stroke="#c0c0c0"
+                                  stroke-width="1.2" stroke-linejoin="round"/>
+                        </t>
+                        <!-- Roots pointing down -->
+                        <t t-foreach="getRootPaths(tooth)" t-as="rp" t-key="rp_index">
+                            <path t-att-d="rp"
+                                  t-att-transform="`translate(${tooth.x}, ${getCrownH() + 4})`"
+                                  t-att-fill="sel ? getToothStrokeColor(tooth.n) : '#e4e4e4'"
+                                  t-att-stroke="sel ? getToothStrokeColor(tooth.n) : '#bbb'"
+                                  stroke-width="0.8" stroke-linejoin="round"/>
+                        </t>
+                        <!-- Number -->
+                        <text t-att-x="tooth.x + tooth.w / 2" t-att-y="tH + 16"
+                              text-anchor="middle" font-size="9.5"
+                              t-att-fill="sel ? getToothStrokeColor(tooth.n) : '#999'" font-weight="600">
+                            <t t-esc="tooth.n"/>
+                        </text>
+                    </g>
+                </t>
+            </svg>
+
+            <!-- ── Lower labels ── -->
+            <div style="display:flex;justify-content:space-between;max-width:740px;margin:3px auto 0;font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">
+                <span>Inferior Derecho</span><span>Inferior Izquierdo</span>
+            </div>
+
+            <!-- ── Counter ── -->
+            <div style="text-align:center;margin-top:10px;min-height:20px;">
+                <t t-if="selectedCount > 0">
+                    <span style="color:#714B67;font-size:13px;font-weight:600;">
+                        🦷 <t t-esc="selectedCount"/> diente<t t-if="selectedCount !== 1">s</t> seleccionado<t t-if="selectedCount !== 1">s</t>
+                        <span style="font-size:11px;color:#999;font-weight:400;"> — haz clic en uno para ajustar el color por tercio</span>
+                    </span>
+                </t>
+                <t t-else="">
+                    <span style="color:#ccc;font-size:12px;">Haz clic en los dientes a trabajar</span>
+                </t>
+            </div>
+
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <!-- SHADE POPUP                                                -->
+            <!-- ══════════════════════════════════════════════════════════ -->
+            <t t-if="state.popup">
+                <!-- Backdrop -->
+                <div t-on-click="closePopup"
+                     style="position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9998;"/>
+
+                <!-- Modal card -->
+                <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+                            z-index:9999;background:#fff;border-radius:14px;
+                            box-shadow:0 20px 60px rgba(0,0,0,0.25);
+                            padding:24px;min-width:320px;max-width:380px;width:90vw;">
+
+                    <!-- Header -->
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                        <h3 style="margin:0;font-size:16px;font-weight:700;color:#2e4159;">
+                            🦷 Diente <t t-esc="state.popup.n"/>
+                        </h3>
+                        <p t-if="toothName(state.popup.n)" style="margin:2px 0 0;font-size:12px;color:#6b7a99;font-weight:500;letter-spacing:0.2px;">
+                            <t t-esc="toothName(state.popup.n)"/>
+                        </p>
+                        <button t-on-click="closePopup"
+                                style="border:none;background:none;cursor:pointer;font-size:20px;color:#999;line-height:1;">×</button>
+                    </div>
+
+                    <!-- Tooth visual with 3 sections labeled -->
+                    <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:20px;">
+                        <!-- Tooth SVG enlarged with 3 color bands -->
+                        <t t-set="pt" t-value="getPopupCrownPath()"/>
+                        <div style="flex-shrink:0;">
+                            <svg t-attf-width="#{pt.w * 2.5}" t-attf-height="#{pt.h * 2.5}"
+                                 t-attf-viewBox="0 0 #{pt.w} #{pt.h}"
+                                 style="display:block;">
+                                <!-- Unique clip ID per popup tooth (use tooth number) -->
+                                <defs>
+                                    <t t-set="cid" t-value="`tc${state.popup.n}`"/>
+                                    <!-- Incisal band: top 33% -->
+                                    <clipPath t-att-id="`${cid}_i`">
+                                        <rect t-att-width="pt.w + 4" t-att-height="pt.h * 0.33" x="-2" y="-1"/>
+                                    </clipPath>
+                                    <!-- Middle band: 33-66% -->
+                                    <clipPath t-att-id="`${cid}_m`">
+                                        <rect t-att-width="pt.w + 4" t-att-height="pt.h * 0.34" x="-2" t-att-y="pt.h * 0.33"/>
+                                    </clipPath>
+                                    <!-- Cervical band: bottom 34% -->
+                                    <clipPath t-att-id="`${cid}_c`">
+                                        <rect t-att-width="pt.w + 4" t-att-height="pt.h * 0.34" x="-2" t-att-y="pt.h * 0.66"/>
+                                    </clipPath>
+                                </defs>
+
+                                <!-- Incisal section -->
+                                <path t-att-d="pt.path"
+                                      t-att-clip-path="`url(#${cid}_i)`"
+                                      t-att-fill="shadeColor(state.popup.incisal)"
+                                      stroke="#a0a0a0" stroke-width="0.6"/>
+                                <!-- Middle section -->
+                                <path t-att-d="pt.path"
+                                      t-att-clip-path="`url(#${cid}_m)`"
+                                      t-att-fill="shadeColor(state.popup.middle)"
+                                      stroke="#a0a0a0" stroke-width="0.6"/>
+                                <!-- Cervical section -->
+                                <path t-att-d="pt.path"
+                                      t-att-clip-path="`url(#${cid}_c)`"
+                                      t-att-fill="shadeColor(state.popup.cervical)"
+                                      stroke="#a0a0a0" stroke-width="0.6"/>
+                                <!-- Crown outline on top -->
+                                <path t-att-d="pt.path" fill="none" stroke="#666" stroke-width="1.2"/>
+                                <!-- Dividing lines -->
+                                <line x1="0" t-att-x2="pt.w" t-att-y1="pt.h * 0.33" t-att-y2="pt.h * 0.33"
+                                      stroke="#888" stroke-width="0.8" stroke-dasharray="2,2"/>
+                                <line x1="0" t-att-x2="pt.w" t-att-y1="pt.h * 0.66" t-att-y2="pt.h * 0.66"
+                                      stroke="#888" stroke-width="0.8" stroke-dasharray="2,2"/>
+                                <!-- Section labels -->
+                                <text x="2" t-att-y="pt.h * 0.16" font-size="5" fill="#555">Incisal</text>
+                                <text x="2" t-att-y="pt.h * 0.495" font-size="5" fill="#555">T. Medio</text>
+                                <text x="2" t-att-y="pt.h * 0.82" font-size="5" fill="#555">Cervical</text>
+                            </svg>
+                        </div>
+
+                        <!-- Shade selectors -->
+                        <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding-top:4px;">
+                            <!-- Incisal -->
+                            <div>
+                                <label style="font-size:11px;font-weight:700;color:#555;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;">Incisal</label>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <div t-att-style="`width:16px;height:16px;border-radius:4px;border:1px solid #ddd;background:${shadeColor(state.popup.incisal)};flex-shrink:0;`"/>
+                                    <select t-att-value="state.popup.incisal"
+                                            t-on-change="(e) => this.setShade('incisal', e.target.value)"
+                                            style="flex:1;padding:4px 6px;border:1.5px solid #e0e0e0;border-radius:6px;font-size:13px;font-weight:600;color:#2e4159;">
+                                        <t t-foreach="getVitaShades()" t-as="sh" t-key="sh">
+                                            <option t-att-value="sh" t-att-selected="sh === state.popup.incisal"><t t-esc="sh"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Tercio Medio -->
+                            <div>
+                                <label style="font-size:11px;font-weight:700;color:#555;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;">Tercio Medio</label>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <div t-att-style="`width:16px;height:16px;border-radius:4px;border:1px solid #ddd;background:${shadeColor(state.popup.middle)};flex-shrink:0;`"/>
+                                    <select t-att-value="state.popup.middle"
+                                            t-on-change="(e) => this.setShade('middle', e.target.value)"
+                                            style="flex:1;padding:4px 6px;border:1.5px solid #e0e0e0;border-radius:6px;font-size:13px;font-weight:600;color:#2e4159;">
+                                        <t t-foreach="getVitaShades()" t-as="sh" t-key="sh">
+                                            <option t-att-value="sh" t-att-selected="sh === state.popup.middle"><t t-esc="sh"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Cervical -->
+                            <div>
+                                <label style="font-size:11px;font-weight:700;color:#555;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;">Cervical</label>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <div t-att-style="`width:16px;height:16px;border-radius:4px;border:1px solid #ddd;background:${shadeColor(state.popup.cervical)};flex-shrink:0;`"/>
+                                    <select t-att-value="state.popup.cervical"
+                                            t-on-change="(e) => this.setShade('cervical', e.target.value)"
+                                            style="flex:1;padding:4px 6px;border:1.5px solid #e0e0e0;border-radius:6px;font-size:13px;font-weight:600;color:#2e4159;">
+                                        <t t-foreach="getVitaShades()" t-as="sh" t-key="sh">
+                                            <option t-att-value="sh" t-att-selected="sh === state.popup.cervical"><t t-esc="sh"/></option>
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div style="display:flex;gap:8px;justify-content:flex-end;">
+                        <button t-on-click="() => this.deselectTooth(state.popup.n)"
+                                style="padding:8px 14px;border:1.5px solid #e0e0e0;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#e74c3c;font-weight:600;">
+                            🗑 Quitar diente
+                        </button>
+                        <button t-on-click="savePopup"
+                                style="padding:8px 18px;border:none;border-radius:8px;background:#714B67;cursor:pointer;font-size:13px;color:#fff;font-weight:700;">
+                            ✓ Guardar
+                        </button>
+                    </div>
+                </div>
+            </t>
+
+        </div>
+    </t>
+</templates>

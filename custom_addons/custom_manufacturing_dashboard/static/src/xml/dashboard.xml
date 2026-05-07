@@ -1,0 +1,848 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- ============================================ -->
+    <!-- DASHBOARD PRINCIPAL - MANAGERS -->
+    <!-- ============================================ -->
+
+    <t t-name="custom_manufacturing_dashboard.Dashboard">
+        <div t-ref="root" class="manufacturing-dashboard-container">
+
+            <!-- ============================================ -->
+            <!-- LOADING STATE -->
+            <!-- ============================================ -->
+            <t t-if="!state.data">
+                <div class="dashboard-loading">
+                    <div class="loading-spinner">
+                        <i class="fa fa-spinner fa-spin fa-3x text-primary"/>
+                        <p class="mt-3">Cargando dashboard...</p>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ============================================ -->
+            <!-- DASHBOARD CONTENT -->
+            <!-- ============================================ -->
+            <t t-if="state.data">
+                <!-- Dashboard Header -->
+                <div class="dashboard-header">
+                    <div class="header-left">
+                        <h1 class="dashboard-title">
+                            <i class="fa fa-chart-line"/> Dashboard de Manufactura
+                        </h1>
+                        <div class="last-update">
+                            <i class="fa fa-clock-o"/>
+                            <span t-esc="getLastUpdateFormatted()"/>
+                        </div>
+                    </div>
+
+                    <div class="header-actions">
+                        <!-- Auto-refresh Toggle -->
+                        <button
+                            class="btn btn-sm"
+                            t-att-class="state.autoRefresh ? 'btn-success' : 'btn-secondary'"
+                            t-on-click="toggleAutoRefresh"
+                            title="Toggle Auto-refresh (30s)">
+                            <i t-att-class="state.autoRefresh ? 'fa fa-toggle-on' : 'fa fa-toggle-off'"/>
+                            Auto-refresh
+                        </button>
+
+                        <!-- Manual Refresh Button -->
+                        <button
+                            class="btn btn-primary btn-sm"
+                            t-on-click="refreshDashboard"
+                            title="Refrescar ahora">
+                            <i class="fa fa-refresh"/>
+                            Actualizar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- SUMMARY SECTION - ETAPAS -->
+                <!-- ============================================ -->
+                <div class="summary-section">
+                    <h2 class="section-title">
+                        <i class="fa fa-th-large"/> Resumen de Procesos
+                    </h2>
+
+                    <div class="summary-cards-grid">
+                        <!-- Laboratorio Card -->
+                        <t t-if="state.data.is_manager">
+                            <div class="stat-card card-laboratory" t-on-click="() => this.openCases('laboratory')">
+                                <div class="card-icon">
+                                    <i class="fa fa-flask"/>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-value" t-esc="state.data.summary.laboratory"/>
+                                    <div class="card-label">Laboratorio</div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Producción Card -->
+                        <div class="stat-card card-production" t-on-click="() => this.openCases('production')">
+                            <div class="card-icon">
+                                <i class="fa fa-cogs"/>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-value" t-esc="state.data.summary.production"/>
+                                <div class="card-label">Producción</div>
+                            </div>
+                        </div>
+
+                        <!-- Detenidas Card -->
+                        <t t-if="state.data.is_manager">
+                            <div class="stat-card card-stopped" t-on-click="() => this.openCases('stopped')">
+                                <div class="card-icon">
+                                    <i class="fa fa-pause-circle"/>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-value" t-esc="state.data.summary.stopped"/>
+                                    <div class="card-label">Detenidas</div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Testing Card -->
+                        <t t-if="state.data.is_manager">
+                            <div class="stat-card card-testing" t-on-click="() => this.openCases('test')">
+                                <div class="card-icon">
+                                    <i class="fa fa-check-circle"/>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-value" t-esc="state.data.summary.test"/>
+                                    <div class="card-label">Testing</div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Completed Card -->
+                        <t t-if="state.data.is_manager">
+                            <div class="stat-card card-completed" t-on-click="() => this.openCases('completed')">
+                                <div class="card-icon">
+                                    <i class="fa fa-check-square"/>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-value" t-esc="state.data.summary.completed"/>
+                                    <div class="card-label">Completadas</div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- VIP Card -->
+                        <div class="stat-card card-vip" t-on-click="() => this.openCases('vip')">
+                            <div class="card-icon">
+                                <i class="fa fa-star"/>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-value" t-esc="state.data.summary.vip"/>
+                                <div class="card-label">Clientes VIP</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- ALERTS SECTION -->
+                <!-- ============================================ -->
+                <div class="alerts-section"> <!-- Alerts now stay visible even when filtering -->
+                    <h2 class="section-title">
+                        <i class="fa fa-exclamation-triangle"/> Alertas Activas
+                    </h2>
+
+                    <div class="alerts-cards-grid">
+                        <!-- Delayed Alert Card -->
+                        <div class="alert-card alert-delayed" t-on-click="() => this.openCases('delayed')">
+                            <div class="alert-icon">
+                                <i class="fa fa-times-circle"/>
+                            </div>
+                            <div class="alert-content">
+                                <div class="alert-value" t-esc="state.data.alerts.delayed"/>
+                                <div class="alert-label">Retrasadas</div>
+                                <div class="alert-emoji">🔴</div>
+                            </div>
+                        </div>
+
+                        <!-- Urgent Alert Card -->
+                        <div class="alert-card alert-urgent" t-on-click="() => this.openCases('urgent')">
+                            <div class="alert-icon">
+                                <i class="fa fa-exclamation-circle"/>
+                            </div>
+                            <div class="alert-content">
+                                <div class="alert-value" t-esc="state.data.alerts.urgent"/>
+                                <div class="alert-label">Urgentes</div>
+                                <div class="alert-emoji">⚠️</div>
+                            </div>
+                        </div>
+
+                        <!-- Pending Alert Card -->
+                        <t t-if="state.data.is_manager">
+                            <div class="alert-card alert-pending" t-on-click="() => this.openCases('pending')">
+                                <div class="alert-icon">
+                                    <i class="fa fa-truck"/>
+                                    </div>
+                                <div class="alert-content">
+                                    <div class="alert-value" t-esc="state.data.alerts.pending"/>
+                                    <div class="alert-label">Mensajería</div>
+                                    <div class="alert-emoji">🚚</div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+                <!-- ============================================ -->
+                <!-- FILTERED LIST SECTION (SPA) -->
+                <!-- ============================================ -->
+                <style>
+                    /* Portal-like Styles for Backend Dashboard */
+                    .kanban-card { 
+                        display: block; 
+                        background: white; 
+                        border: 1px solid #e0e0e0; 
+                        border-radius: 8px; 
+                        margin-bottom: 15px; 
+                        text-decoration: none; 
+                        color: inherit; 
+                        transition: all 0.2s; 
+                        overflow: hidden; 
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                    }
+                    .kanban-card:hover { 
+                        transform: translateY(-3px); 
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+                        text-decoration: none; 
+                        color: inherit; 
+                        cursor: pointer;
+                    }
+                    .kanban-card.vip-border { border-left: 5px solid #f39c12; }
+                    .card-header-kanban { 
+                        padding: 10px 15px; 
+                        background: rgba(255, 255, 255, 0.5); /* Tansparent white to show bg color */
+                        display: flex; 
+                        justify-content: space-between; 
+                        align-items: center; 
+                        border-bottom: 1px solid rgba(0,0,0,0.05); 
+                        font-weight: bold; 
+                    }
+                    .patient-info, .product-info { 
+                        padding: 8px 15px; 
+                        font-size: 0.95rem; 
+                    }
+                    .card-footer-kanban { 
+                        padding: 10px 15px; 
+                        background: rgba(255, 255, 255, 0.6); 
+                        border-top: 1px solid rgba(0,0,0,0.05); 
+                        display: flex; 
+                        justify-content: space-between; 
+                        color: #666; 
+                        font-size: 0.85rem; 
+                    }
+                    
+                    /* --- COLOR CLASSES (From workorder_kanban.scss) --- */
+                    /* --- 🟢 VERDE (Normal) --- */
+                    .o_time_green {
+                        border-left: 6px solid #2ecc71 !important;
+                        background-color: #f2fff7 !important;
+                    }
+
+                    /* --- 🟡 AMARILLO (Atención - 3 días) --- */
+                    .o_time_yellow {
+                        border-left: 6px solid #fff306 !important;
+                        background-color: #fffbea !important;
+                    }
+
+                    /* --- 🟠 NARANJA (Prioridad - 2 días) --- */
+                    .o_time_orange {
+                        border-left: 6px solid #ffa600 !important;
+                        background-color: #f7e3d3 !important;
+                    }
+
+                    /* --- 🟣 MORADO (Crítico - 1 día) --- */
+                    .o_time_purple {
+                        border-left: 6px solid #bc11ff !important;
+                        background-color: #f0ddf7 !important;
+                    }
+
+                    /* --- 🔴 ROJO (Retrasado) --- */
+                    .o_time_late {
+                        border-left: 6px solid #fd0202 !important;
+                        background-color: #f9ebea !important;
+                        animation: pulse 1.2s infinite; 
+                    }
+
+                    /* --- ❄️ CONGELADO --- */
+                    .o_time_frozen {
+                        border-left: 4px solid #0969fa !important;
+                        background-color: #d0e0f6 !important;
+                    }
+
+                    @keyframes pulse {
+                      0% { opacity: 1; }
+                      50% { opacity: 0.85; }
+                      100% { opacity: 1; }
+                    }
+                </style>
+                
+                <!-- ============================================ -->
+                <!-- ALERTS SECTION (Visible Always) -->
+                <!-- ============================================ -->
+                <div class="alerts-section mb-4">
+                     <!-- Title only if there are alerts or we want it persistent -->
+                     <t t-if="state.data.summary.delayed > 0 or state.data.summary.urgents > 0">
+                        <h5 class="mb-3 font-weight-bold"><i class="fa fa-exclamation-triangle text-warning"/> Alertas Activas</h5>
+                        <div class="row">
+                             <!-- Delayed -->
+                            <div class="col-12 col-md-6 mb-3" t-if="state.data.summary.delayed > 0">
+                                <div class="alert-card bg-white border-left-danger shadow-sm p-3 d-flex align-items-center"
+                                     style="border-left: 5px solid #dc3545; cursor:pointer;"
+                                     t-on-click="() => this.openCases('delayed')">
+                                    <div class="icon-box mr-3 text-danger">
+                                        <i class="fa fa-times-circle fa-2x"/>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-0 text-danger font-weight-bold" t-esc="state.data.summary.delayed"/>
+                                        <div class="text-muted text-uppercase small font-weight-bold">Retrasadas</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Urgent -->
+                            <div class="col-12 col-md-6 mb-3" t-if="state.data.summary.urgents > 0">
+                                <div class="alert-card bg-white border-left-warning shadow-sm p-3 d-flex align-items-center"
+                                     style="border-left: 5px solid #ffc107; cursor:pointer;"
+                                     t-on-click="() => this.openCases('urgent')">
+                                    <div class="icon-box mr-3 text-warning">
+                                        <i class="fa fa-exclamation-circle fa-2x"/>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-0 text-warning font-weight-bold" t-esc="state.data.summary.urgents"/>
+                                        <div class="text-muted text-uppercase small font-weight-bold">Urgentes</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                     </t>
+                </div>
+
+                <t t-if="state.activeFilter">
+                    <div class="filtered-list-section mt-4 mb-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="section-title text-primary m-0">
+                                <i class="fa fa-filter"/> <t t-esc="state.filterTitle"/>
+                            </h2>
+                            <button class="btn btn-secondary btn-sm" t-on-click="clearFilter">
+                                <i class="fa fa-times"/> Cerrar Filtro
+                            </button>
+                        </div>
+
+                        <!-- Search bar for filtered list -->
+                        <div class="input-group mb-3" style="max-width: 420px;">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white border-right-0"><i class="fa fa-search text-muted"/></span>
+                            </div>
+                            <input type="text" class="form-control border-left-0"
+                                   placeholder="Buscar por doctor, paciente, producto..."
+                                   t-on-input="onSearchFilteredList"/>
+                        </div>
+
+                        <t t-if="state.loadingList">
+                            <div class="text-center p-5">
+                                <i class="fa fa-spinner fa-spin fa-2x text-muted"/>
+                                <p class="text-muted mt-2">Cargando órdenes...</p>
+                            </div>
+                        </t>
+
+                        <t t-else="">
+                            <t t-set="filtered_orders" t-value="getFilteredOrderList()"/>
+                            <t t-if="filtered_orders.length > 0">
+                                <div class="row">
+                                    <t t-foreach="filtered_orders" t-as="order" t-key="order.id">
+                                        <div class="col-12 col-md-6 col-lg-4 mb-3">
+                                            <!-- Portal-Style "Bubble" Card with Dynamic Color Class -->
+                                            <div t-att-class="'kanban-card ' + order.color_class"
+                                                 t-on-click="() => this.openOrder(order.id, 'filtered')">
+                                                
+                                                <div class="card-header-kanban">
+                                                    <span class="text-dark"><t t-esc="order.name"/></span>
+                                                    <span t-att-class="'badge ' + order.stage_badge_class" t-esc="order.stage_label"/>
+                                                </div>
+                                                
+                                                <div class="patient-info d-flex align-items-center">
+                                                    <i class="fa fa-user-circle fa-2x mr-2 text-muted"/>
+                                                    <div>
+                                                        <div class="font-weight-bold text-dark" style="text-transform:uppercase;">
+                                                            <t t-esc="order.patient"/>
+                                                        </div>
+                                                        <div class="text-muted small">Doctor: <t t-esc="order.doctor"/></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="product-info text-muted">
+                                                    <strong class="text-dark">Producto:</strong> <t t-esc="order.product"/>
+                                                    <br/>
+                                                </div>
+
+                                                <div class="card-footer-kanban">
+                                                    <div>
+                                                        <i class="fa fa-clock-o text-danger mr-1" t-if="order.is_delayed"/>
+                                                        <i class="fa fa-clock-o text-muted mr-1" t-else=""/>
+                                                        <t t-if="order.is_delayed">
+                                                             <span class="text-danger font-weight-bold">Retrasado (<t t-esc="order.deadline"/>d)</span>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span t-att-classf="order.deadline &lt;= 3 ? 'text-danger font-weight-bold' : ''">
+                                                                Entrega: <t t-esc="order.deadline"/> días
+                                                            </span>
+                                                        </t>
+                                                    </div>
+                                                    <div>
+                                                        <span t-esc="0"/> días
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="alert alert-info text-center">
+                                    <i class="fa fa-search fa-2x mb-2"/>
+                                    <t t-if="state.searchFilteredList">
+                                        <p>No se encontraron resultados para "<t t-esc="state.searchFilteredList"/>"</p>
+                                    </t>
+                                    <t t-else="">
+                                        <p>No se encontraron órdenes en esta etapa.</p>
+                                    </t>
+                                </div>
+                            </t>
+                        </t>
+
+                    </div>
+                </t>
+
+                <t t-if="!state.activeFilter and state.data.delayed_details and state.data.delayed_details.length > 0">
+                    <div class="delayed-section">
+                        <h2 class="section-title">
+                            <i class="fa fa-warning"/> Órdenes de Manufactura Retrasadas
+                        </h2>
+
+                        <!-- Search bar -->
+                        <div class="input-group mb-3" style="max-width: 420px;">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white border-right-0"><i class="fa fa-search text-muted"/></span>
+                            </div>
+                            <input type="text" class="form-control border-left-0"
+                                   placeholder="Buscar por doctor, paciente, producto..."
+                                   t-on-input="onSearchDelayed"/>
+                        </div>
+
+                        <t t-set="filtered_delayed" t-value="getFilteredDelayedDetails()"/>
+                        <t t-if="filtered_delayed.length > 0">
+                            <div class="table-responsive">
+                                <table class="table table-hover delayed-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Doctor</th>
+                                            <th>Paciente</th>
+                                            <th>Producto</th>
+                                            <th>Etapa</th>
+                                            <th class="text-right">Tiempo (h)</th>
+                                            <th class="text-right">Deadline (h)</th>
+                                            <th class="text-center">Retraso</th>
+                                            <th class="text-center">VIP</th>
+                                            <th class="text-center">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="filtered_delayed.slice().sort((a, b) => (b.time - b.deadline) - (a.time - a.deadline)).slice(0, 20)" t-as="order" t-key="order.id">
+                                            <tr t-att-class="order.is_vip ? 'vip-row' : ''">
+                                                <td><strong t-esc="order.doctor"/></td>
+                                                <td t-esc="order.patient"/>
+                                                <td><span class="text-muted small" t-esc="order.product.substring(0, 30)"/></td>
+                                                <td><span class="badge stage-badge" t-att-class="getStageBadgeClass(order.stage)" t-esc="order.stage"/></td>
+                                                <td class="text-right"><t t-esc="(order.time || 0).toFixed(1)"/>h</td>
+                                                <td class="text-right"><span t-esc="order.deadline"/>h</td>
+                                                <td class="text-center"><span class="badge badge-danger"><i class="fa fa-arrow-up"/> <t t-esc="((order.time || 0) - (order.deadline || 0)).toFixed(1)"/>h</span></td>
+                                                <td class="text-center"><t t-if="order.is_vip">⭐</t></td>
+                                                <td class="text-center">
+                                                    <button class="btn btn-sm btn-primary mr-1"
+                                                            t-on-click="() => this.openOrder(order.id, 'delayed')"
+                                                            title="Ver detalle">
+                                                        <i class="fa fa-eye"/>
+                                                    </button>
+
+                                                    <button class="btn btn-sm btn-danger"
+                                                            t-on-click="(ev) => this.deleteOrder(order.id, ev)"
+                                                            title="Borrar Orden">
+                                                        <i class="fa fa-trash"/>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="table-footer-actions text-right mt-2 d-flex justify-content-between align-items-center">
+                                <span class="text-muted small">
+                                    <i class="fa fa-info-circle"/> Mostrando <t t-esc="Math.min(filtered_delayed.length, 20)"/> de <t t-esc="filtered_delayed.length"/> órdenes retrasadas.
+                                </span>
+                                <button class="btn btn-sm btn-link font-weight-bold" t-on-click="() => this.openCases('delayed')">
+                                    <i class="fa fa-list-ul mr-1"/> Ver todas las órdenes retrasadas
+                                </button>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="text-center p-3 text-muted">
+                                <i class="fa fa-search"/> No se encontraron resultados para "<t t-esc="state.searchDelayed"/>"
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                
+                <t t-elif="!state.activeFilter">
+                    <div class="alert alert-success mt-3 mb-3 shadow-sm d-flex align-items-center" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724;">
+                        <i class="fa fa-check-circle fa-2x mr-3"/>
+                        <div>
+                            <h5 class="m-0">Al día con las entregas</h5>
+                            <small>No hay Órdenes de Manufactura (MO) vencidas.</small>
+                        </div>
+                    </div>
+                </t>
+
+
+                <t t-set="clean_wos" t-value="(state.data.delayed_wo_details || []).filter(w => w.state !== 'waiting' &amp;&amp; w.state !== 'pending' &amp;&amp; w.state !== 'draft')"/>
+
+                <t t-if="!state.activeFilter and clean_wos.length > 0">
+                    <div class="delayed-section mt-4" style="border-top: 1px solid #eee; padding-top: 20px;">
+                        <h2 class="section-title text-warning" style="color: #d97706;">
+                            <i class="fa fa-exclamation-circle"/> Operaciones Individuales Retrasadas
+                        </h2>
+
+                        <!-- Search bar -->
+                        <div class="input-group mb-3" style="max-width: 420px;">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white border-right-0"><i class="fa fa-search text-muted"/></span>
+                            </div>
+                            <input type="text" class="form-control border-left-0"
+                                   placeholder="Buscar por doctor, paciente, operación..."
+                                   t-on-input="onSearchDelayedWo"/>
+                        </div>
+
+                        <t t-set="filtered_delayed_wos" t-value="getFilteredDelayedWoDetails()"/>
+                        <t t-if="filtered_delayed_wos.length > 0">
+                            <div class="table-responsive">
+                                <table class="table table-hover delayed-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Operación</th>
+                                            <th>Doctor / Orden</th> <th>Centro</th>
+                                            <th>Empleado</th>
+                                            <th>Estado</th>
+                                            <th class="text-right">Transcurrido</th>
+                                            <th class="text-right">Estimado</th>
+                                            <th class="text-center">Retraso</th>
+                                            <th class="text-center">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="filtered_delayed_wos.slice(0, 20)" t-as="wo" t-key="wo.id">
+                                            <tr t-att-class="wo.is_vip ? 'vip-row' : ''">
+                                                <td><strong t-esc="wo.name"/></td>
+
+                                                <td>
+                                                    <strong t-esc="wo.doctor_name" class="text-primary"/>
+
+                                                    <t t-if="wo.is_vip">
+                                                        <span class="vip-badge ml-1" title="Cliente VIP">⭐</span>
+                                                    </t>
+
+                                                    <div class="text-muted small" style="font-size: 0.85em;">
+                                                        <span t-esc="wo.production_name"/> • <span t-esc="wo.patient"/>
+                                                    </div>
+                                                </td>
+
+                                                <td t-esc="wo.workcenter"/>
+
+                                                <td>
+                                                    <t t-if="wo.employee != 'Sin asignar'">
+                                                        <i class="fa fa-user-circle mr-1 text-muted"/> <span t-esc="wo.employee"/>
+                                                    </t>
+                                                    <t t-else=""><span class="badge badge-warning">Sin asignar</span></t>
+                                                </td>
+                                                <td><span class="badge badge-secondary" t-esc="wo.state"/></td>
+                                                <td class="text-right"><strong t-esc="wo.time_elapsed.toFixed(1)"/>h</td>
+                                                <td class="text-right text-muted"><span t-esc="wo.time_expected.toFixed(1)"/>h</td>
+                                                <td class="text-center"><span class="badge badge-danger">+<t t-esc="wo.delay.toFixed(1)"/>h</span></td>
+                                                <td class="text-center">
+                                                    <button class="btn btn-sm btn-outline-primary" t-on-click="() => this.openOrder(wo.production_id, 'delayed_wo')"><i class="fa fa-external-link"/></button>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="table-footer-actions text-right mt-2 d-flex justify-content-between align-items-center">
+                                <span class="text-muted small">
+                                    <i class="fa fa-info-circle"/> Mostrando <t t-esc="Math.min(filtered_delayed_wos.length, 20)"/> de <t t-esc="filtered_delayed_wos.length"/> operaciones retrasadas.
+                                </span>
+                                <button class="btn btn-sm btn-link font-weight-bold text-warning" t-on-click="() => this.openCases('delayed_wo')">
+                                    <i class="fa fa-list-ul mr-1"/> Ver todas las operaciones retrasadas
+                                </button>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="text-center p-3 text-muted">
+                                <i class="fa fa-search"/> No se encontraron resultados para "<t t-esc="state.searchDelayedWo"/>"
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <t t-elif="!state.activeFilter">
+                    <div class="alert alert-success mt-3 mb-3 shadow-sm d-flex align-items-center" style="background-color: #fff3cd; border-color: #ffeeba; color: #856404; opacity: 0.8;">
+                        <i class="fa fa-clock-o fa-2x mr-3"/>
+                        <div>
+                            <h5 class="m-0">Operaciones bajo control</h5>
+                            <small>No hay operaciones individuales excedidas de tiempo.</small>
+                        </div>
+                    </div>
+                </t>
+
+                <t t-set="ready_wos" t-value="state.data.ready_wo_details || []"/>
+
+                <t t-if="!state.activeFilter and ready_wos.length > 0">
+                    <div class="ready-section mt-4" style="border-top: 1px solid #eee; padding-top: 20px;">
+                        <h3 class="section-title text-primary mb-3">
+                            <i class="fa fa-play-circle"/> Operaciones Listas para Iniciar
+                        </h3>
+
+                        <!-- Search bar -->
+                        <div class="input-group mb-3" style="max-width: 420px;">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white border-right-0"><i class="fa fa-search text-muted"/></span>
+                            </div>
+                            <input type="text" class="form-control border-left-0"
+                                   placeholder="Buscar por doctor, paciente, producto..."
+                                   t-on-input="onSearchReady"/>
+                        </div>
+
+                        <t t-set="filtered_ready_wos" t-value="getFilteredReadyWos()"/>
+                        <t t-if="filtered_ready_wos.length > 0">
+                            <div class="table-responsive shadow-sm" style="background: white; border-radius: 4px;">
+                                <table class="table table-hover mb-0">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Doctor / Paciente</th>
+                                            <th>Operación</th>
+                                            <th>Asignado</th>
+                                            <th>Producto</th>
+                                            <th>Deadline</th>
+                                            <th class="text-center">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="filtered_ready_wos" t-as="wo" t-key="wo.id">
+                                            <tr>
+                                                <td>
+                                                    <div class="font-weight-bold text-dark" t-esc="wo.doctor_name"/>
+                                                    <div class="small text-muted">
+                                                        <i class="fa fa-user-o mr-1"/> <t t-esc="wo.patient"/>
+                                                        <span class="ml-2 text-info" t-esc="wo.production_name"/>
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    <span class="badge badge-success px-2 py-1" style="font-size: 0.9em;">
+                                                        <t t-esc="wo.name"/>
+                                                    </span>
+                                                </td>
+
+                                                <td>
+                                                    <t t-if="wo.employee != 'Sin asignar'">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="mr-2" style="width: 24px; height: 24px; background: #e9ecef; border-radius: 50%; text-align: center; line-height: 24px;">
+                                                                <i class="fa fa-user small text-muted"/>
+                                                            </div>
+                                                            <span t-esc="wo.employee"/>
+                                                        </div>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span class="text-muted font-italic">--</span>
+                                                    </t>
+                                                </td>
+
+                                                <td class="text-muted" t-esc="wo.product"/>
+
+                                                <td>
+                                                    <i class="fa fa-clock-o text-warning mr-1"/> <span t-esc="wo.deadline"/>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <button class="btn btn-sm btn-outline-primary" t-on-click="() => this.openOrder(wo.production_id, 'ready')">
+                                                        <i class="fa fa-arrow-right"/>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="text-center p-3 text-muted">
+                                <i class="fa fa-search"/> No se encontraron resultados para "<t t-esc="state.searchReady"/>"
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-elif="!state.activeFilter">
+                    <div class="text-center mt-4 p-4 text-muted bg-white shadow-sm rounded">
+                        <i class="fa fa-check-square-o fa-2x mb-2 text-success" style="opacity: 0.5;"/>
+                        <p class="m-0">No hay operaciones en espera para iniciar.</p>
+                    </div>
+                </t>
+
+
+                <t t-set="upcoming_mos" t-value="state.data.upcoming_mo_details || []"/>
+
+                <t t-if="!state.activeFilter and upcoming_mos.length > 0">
+                    <div class="upcoming-section mt-3 mb-2" style="border-top: 1px solid #eee; padding-top: 20px;">
+                        <h3 class="section-title text-danger mb-3">
+                            <i class="fa fa-fire"/> Próximas a Vencer (≤ 3 Días)
+                        </h3>
+
+                        <!-- Search bar -->
+                        <div class="input-group mb-3" style="max-width: 420px;">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-white border-right-0"><i class="fa fa-search text-muted"/></span>
+                            </div>
+                            <input type="text" class="form-control border-left-0"
+                                   placeholder="Buscar por doctor, paciente, producto..."
+                                   t-on-input="onSearchUpcoming"/>
+                        </div>
+
+                        <t t-set="filtered_upcoming" t-value="getFilteredUpcomingMos()"/>
+                        <t t-if="filtered_upcoming.length > 0">
+                            <div class="table-responsive shadow-sm" style="background: white; border-radius: 4px;">
+                                <table class="table table-hover mb-0">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Doctor / Paciente</th>
+                                            <th>Operación Actual</th>
+                                            <th>Asignado</th>
+                                            <th>Producto</th>
+                                            <th>Deadline</th>
+                                            <th class="text-center">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="filtered_upcoming" t-as="mo" t-key="mo.id">
+                                            <tr>
+                                                <td>
+                                                    <div class="font-weight-bold text-dark" t-esc="mo.doctor_name"/>
+                                                    <div class="small text-muted">
+                                                        <i class="fa fa-user-o mr-1"/> <t t-esc="mo.patient"/>
+                                                        <span class="ml-2 text-primary" t-esc="mo.name"/>
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    <span class="text-dark font-weight-bold"><t t-esc="mo.operation_name"/></span>
+                                                </td>
+
+                                                <td>
+                                                    <span t-esc="mo.employee" class="text-muted"/>
+                                                </td>
+
+                                                <td class="text-muted" t-esc="mo.product_name"/>
+
+                                                <td>
+                                                    <span class="badge badge-danger px-2"><t t-esc="mo.deadline"/></span>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <button class="btn btn-sm btn-outline-danger" t-on-click="() => this.openOrder(mo.id, 'upcoming')">
+                                                        Ver
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="text-center p-3 text-muted">
+                                <i class="fa fa-search"/> No se encontraron resultados para "<t t-esc="state.searchUpcoming"/>"
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-elif="!state.activeFilter">
+                    <div class="text-center mt-2 p-4 text-muted bg-white shadow-sm rounded">
+                        <i class="fa fa-calendar-check-o fa-2x mb-2 text-primary" style="opacity: 0.5;"/>
+                        <p class="m-0">Calendario despejado: Sin vencimientos urgentes.</p>
+                    </div>
+                </t>
+                <!-- ============================================ -->
+                <!-- METRICS SECTION -->
+                <!-- ============================================ -->
+                <div class="metrics-section mt-5" t-if="!state.activeFilter">
+                    <h2 class="section-title">
+                        <i class="fa fa-line-chart"/> Métricas de Desempeño
+                    </h2>
+
+                    <div class="metrics-cards-grid">
+                        <!-- Average Manufacturing Time -->
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fa fa-hourglass-half"/>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-label">Tiempo Promedio de Manufactura</div>
+                                <div class="metric-value">
+                                    <t t-esc="(state.data.metrics.avg_time || 0).toFixed(1)"/> horas
+                                </div>
+                                <div class="metric-description">
+                                    Basado en las últimas 100 órdenes completadas
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Active Orders -->
+                        <div class="metric-card clickable"
+                            t-on-click="openActiveOrders">
+
+                            <div class="metric-icon">
+                                <i class="fa fa-tasks"/>
+                            </div>
+
+                            <div class="metric-content">
+                                <div class="metric-label">Total de Órdenes Activas</div>
+
+                                <div class="metric-value">
+                                    <t t-esc="
+                                        state.data.summary.laboratory
+                                        + state.data.summary.production
+                                        + state.data.summary.stopped
+                                        + state.data.summary.test
+                                    "/>
+                                </div>
+
+                                <div class="metric-description">
+                                    Todas las etapas combinadas
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </t>
+
+        </div>
+    </t>
+
+</templates>

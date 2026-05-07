@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Add a test button to workorder form to check alerts manually -->
+        <record id="view_mrp_workorder_form_add_test_button" model="ir.ui.view">
+            <field name="name">mrp.workorder.form.add.test.button</field>
+            <field name="model">mrp.workorder</field>
+            <field name="inherit_id" ref="mrp.mrp_production_workorder_form_view_inherit"/>
+            <field name="arch" type="xml">
+                <!-- Add button after the start button in header -->
+                <xpath expr="//header" position="inside">
+                    <button name="action_simulate_delay"
+                            string="⏰ Simulate 2-Min Delay"
+                            type="object"
+                            class="btn-info"
+                            invisible="state != 'progress'"
+                            help="Set start date to 2 minutes ago for testing"/>
+                    <button name="action_check_alerts_now"
+                            string="🧪 Test Alert Check"
+                            type="object"
+                            class="btn-warning"
+                            invisible="state != 'progress'"
+                            help="Manually check if this operation should trigger delay/urgent alerts"/>
+                </xpath>
+                <!-- Add alert time field toå the form if not visible -->
+                <xpath expr="//field[@name='duration_expected']" position="after">
+                    <field name="alert_time_hours"
+                           widget="float_time"
+                           help="Time limit in hours (use decimals: 0.0167 = 1 min, 0.0083 = 30 sec)"/>
+                    <field name="operation_time" widget="float_time"/>
+                    <field name="is_operation_delayed"/>
+                    <field name="is_operation_urgent"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

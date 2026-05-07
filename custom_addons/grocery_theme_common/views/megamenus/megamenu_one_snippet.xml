@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<template id="s_mega_menu_one_snippet" name="Mega Menu One" groups="base.group_user">
+		<section class="s_mega_menu_one_snippet py-3 bg-white grocery_mega_menu" style="background-image: url(/theme_grocery_bizople/static/src/img/grocery/light_contactus_bg.jpg); background-position: center;">
+			<div class="container extended-container">
+				<div class="row justify-content-center">
+					<div class="col-xl-3">
+						<div class="heading-contents">
+							<a class="headeing" href="#">Fruits</a>
+							<ul>
+								<li><a class="menu_item" href="#">Pineapple</a></li>
+								<li><a class="menu_item" href="#">Red Apple</a></li>
+								<li><a class="menu_item" href="#">Ruby Grapefruit</a></li>
+								<li><a class="menu_item" href="#">Banana</a></li>
+								<li><a class="menu_item" href="#">Watermelon</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-xl-3">
+						<div class="heading-contents">
+							<a class="headeing" href="#">Vegetables</a>
+							<ul>
+								<li><a href="#" class="menu_item">Tomatos</a></li>
+								<li><a href="#" class="menu_item">Cauliflower</a></li>
+								<li><a href="#" class="menu_item">Capsicum</a></li>
+								<li><a href="#" class="menu_item">Onion</a></li>
+								<li><a href="#" class="menu_item">Carrots</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-xl-3">
+						<div class="heading-contents">
+							<a class="headeing" href="#">Beans</a>
+							<ul>
+								<li><a href="#" class="menu_item">Kidney Beans</a></li>
+								<li><a href="#" class="menu_item">Black Beans</a></li>
+								<li><a href="#" class="menu_item">Soya Beans</a></li>
+								<li><a href="#" class="menu_item">Lima Beans</a></li>
+								<li><a href="#" class="menu_item">Pinto Beans</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</template>
+</odoo>
