@@ -21,6 +21,7 @@
     'data': [
         'security/ir.model.access.csv',
         'wizard/customer_statement_wizard_views.xml',
+        'wizard/customer_statement_batch_wizard_views.xml',
         'reports/customer_statement_report.xml',
         'views/account_move_actions.xml',
     ],

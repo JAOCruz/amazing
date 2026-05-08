@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_customer_statement_wizard_invoice_user,Customer Statement - Invoice User,model_customer_statement_wizard,account.group_account_invoice,1,1,1,0
 access_customer_statement_wizard_account_user,Customer Statement - Account User,model_customer_statement_wizard,account.group_account_user,1,1,1,0
+access_customer_statement_batch_wizard_invoice_user,Batch Customer Statement - Invoice User,model_customer_statement_batch_wizard,account.group_account_invoice,1,1,1,0
+access_customer_statement_batch_wizard_account_user,Batch Customer Statement - Account User,model_customer_statement_batch_wizard,account.group_account_user,1,1,1,0

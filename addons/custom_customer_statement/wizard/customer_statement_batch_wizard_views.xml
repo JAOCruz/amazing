@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Batch Wizard Form View -->
+    <record id="customer_statement_batch_wizard_form" model="ir.ui.view">
+        <field name="name">Batch Customer Statement Wizard</field>
+        <field name="model">customer.statement.batch.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Estado de Cuenta - Todos los Clientes">
+                <group>
+                    <field name="partner_ids" widget="many2many_tags" options="{'no_create': True}" colspan="2"/>
+                </group>
+                <group col="2">
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="include_payments"/>
+                </group>
+                <footer>
+                    <button name="action_generate_statements" string="📄 Generar PDF" type="object" class="btn btn-primary oe_highlight"/>
+                    <button string="Cancelar" class="btn btn-light" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open batch wizard -->
+    <record id="action_customer_statement_batch_wizard" model="ir.actions.act_window">
+        <field name="name">Estado de Cuenta Masivo</field>
+        <field name="res_model">customer.statement.batch.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu Item under Invoicing -->
+    <menuitem
+        id="menu_customer_statement_batch"
+        name="Estado de Cuenta Masivo"
+        parent="account.menu_finance_receivables"
+        action="action_customer_statement_batch_wizard"
+        sequence="100"/>
+
+</odoo>
