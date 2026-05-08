@@ -51,7 +51,11 @@ class CustomerStatementBatchWizard(models.TransientModel):
             raise ValidationError('Please select at least one customer.')
 
         # Create individual wizard records for each partner
-        Wizard = self.env['customer.statement.wizard']
+        # Clear active_ids/active_model from context to avoid default_get confusion
+        Wizard = self.env['customer.statement.wizard'].with_context(
+            active_ids=False,
+            active_model=False,
+        )
         wizard_ids = []
         
         for partner in self.partner_ids:
