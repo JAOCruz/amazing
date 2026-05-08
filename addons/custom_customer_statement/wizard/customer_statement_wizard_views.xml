@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Customer Statement Wizard Form View -->
+    <record id="customer_statement_wizard_form" model="ir.ui.view">
+        <field name="name">Customer Statement Wizard</field>
+        <field name="model">customer.statement.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Estado de Cuenta del Cliente">
+                <style>
+                    .custom-card {
+                        background: #f9fafb;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 8px;
+                        padding: 16px;
+                        margin-bottom: 16px;
+                    }
+                    .card-header {
+                        background-color: #2e4159;
+                        color: white;
+                        padding: 12px 16px;
+                        margin: -16px -16px 16px -16px;
+                        border-radius: 7px 7px 0 0;
+                        font-weight: 700;
+                        font-size: 13px;
+                        text-transform: uppercase;
+                    }
+                    .summary-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 12px 0;
+                        border-bottom: 1px solid #e5e7eb;
+                    }
+                    .summary-row:last-child {
+                        border-bottom: none;
+                    }
+                    .summary-label {
+                        color: #6b7280;
+                        font-weight: 500;
+                        flex: 1;
+                    }
+                    .summary-value {
+                        color: #111827;
+                        font-weight: 700;
+                        font-size: 1.1em;
+                        color: #2e4159;
+                        text-align: right;
+                    }
+                    .amount-positive {
+                        color: #059669 !important;
+                    }
+                    .amount-negative {
+                        color: #dc2626 !important;
+                    }
+                </style>
+
+                <!-- Customer Info Card -->
+                <div class="custom-card">
+                    <div class="card-header">👤 Información del Cliente</div>
+                    <div>
+                        <div class="summary-row">
+                            <span class="summary-label">Cliente:</span>
+                            <span class="summary-value"><field name="partner_id" readonly="1" nolabel="1"/></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Card -->
+                <div class="custom-card">
+                    <div class="card-header">📊 Resumen del Estado de Cuenta</div>
+                    <div>
+                        <div class="summary-row">
+                            <span class="summary-label">Comprobantes Seleccionados:</span>
+                            <span class="summary-value"><field name="total_invoices" readonly="1" nolabel="1"/></span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Monto Total Facturado:</span>
+                            <span class="summary-value amount-negative">
+                                <field name="total_amount" readonly="1" nolabel="1" widget="monetary"/>
+                            </span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Total Pagado:</span>
+                            <span class="summary-value amount-positive">
+                                <field name="total_paid" readonly="1" nolabel="1" widget="monetary"/>
+                            </span>
+                        </div>
+                        <div class="summary-row" style="border-top: 2px solid #2e4159; padding-top: 15px; margin-top: 10px;">
+                            <span class="summary-label" style="font-weight: 700; font-size: 1.1em;">SALDO PENDIENTE:</span>
+                            <span class="summary-value amount-negative" style="font-size: 1.2em;">
+                                <field name="balance_due" readonly="1" nolabel="1" widget="monetary"/>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aging Analysis Card -->
+                <div class="custom-card">
+                    <div class="card-header">⏰ Análisis de Vencimiento (Aging)</div>
+                    <div>
+                        <div class="summary-row">
+                            <span class="summary-label">0-30 días vencido:</span>
+                            <span class="summary-value amount-negative">
+                                <field name="aging_0_30" readonly="1" nolabel="1" widget="monetary"/>
+                            </span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">31-60 días vencido:</span>
+                            <span class="summary-value amount-negative">
+                                <field name="aging_31_60" readonly="1" nolabel="1" widget="monetary"/>
+                            </span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">61-90 días vencido:</span>
+                            <span class="summary-value amount-negative">
+                                <field name="aging_61_90" readonly="1" nolabel="1" widget="monetary"/>
+                            </span>
+                        </div>
+                        <div class="summary-row" style="border-top: 1px solid #e5e7eb; padding-top: 12px; margin-top: 12px;">
+                            <span class="summary-label">90+ días vencido:</span>
+                            <span class="summary-value amount-negative" style="color: #991b1b; font-weight: 800;">
+                                <field name="aging_90_plus" readonly="1" nolabel="1" widget="monetary"/>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters Card -->
+                <div class="custom-card" groups="account.group_account_user">
+                    <div class="card-header">⚙️ Filtros Avanzados</div>
+                    <div>
+                        <div class="summary-row">
+                            <span class="summary-label">Desde:</span>
+                            <field name="date_from" nolabel="1" class="oe_inline"/>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Hasta:</span>
+                            <field name="date_to" nolabel="1" class="oe_inline"/>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Incluir Pagos:</span>
+                            <field name="include_payments" nolabel="1" class="oe_inline"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden field for move_ids -->
+                <field name="move_ids" invisible="1"/>
+                <field name="statement_data" invisible="1"/>
+
+                <!-- Footer Buttons -->
+                <footer>
+                    <button name="action_print_pdf" string="📄 Imprimir PDF" type="object" class="btn btn-primary oe_highlight"/>
+                    <button name="action_send_email" string="✉️ Enviar por Email" type="object" class="btn btn-secondary"/>
+                    <button string="Cancelar" class="btn btn-light" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open wizard -->
+    <record id="action_customer_statement_wizard" model="ir.actions.act_window">
+        <field name="name">Estado de Cuenta</field>
+        <field name="res_model">customer.statement.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

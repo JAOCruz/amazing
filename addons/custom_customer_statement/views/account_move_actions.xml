@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Server Action: Open Statement Wizard from Invoice List -->
+    <record id="action_customer_statement_from_invoices" model="ir.actions.server">
+        <field name="name">Estado de Cuenta del Cliente</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = {
+        'name': 'Estado de Cuenta',
+        'type': 'ir.actions.act_window',
+        'res_model': 'customer.statement.wizard',
+        'view_mode': 'form',
+        'target': 'new',
+        'context': {
+            'default_move_ids': [(6, 0, records.ids)],
+        },
+    }
+        </field>
+    </record>
+
+</odoo>

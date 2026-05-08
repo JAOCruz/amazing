@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Customer Statement Report Template (Document Body) -->
+    <template id="report_customer_statement_document">
+        <t t-call="web.external_layout">
+            <t t-set="statement" t-value="doc.partner_id.get_statement_data(
+                move_ids=doc.move_ids.ids if doc.move_ids else None,
+                date_from=doc.date_from,
+                date_to=doc.date_to
+            )"/>
+
+            <div class="page" style="font-family: 'Work Sans', Helvetica, Arial, sans-serif; color: #1f2937;">
+                <style>
+                    /* Brand Colors */
+                    .text-brand { color: #2e4159; }
+                    .bg-brand { background-color: #2e4159; color: white; }
+                    .text-gold { color: #f4a259; }
+                    .border-gold { border: 2px solid #f4a259; }
+
+                    /* Header Styles */
+                    .statement-header {
+                        margin-bottom: 25px;
+                        padding-bottom: 15px;
+                        border-bottom: 3px solid #f4a259;
+                    }
+                    .statement-title {
+                        font-size: 28px;
+                        font-weight: 800;
+                        color: #2e4159;
+                        margin: 0 0 10px 0;
+                    }
+                    .statement-period {
+                        color: #4b5563;
+                        font-size: 13px;
+                        font-weight: 500;
+                    }
+
+                    /* Cards */
+                    .custom-card {
+                        background: #f9fafb;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 8px;
+                        margin-bottom: 20px;
+                        overflow: hidden;
+                    }
+                    .custom-card-header {
+                        background-color: #2e4159;
+                        color: white;
+                        padding: 12px 16px;
+                        font-weight: 700;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                    }
+                    .custom-card-body {
+                        padding: 16px;
+                    }
+
+                    /* Customer Info */
+                    .info-table td {
+                        padding: 8px 0;
+                        vertical-align: middle;
+                    }
+                    .info-label {
+                        color: #6b7280;
+                        font-weight: 500;
+                        width: 30%;
+                        font-size: 11px;
+                    }
+                    .info-value {
+                        color: #111827;
+                        font-weight: 600;
+                        font-size: 12px;
+                    }
+
+                    /* Data Table */
+                    .statement-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 11px;
+                    }
+                    .statement-table th {
+                        background-color: #f3f4f6;
+                        color: #2e4159;
+                        border: 1px solid #d1d5db;
+                        padding: 10px;
+                        text-align: left;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        font-size: 10px;
+                    }
+                    .statement-table td {
+                        padding: 10px;
+                        border: 1px solid #d1d5db;
+                        color: #374151;
+                    }
+                    .statement-table tr.overdue {
+                        background-color: #fef2f2;
+                    }
+                    .statement-table tr.paid {
+                        background-color: #f0fdf4;
+                    }
+                    .statement-table td.amount-right {
+                        text-align: right;
+                        font-weight: 600;
+                        color: #2e4159;
+                    }
+
+                    /* Summary Section */
+                    .summary-section {
+                        margin-top: 25px;
+                        border-top: 2px solid #2e4159;
+                        padding-top: 15px;
+                    }
+                    .summary-row {
+                        display: flex;
+                        justify-content: flex-end;
+                        margin-bottom: 12px;
+                        font-size: 12px;
+                    }
+                    .summary-label {
+                        font-weight: 600;
+                        min-width: 200px;
+                        text-align: right;
+                        margin-right: 20px;
+                        color: #6b7280;
+                    }
+                    .summary-value {
+                        text-align: right;
+                        min-width: 100px;
+                        font-weight: 700;
+                        color: #2e4159;
+                    }
+                    .summary-total {
+                        border-top: 2px solid #f4a259;
+                        padding-top: 12px;
+                        margin-top: 12px;
+                        font-size: 13px;
+                    }
+                    .overdue-warning {
+                        color: #991b1b;
+                        font-weight: 700;
+                    }
+                    .statement-footer {
+                        margin-top: 30px;
+                        padding-top: 15px;
+                        border-top: 1px solid #d1d5db;
+                        font-size: 9px;
+                        color: #6b7280;
+                        line-height: 1.5;
+                    }
+                </style>
+
+                <!-- Header Section -->
+                <div class="statement-header">
+                    <h2 class="statement-title">ESTADO DE CUENTA</h2>
+                    <div class="statement-period">
+                        <t t-if="statement['date_from']">
+                            Período: <strong><t t-esc="statement['date_from'].strftime('%d/%m/%Y')"/> al <t t-esc="statement['date_to'].strftime('%d/%m/%Y') if statement['date_to'] else 'Hoy'/></strong>
+                        </t>
+                        <t t-else="">
+                            <strong>Todas las transacciones registradas</strong>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Customer Info Card -->
+                <div class="custom-card">
+                    <div class="custom-card-header">👤 Información del Cliente</div>
+                    <div class="custom-card-body">
+                        <table class="info-table" style="width:100%">
+                            <tr>
+                                <td class="info-label">Cliente:</td>
+                                <td class="info-value"><span t-field="statement['partner'].name"/></td>
+                            </tr>
+                            <t t-if="statement['partner'].vat">
+                                <tr>
+                                    <td class="info-label">RNC/Cédula:</td>
+                                    <td class="info-value"><span t-field="statement['partner'].vat"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="statement['partner'].street">
+                                <tr>
+                                    <td class="info-label">Dirección:</td>
+                                    <td class="info-value"><span t-field="statement['partner'].street"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="statement['partner'].city">
+                                <tr>
+                                    <td class="info-label">Ciudad:</td>
+                                    <td class="info-value"><span t-field="statement['partner'].city"/></td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Transactions Table Card -->
+                <div class="custom-card">
+                    <div class="custom-card-header">📋 Movimientos de Cuenta</div>
+                    <div class="custom-card-body" style="padding: 0;">
+                        <table class="statement-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Vencimiento</th>
+                                    <th>Comprobante</th>
+                                    <th style="text-align: right;">Débito</th>
+                                    <th style="text-align: right;">Crédito</th>
+                                    <th style="text-align: right;">Saldo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="statement['transactions']" t-as="trans">
+                                    <tr t-att-class="'overdue' if trans['is_overdue'] else 'paid' if trans['residual'] == 0 else ''">
+                                        <td><t t-esc="trans['date'].strftime('%d/%m/%Y')"/></td>
+                                        <td>
+                                            <t t-if="trans['due_date']">
+                                                <t t-esc="trans['due_date'].strftime('%d/%m/%Y')"/>
+                                            </t>
+                                        </td>
+                                        <td><strong><t t-esc="trans['document']"/></strong></td>
+                                        <td class="amount-right">
+                                            <t t-if="trans['debit'] &gt; 0">
+                                                RD$ <t t-esc="'{:,.2f}'.format(trans['debit'])"/>
+                                            </t>
+                                        </td>
+                                        <td class="amount-right">
+                                            <t t-if="trans['credit'] &gt; 0">
+                                                RD$ <t t-esc="'{:,.2f}'.format(trans['credit'])"/>
+                                            </t>
+                                        </td>
+                                        <td class="amount-right">
+                                            <t t-esc="'{:,.2f}'.format(trans['balance'])"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Summary Section Card -->
+                <div class="custom-card">
+                    <div class="custom-card-header">💰 Resumen Financiero</div>
+                    <div class="custom-card-body">
+                        <div class="summary-row">
+                            <span class="summary-label">Total Facturado:</span>
+                            <span class="summary-value">RD$ <t t-esc="'{:,.2f}'.format(statement['total_debit'])"/></span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Total Pagado:</span>
+                            <span class="summary-value">RD$ <t t-esc="'{:,.2f}'.format(statement['total_credit'])"/></span>
+                        </div>
+                        <div class="summary-row summary-total">
+                            <span class="summary-label">Saldo Actual:</span>
+                            <span class="summary-value" t-att-class="'overdue-warning' if statement['final_balance'] &gt; 0 else ''">
+                                RD$ <t t-esc="'{:,.2f}'.format(statement['final_balance'])"/>
+                            </span>
+                        </div>
+                        <t t-if="statement['overdue_balance'] &gt; 0">
+                            <div class="summary-row">
+                                <span class="summary-label">Saldo Vencido:</span>
+                                <span class="summary-value overdue-warning">
+                                    RD$ <t t-esc="'{:,.2f}'.format(statement['overdue_balance'])"/>
+                                </span>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Aging Analysis Card (Always Show) -->
+                <div class="custom-card">
+                    <div class="custom-card-header">⏰ Análisis de Vencimiento (Aging)</div>
+                    <div class="custom-card-body">
+                        <div class="summary-row">
+                            <span class="summary-label">0-30 días vencido:</span>
+                            <span class="summary-value">RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['0_30'])"/></span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">31-60 días vencido:</span>
+                            <span class="summary-value">RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['31_60'])"/></span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">61-90 días vencido:</span>
+                            <span class="summary-value">RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['61_90'])"/></span>
+                        </div>
+                        <div class="summary-row summary-total">
+                            <span class="summary-label">90+ días vencido:</span>
+                            <span class="summary-value" t-att-class="'overdue-warning' if statement['aging']['90_plus'] &gt; 0 else ''">
+                                RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['90_plus'])"/>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div style="margin-top: 20px; padding: 12px; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 10px;">
+                    <strong>Leyenda:</strong>
+                    <span style="background-color: #fef2f2; padding: 2px 6px; border-radius: 3px; margin-left: 10px;">
+                        <span class="overdue-warning">■</span> Fila Vencida
+                    </span>
+                    <span style="background-color: #f0fdf4; padding: 2px 6px; border-radius: 3px; margin-left: 10px;">
+                        <span style="color: #059669;">■</span> Fila Pagada
+                    </span>
+                </div>
+
+                <!-- Footer Note -->
+                <div class="statement-footer">
+                    <p><strong>Importante:</strong> Este estado de cuenta fue generado automáticamente por el sistema de facturación de Amazing Prosthetics.</p>
+                    <p>Si tiene preguntas sobre esta cuenta, por favor contacte al departamento de facturación.</p>
+                    <p><strong>Fecha de Generación:</strong> <t t-esc="statement['statement_date'].strftime('%d/%m/%Y às %H:%M:%S')"/></p>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Customer Statement Report Container Template -->
+    <template id="report_customer_statement">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="custom_customer_statement.report_customer_statement_document"/>
+            </t>
+        </t>
+    </template>
+
+    <!-- IR Actions Report -->
+    <record id="action_report_customer_statement" model="ir.actions.report">
+        <field name="name">Estado de Cuenta del Cliente</field>
+        <field name="model">customer.statement.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_customer_statement.report_customer_statement</field>
+        <field name="print_report_name">'Estado_de_Cuenta_%s' % object.partner_id.name.replace(' ', '_')</field>
+    </record>
+
+</odoo>
