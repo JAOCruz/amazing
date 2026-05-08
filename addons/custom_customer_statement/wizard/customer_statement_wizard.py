@@ -68,10 +68,12 @@ class CustomerStatementWizard(models.TransientModel):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
 
-        # Get active IDs from context (selected invoices)
+        # Only auto-populate if called from invoice list
+        active_model = self.env.context.get('active_model')
         active_ids = self.env.context.get('active_ids', [])
-        if not active_ids:
-            raise ValidationError('Please select at least one invoice.')
+        
+        if active_model != 'account.move' or not active_ids:
+            return res
 
         # Load the moves
         moves = self.env['account.move'].browse(active_ids)
