@@ -156,7 +156,7 @@
                     <h2 class="statement-title">ESTADO DE CUENTA</h2>
                     <div class="statement-period">
                         <t t-if="statement['date_from']">
-                            Período: <strong><t t-esc="statement['date_from'].strftime('%d/%m/%Y')"/> al <t t-esc="statement['date_to'].strftime('%d/%m/%Y') if statement['date_to'] else 'Hoy'/></strong>
+                            Período: <strong><t t-esc="statement['date_from'].strftime('%d/%m/%Y')"/> al <t t-esc="statement['date_to'].strftime('%d/%m/%Y') if statement['date_to'] else 'Hoy'"/></strong>
                         </t>
                         <t t-else="">
                             <strong>Todas las transacciones registradas</strong>
