@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Report Action: Conduce / Remisión -->
+    <record id="action_report_conduce" model="ir.actions.report">
+        <field name="name">Conduce / Remisión</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_customer_statement.report_conduce</field>
+        <field name="report_file">custom_customer_statement.report_conduce</field>
+        <field name="print_report_name">'Conduce_%s' % object.name</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- QWeb Template -->
+    <template id="report_conduce">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Helvetica, Arial, sans-serif; font-size: 11pt; color: #1f2937;">
+
+                        <!-- Header -->
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h1 style="font-size: 28px; font-weight: 800; color: #2e4159; letter-spacing: 4px; margin-bottom: 5px;">CONDUCE</h1>
+                            <p style="font-size: 13px; color: #6b7280; margin: 0;">Documento de Entrega / Remisión</p>
+                        </div>
+
+                        <!-- Info Cards -->
+                        <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+                            <div style="flex: 1; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; background: #f9fafb;">
+                                <strong style="color: #2e4159; font-size: 10px; text-transform: uppercase;">Emitido por</strong>
+                                <p style="margin: 4px 0 0; font-weight: 600;"><t t-esc="o.company_id.name"/></p>
+                                <p style="margin: 2px 0 0; font-size: 10px; color: #6b7280;">RNC: <t t-esc="o.company_id.vat or 'N/A'"/></p>
+                            </div>
+                            <div style="flex: 1; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; background: #f9fafb;">
+                                <strong style="color: #2e4159; font-size: 10px; text-transform: uppercase;">Destinatario</strong>
+                                <p style="margin: 4px 0 0; font-weight: 600;"><t t-esc="o.partner_id.name"/></p>
+                                <p style="margin: 2px 0 0; font-size: 10px; color: #6b7280;">RNC: <t t-esc="o.partner_id.vat or 'N/A'"/></p>
+                            </div>
+                        </div>
+
+                        <!-- Details -->
+                        <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+                            <div style="flex: 1;">
+                                <strong style="color: #2e4159; font-size: 10px; text-transform: uppercase;">Conduce No.</strong>
+                                <p style="margin: 4px 0 0; font-size: 16px; font-weight: 700; color: #2e4159;"><t t-esc="o.name"/></p>
+                            </div>
+                            <div style="flex: 1;">
+                                <strong style="color: #2e4159; font-size: 10px; text-transform: uppercase;">Fecha</strong>
+                                <p style="margin: 4px 0 0; font-size: 14px; font-weight: 600;"><t t-esc="o.invoice_date.strftime('%d/%m/%Y') if o.invoice_date else '-'"/></p>
+                            </div>
+                            <div style="flex: 1;">
+                                <strong style="color: #2e4159; font-size: 10px; text-transform: uppercase;">Factura Ref.</strong>
+                                <p style="margin: 4px 0 0; font-size: 14px; font-weight: 600;"><t t-esc="o.l10n_latam_document_number or o.name"/></p>
+                            </div>
+                        </div>
+
+                        <!-- Lines Table -->
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                            <thead>
+                                <tr style="background-color: #2e4159; color: white;">
+                                    <th style="padding: 10px; text-align: left; font-size: 10px; text-transform: uppercase;">#</th>
+                                    <th style="padding: 10px; text-align: left; font-size: 10px; text-transform: uppercase;">Descripción</th>
+                                    <th style="padding: 10px; text-align: center; font-size: 10px; text-transform: uppercase;">Cantidad</th>
+                                    <th style="padding: 10px; text-align: right; font-size: 10px; text-transform: uppercase;">Unidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.invoice_line_ids.filtered(lambda l: l.display_type == 'product')" t-as="line">
+                                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                                        <td style="padding: 10px; font-size: 11px;"><t t-esc="line_index + 1"/></td>
+                                        <td style="padding: 10px; font-size: 11px;"><t t-esc="line.name"/></td>
+                                        <td style="padding: 10px; text-align: center; font-size: 11px; font-weight: 600;"><t t-esc="line.quantity"/></td>
+                                        <td style="padding: 10px; text-align: right; font-size: 11px;"><t t-esc="line.product_uom_id.name or 'Unidad'"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- Totals -->
+                        <div style="border: 1px solid #e5e7eb; border-radius: 6px; padding: 15px; background: #f9fafb; margin-bottom: 30px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="font-size: 10px; color: #6b7280; text-transform: uppercase;">Total de Artículos</span>
+                                <span style="font-weight: 700; color: #2e4159;"><t t-esc="len(o.invoice_line_ids.filtered(lambda l: l.display_type == 'product'))"/></span>
+                            </div>
+                        </div>
+
+                        <!-- Signatures -->
+                        <div style="display: flex; gap: 30px; margin-top: 50px;">
+                            <div style="flex: 1; text-align: center;">
+                                <div style="border-top: 1px solid #1f2937; padding-top: 8px; margin-bottom: 5px;"></div>
+                                <p style="font-size: 10px; color: #6b7280; margin: 0; text-transform: uppercase;">Entregado por</p>
+                                <p style="font-size: 11px; font-weight: 600; margin: 2px 0 0;"><t t-esc="o.invoice_user_id.name or o.company_id.name"/></p>
+                            </div>
+                            <div style="flex: 1; text-align: center;">
+                                <div style="border-top: 1px solid #1f2937; padding-top: 8px; margin-bottom: 5px;"></div>
+                                <p style="font-size: 10px; color: #6b7280; margin: 0; text-transform: uppercase;">Recibido por</p>
+                                <p style="font-size: 11px; font-weight: 600; margin: 2px 0 0;"><t t-esc="o.partner_id.name"/></p>
+                                <p style="font-size: 9px; color: #6b7280; margin: 2px 0 0;">Cédula: ___________________</p>
+                            </div>
+                        </div>
+
+                        <!-- Footer note -->
+                        <div style="margin-top: 40px; padding-top: 15px; border-top: 1px solid #e5e7eb; text-align: center;">
+                            <p style="font-size: 9px; color: #9ca3af; margin: 0;">
+                                Este documento no tiene valor fiscal. Para fines fiscales referirse a la factura oficial.
+                            </p>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

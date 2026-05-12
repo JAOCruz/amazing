@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="sales_report_wizard_form" model="ir.ui.view">
+        <field name="name">Sales Report Wizard</field>
+        <field name="model">sales.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reporte de Ventas por Período">
+                <group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <field name="group_by"/>
+                        <field name="partner_id" invisible="group_by != 'customer'"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_generate_report" string="📊 Generar PDF" type="object" class="btn btn-primary oe_highlight"/>
+                    <button string="Cancelar" class="btn btn-light" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sales_report_wizard" model="ir.actions.act_window">
+        <field name="name">Reporte de Ventas</field>
+        <field name="res_model">sales.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_sales_report"
+        name="Reporte de Ventas"
+        parent="account.menu_finance_receivables"
+        action="action_sales_report_wizard"
+        sequence="110"/>
+
+</odoo>

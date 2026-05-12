@@ -3,3 +3,5 @@ access_customer_statement_wizard_invoice_user,Customer Statement - Invoice User,
 access_customer_statement_wizard_account_user,Customer Statement - Account User,model_customer_statement_wizard,account.group_account_user,1,1,1,0
 access_customer_statement_batch_wizard_invoice_user,Batch Customer Statement - Invoice User,model_customer_statement_batch_wizard,account.group_account_invoice,1,1,1,0
 access_customer_statement_batch_wizard_account_user,Batch Customer Statement - Account User,model_customer_statement_batch_wizard,account.group_account_user,1,1,1,0
+access_sales_report_wizard_invoice_user,Sales Report - Invoice User,model_sales_report_wizard,account.group_account_invoice,1,1,1,0
+access_sales_report_wizard_account_user,Sales Report - Account User,model_sales_report_wizard,account.group_account_user,1,1,1,0

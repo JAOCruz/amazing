@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Add reference fields to invoice form -->
+    <record id="view_move_form_custom_refs" model="ir.ui.view">
+        <field name="name">account.move.form.custom.refs</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="l10n_do_doctor_referente" invisible="move_type not in ['out_invoice', 'out_refund']"/>
+                <field name="l10n_do_referencia_trabajo" invisible="move_type not in ['out_invoice', 'out_refund']"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add reference fields to invoice list -->
+    <record id="view_move_tree_custom_refs" model="ir.ui.view">
+        <field name="name">account.move.tree.custom.refs</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="l10n_do_doctor_referente" optional="hide"/>
+                <field name="l10n_do_referencia_trabajo" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add filters for reference fields -->
+    <record id="view_account_invoice_filter_custom_refs" model="ir.ui.view">
+        <field name="name">account.invoice.filter.custom.refs</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="l10n_do_doctor_referente"/>
+                <field name="l10n_do_referencia_trabajo"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Doctor Referente" name="groupby_doctor" context="{'group_by': 'l10n_do_doctor_referente'}"/>
+                <filter string="Referencia de Trabajo" name="groupby_ref" context="{'group_by': 'l10n_do_referencia_trabajo'}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
