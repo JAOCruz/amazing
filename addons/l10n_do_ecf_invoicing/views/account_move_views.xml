@@ -11,8 +11,9 @@
         <field name="priority">100</field>
         <field name="arch" type="xml">
 
-            <!-- e-CF status badge in the header -->
+            <!-- e-CF toggle and status badge in the header -->
             <xpath expr="//header" position="inside">
+                <field name="l10n_do_send_to_dgii" invisible="state != 'draft'"/>
                 <field name="l10n_do_ecf_status" widget="badge"
                        decoration-info="l10n_do_ecf_status == 'generated'"
                        decoration-warning="l10n_do_ecf_status == 'sent'"
@@ -46,9 +47,13 @@
             <!-- e-CF tab in the notebook -->
             <xpath expr="//notebook" position="inside">
                 <page string="e-CF" name="ecf_tab"
-                      invisible="not is_ecf_invoice">
+                      invisible="not l10n_latam_document_type_id">
                     <group>
-                        <group string="e-CF Document">
+                        <group string="Configuración e-CF">
+                            <field name="l10n_do_send_to_dgii" invisible="state != 'draft'"/>
+                            <field name="is_ecf_invoice" readonly="1"/>
+                        </group>
+                        <group string="e-CF Document" invisible="not is_ecf_invoice">
                             <field name="l10n_do_ecf_status" readonly="1"/>
                             <field name="l10n_do_ecf_track_id" readonly="1"/>
                             <field name="l10n_do_ecf_security_code" readonly="1"/>
@@ -77,6 +82,8 @@
         <field name="priority">100</field>
         <field name="arch" type="xml">
             <xpath expr="//list" position="inside">
+                <field name="l10n_do_send_to_dgii" optional="hide"/>
+                <field name="is_ecf_invoice" optional="hide"/>
                 <field name="l10n_do_ecf_status" optional="hide"
                        widget="badge"
                        decoration-info="l10n_do_ecf_status == 'generated'"

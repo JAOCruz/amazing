@@ -47,6 +47,11 @@ class ResCompany(models.Model):
         default=False,
         help="If enabled, e-CF documents are queued and sent in deferred mode (IndicadorEnvioDiferido=1).",
     )
+    l10n_do_ecf_auto_send_default = fields.Boolean(
+        string="Enviar a DGII por defecto",
+        default=True,
+        help="Si está activado, las nuevas facturas se marcarán automáticamente para envío a DGII. Desactívalo para usar el sistema dual donde decides factura por factura.",
+    )
 
     def _get_l10n_do_ecf_endpoints(self):
         """Return a dict of DGII API endpoint URLs based on the configured environment.

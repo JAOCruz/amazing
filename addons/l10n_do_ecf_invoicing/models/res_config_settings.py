@@ -20,6 +20,10 @@ class ResConfigSettings(models.TransientModel):
         related="company_id.l10n_do_ecf_certificate_password",
         readonly=False,
     )
+    l10n_do_ecf_auto_send_default = fields.Boolean(
+        related="company_id.l10n_do_ecf_auto_send_default",
+        readonly=False,
+    )
 
     def action_test_dgii_connection(self):
         """Test the DGII connection using the current certificate."""

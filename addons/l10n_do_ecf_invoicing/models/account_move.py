@@ -74,12 +74,19 @@ class AccountMove(models.Model):
         copy=False,
     )
 
-    @api.depends("l10n_latam_document_type_id")
+    l10n_do_send_to_dgii = fields.Boolean(
+        string="Enviar a DGII",
+        default=lambda self: self.env.company.l10n_do_ecf_auto_send_default,
+        help="Si está marcado, esta factura se enviará a DGII para obtener un Comprobante Fiscal electrónico (e-CF). Si no, será una factura normal sin NCF electrónico.",
+    )
+
+    @api.depends("l10n_latam_document_type_id", "l10n_do_send_to_dgii")
     def _compute_is_ecf_invoice(self):
         for move in self:
             doc_type = move.l10n_latam_document_type_id
             move.is_ecf_invoice = bool(
-                doc_type and doc_type.l10n_do_ncf_type
+                move.l10n_do_send_to_dgii
+                and doc_type and doc_type.l10n_do_ncf_type
                 and doc_type.l10n_do_ncf_type.startswith("e-")
             )
 
@@ -331,6 +338,7 @@ class AccountMove(models.Model):
         for move in posted:
             if (
                 move.is_ecf_invoice
+                and move.l10n_do_send_to_dgii
                 and move.company_id.l10n_do_ecf_issuer
                 and move.l10n_do_ecf_status == "draft"
             ):
@@ -350,6 +358,7 @@ class AccountMove(models.Model):
     def _cron_poll_ecf_status(self):
         """Cron job to poll DGII for status of all sent e-CF documents."""
         moves = self.search([
+            ("l10n_do_send_to_dgii", "=", True),
             ("l10n_do_ecf_status", "=", "sent"),
             ("l10n_do_ecf_track_id", "!=", False),
         ])

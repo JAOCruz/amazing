@@ -27,6 +27,11 @@
                              help="The password for your P12/PFX certificate file.">
                         <field name="l10n_do_ecf_certificate_password" password="True"/>
                     </setting>
+                    <setting id="l10n_do_ecf_auto_send_default"
+                             string="Enviar a DGII por defecto"
+                             help="Si está activado, todas las nuevas facturas se marcarán automáticamente para envío a DGII. Desactívalo para usar el sistema dual (facturas con/sin NCF).">
+                        <field name="l10n_do_ecf_auto_send_default"/>
+                    </setting>
                     <setting id="l10n_do_ecf_test_connection"
                              string="Test Connection"
                              help="Test the connection to the DGII e-CF service.">
