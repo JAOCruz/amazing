@@ -53,8 +53,8 @@ class CustomerStatementBatchWizard(models.TransientModel):
         # Create individual wizard records for each partner
         # Clear active_ids/active_model from context to avoid default_get confusion
         Wizard = self.env['customer.statement.wizard'].with_context(
-            active_ids=False,
-            active_model=False,
+            active_ids=[],
+            active_model='',
         )
         wizard_ids = []
         
