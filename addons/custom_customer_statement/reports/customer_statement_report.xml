@@ -294,19 +294,19 @@
                     <div class="custom-card-body">
                         <div class="summary-row">
                             <span class="summary-label">0-30 días vencido:</span>
-                            <span class="summary-value">RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['0_30'])"/></span>
+                            <span class="summary-value" style="padding-right: 16px;">RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['0_30'])"/></span>
                         </div>
                         <div class="summary-row">
                             <span class="summary-label">31-60 días vencido:</span>
-                            <span class="summary-value">RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['31_60'])"/></span>
+                            <span class="summary-value" style="padding-right: 16px;">RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['31_60'])"/></span>
                         </div>
                         <div class="summary-row">
                             <span class="summary-label">61-90 días vencido:</span>
-                            <span class="summary-value">RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['61_90'])"/></span>
+                            <span class="summary-value" style="padding-right: 16px;">RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['61_90'])"/></span>
                         </div>
                         <div class="summary-row summary-total">
                             <span class="summary-label">90+ días vencido:</span>
-                            <span class="summary-value" t-att-class="'overdue-warning' if statement['aging']['90_plus'] &gt; 0 else ''">
+                            <span class="summary-value" t-att-class="'overdue-warning' if statement['aging']['90_plus'] &gt; 0 else ''" style="padding-right: 16px;">
                                 RD$ <t t-esc="'{:,.2f}'.format(statement['aging']['90_plus'])"/>
                             </span>
                         </div>
@@ -366,11 +366,11 @@
                     .client-phone { font-weight: 500; color: #6b7280; }
 
                     .ar-table { width: 100%; border-collapse: collapse; font-size: 9.5px; }
-                    .ar-table th { background-color: #2e4159; color: white; padding: 7px 8px; text-align: right; font-weight: 700; border: 1px solid #2e4159; }
+                    .ar-table th { background-color: #2e4159; color: white; padding: 8px 10px; text-align: right; font-weight: 700; border: 1px solid #2e4159; }
                     .ar-table th:first-child { text-align: left; width: 70px; }
                     .ar-table th:nth-child(2) { text-align: left; width: 90px; }
                     .ar-table th:nth-child(3) { text-align: right; width: 70px; color: #bae6fd; }
-                    .ar-table td { padding: 5px 8px; border: 1px solid #d1d5db; text-align: right; vertical-align: middle; }
+                    .ar-table td { padding: 6px 10px; border: 1px solid #d1d5db; text-align: right; vertical-align: middle; }
                     .ar-table td:first-child { text-align: left; }
                     .ar-table td:nth-child(2) { text-align: left; font-weight: 600; }
                     .ar-table td:nth-child(3) { color: #0369a1; font-weight: 600; }
