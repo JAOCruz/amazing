@@ -38,6 +38,7 @@ class ResPartner(models.Model):
 
         # --- 2. Query customer payments (multiple strategies) ---
         payments_found = []
+        seen_move_ids = set()
 
         # Strategy A: account.payment records
         payment_domain = [
@@ -52,6 +53,9 @@ class ResPartner(models.Model):
             payment_domain.append(('date', '<=', date_to))
 
         for payment in self.env['account.payment'].search(payment_domain, order='date asc'):
+            move_id = payment.move_id.id if payment.move_id else None
+            if move_id:
+                seen_move_ids.add(move_id)
             # Use company-currency signed amount if available, otherwise raw amount
             amount = abs(payment.amount_company_currency_signed) if payment.amount_company_currency_signed else payment.amount
             payments_found.append({
@@ -59,6 +63,7 @@ class ResPartner(models.Model):
                 'document': payment.name or (payment.move_id.name if payment.move_id else 'Pago'),
                 'description': payment.ref or 'Abono / Pago recibido',
                 'amount': amount,
+                'move_id': move_id,
             })
 
         # Strategy B: payments reconciled against invoices (catches manual entries)
@@ -75,8 +80,9 @@ class ResPartner(models.Model):
                         continue
                     if payment_move.id == move.id:
                         continue
-                    if any(p.get('move_id') == payment_move.id for p in payments_found):
+                    if payment_move.id in seen_move_ids:
                         continue
+                    seen_move_ids.add(payment_move.id)
                     payments_found.append({
                         'date': payment_move.date,
                         'document': payment_move.name or 'Pago',
@@ -92,8 +98,9 @@ class ResPartner(models.Model):
                         continue
                     if payment_move.id == move.id:
                         continue
-                    if any(p.get('move_id') == payment_move.id for p in payments_found):
+                    if payment_move.id in seen_move_ids:
                         continue
+                    seen_move_ids.add(payment_move.id)
                     payments_found.append({
                         'date': payment_move.date,
                         'document': payment_move.name or 'Pago',
