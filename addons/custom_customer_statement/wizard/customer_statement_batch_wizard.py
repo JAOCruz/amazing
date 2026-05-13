@@ -66,8 +66,50 @@ class CustomerStatementBatchWizard(models.TransientModel):
         writer.write(output)
         return output.getvalue()
 
+    def get_consolidated_data(self):
+        """Build consolidated statement data for all selected partners."""
+        lines = []
+        totals = {
+            'total_debit': 0.0,
+            'total_credit': 0.0,
+            'total_payments': 0.0,
+            'final_balance': 0.0,
+            'overdue_balance': 0.0,
+            'aging': {'0_30': 0.0, '31_60': 0.0, '61_90': 0.0, '90_plus': 0.0},
+        }
+
+        for partner in self.partner_ids:
+            data = partner.get_statement_data(
+                date_from=self.date_from,
+                date_to=self.date_to,
+            )
+            line = {
+                'partner_name': partner.name,
+                'total_debit': data['total_debit'],
+                'total_credit': data['total_credit'],
+                'total_payments': data.get('total_payments', 0.0),
+                'final_balance': data['final_balance'],
+            }
+            lines.append(line)
+
+            totals['total_debit'] += data['total_debit']
+            totals['total_credit'] += data['total_credit']
+            totals['total_payments'] += data.get('total_payments', 0.0)
+            totals['final_balance'] += data['final_balance']
+            totals['overdue_balance'] += data.get('overdue_balance', 0.0)
+            for key in totals['aging']:
+                totals['aging'][key] += data['aging'].get(key, 0.0)
+
+        return {
+            'lines': lines,
+            'totals': totals,
+            'count': len(lines),
+            'date_from': self.date_from,
+            'date_to': self.date_to,
+        }
+
     def action_generate_statements(self):
-        """Generate PDF statements for all selected customers."""
+        """Generate individual PDF statements for all selected customers."""
         if not self.partner_ids:
             raise ValidationError('Please select at least one customer.')
 
@@ -116,4 +158,20 @@ class CustomerStatementBatchWizard(models.TransientModel):
             'type': 'ir.actions.act_url',
             'url': f'/web/content/{attachment.id}?download=1',
             'target': 'self',
+        }
+
+    def action_generate_consolidated_statement(self):
+        """Generate a single consolidated PDF for all selected customers."""
+        if not self.partner_ids:
+            raise ValidationError('Please select at least one customer.')
+
+        return {
+            'type': 'ir.actions.report',
+            'report_name': 'custom_customer_statement.report_customer_statement_consolidated',
+            'report_type': 'qweb-pdf',
+            'data': {},
+            'context': {
+                'active_ids': self.ids,
+                'active_model': 'customer.statement.batch.wizard',
+            },
         }
