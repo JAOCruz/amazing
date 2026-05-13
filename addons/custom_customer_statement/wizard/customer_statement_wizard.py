@@ -68,6 +68,10 @@ class CustomerStatementWizard(models.TransientModel):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
 
+        # Skip validation when called from the batch wizard
+        if self.env.context.get('statement_batch_mode'):
+            return res
+
         # Only auto-populate if called from invoice list
         active_model = self.env.context.get('active_model')
         active_ids = self.env.context.get('active_ids', [])
