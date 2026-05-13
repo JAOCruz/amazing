@@ -113,6 +113,16 @@ class CustomerStatementBatchWizard(models.TransientModel):
         if not self.partner_ids:
             raise ValidationError('Please select at least one customer.')
 
+        # Limit to 30 clients to avoid proxy timeout (502)
+        if len(self.partner_ids) > 30:
+            raise ValidationError(
+                'El PDF detallado por cliente tiene un limite de 30 clientes '
+                'para evitar timeout del servidor.\n\n'
+                'Opciones:\n'
+                '1. Use "Generar PDF Consolidado" para ver todos de una vez.\n'
+                '2. Seleccione maximo 30 clientes para el detallado.'
+            )
+
         # Create individual wizard records for each partner
         ctx = dict(self.env.context)
         ctx.pop('active_ids', None)

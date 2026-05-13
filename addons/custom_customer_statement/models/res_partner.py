@@ -36,10 +36,14 @@ class ResPartner(models.Model):
         if move_ids:
             moves = moves.filtered(lambda m: m.id in move_ids)
 
-        # --- 2. Query customer payments ---
+        # --- 2. Query customer payments (multiple strategies) ---
+        payments_found = []
+
+        # Strategy A: account.payment records
         payment_domain = [
             ('partner_id', '=', self.id),
             ('payment_type', '=', 'inbound'),
+            ('partner_type', '=', 'customer'),
             ('state', '=', 'posted'),
         ]
         if date_from:
@@ -47,7 +51,39 @@ class ResPartner(models.Model):
         if date_to:
             payment_domain.append(('date', '<=', date_to))
 
-        payments = self.env['account.payment'].search(payment_domain, order='date asc')
+        for payment in self.env['account.payment'].search(payment_domain, order='date asc'):
+            # Use company-currency signed amount if available, otherwise raw amount
+            amount = abs(payment.amount_company_currency_signed) if payment.amount_company_currency_signed else payment.amount
+            payments_found.append({
+                'date': payment.date,
+                'document': payment.name or (payment.move_id.name if payment.move_id else 'Pago'),
+                'description': payment.ref or 'Abono / Pago recibido',
+                'amount': amount,
+            })
+
+        # Strategy B: payments reconciled against invoices (catches manual entries)
+        # Look at reconciliation partials on the invoice receivable lines
+        for move in moves:
+            if move.move_type != 'out_invoice':
+                continue
+            for partial, amount, counterpart_line in move._get_reconciled_invoices_partials():
+                payment_move = counterpart_line.move_id
+                # Skip if it's another invoice/refund (we already have those)
+                if payment_move.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'):
+                    continue
+                # Skip if it's the same move (self-reconciliation)
+                if payment_move.id == move.id:
+                    continue
+                # Only take it if we haven't seen it yet (by move id)
+                if any(p.get('move_id') == payment_move.id for p in payments_found):
+                    continue
+                payments_found.append({
+                    'date': payment_move.date,
+                    'document': payment_move.name or 'Pago',
+                    'description': payment_move.ref or 'Abono / Pago recibido',
+                    'amount': abs(amount),
+                    'move_id': payment_move.id,
+                })
 
         # --- 3. Build unified transaction list ---
         raw_transactions = []
@@ -83,16 +119,16 @@ class ResPartner(models.Model):
                 'residual': move.amount_residual,
             })
 
-        for payment in payments:
+        for payment in payments_found:
             raw_transactions.append({
-                'sort_date': payment.date,
-                'date': payment.date,
+                'sort_date': payment['date'],
+                'date': payment['date'],
                 'due_date': None,
-                'document': payment.name or (payment.move_id.name if payment.move_id else 'Pago'),
-                'description': payment.ref or 'Abono / Pago recibido',
+                'document': payment['document'],
+                'description': payment['description'],
                 'type': 'payment',
                 'debit': 0.0,
-                'credit': payment.amount,
+                'credit': payment['amount'],
                 'is_overdue': False,
                 'days_overdue': 0,
                 'residual': 0,
