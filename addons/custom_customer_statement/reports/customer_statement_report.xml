@@ -133,6 +133,7 @@
                         display: inline-block;
                         text-align: right;
                         min-width: 100px;
+                        padding-right: 16px;
                         font-weight: 700;
                         color: #2e4159;
                     }
