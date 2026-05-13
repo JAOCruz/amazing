@@ -25,12 +25,20 @@ class CustomerStatementBatchWizard(models.TransientModel):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         
-        # If called from partner list with selection, use those
+        # If called with default_partner_ids (e.g. from server action), use it
+        if res.get('partner_ids'):
+            return res
+        
         active_ids = self.env.context.get('active_ids', [])
         active_model = self.env.context.get('active_model', '')
         
         if active_model == 'res.partner' and active_ids:
             res['partner_ids'] = [(6, 0, active_ids)]
+        elif active_model == 'account.move' and active_ids:
+            # Called from invoice list - use unique customers from selected invoices
+            moves = self.env['account.move'].browse(active_ids)
+            partners = moves.mapped('partner_id')
+            res['partner_ids'] = [(6, 0, partners.ids)]
         else:
             # Default: all customers with posted invoices
             partners = self.env['res.partner'].search([
