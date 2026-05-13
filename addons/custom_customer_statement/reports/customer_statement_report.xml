@@ -10,7 +10,7 @@
                 date_to=doc.date_to
             )"/>
 
-            <div class="page" style="font-family: 'Work Sans', Helvetica, Arial, sans-serif; color: #1f2937;">
+            <div class="page" style="font-family: Helvetica, Arial, sans-serif; color: #1f2937;">
                 <style>
                     /* Brand Colors */
                     .text-brand { color: #2e4159; }
@@ -113,19 +113,20 @@
                         padding-top: 15px;
                     }
                     .summary-row {
-                        display: flex;
-                        justify-content: flex-end;
                         margin-bottom: 12px;
                         font-size: 12px;
+                        text-align: right;
                     }
                     .summary-label {
                         font-weight: 600;
+                        display: inline-block;
                         min-width: 200px;
                         text-align: right;
                         margin-right: 20px;
                         color: #6b7280;
                     }
                     .summary-value {
+                        display: inline-block;
                         text-align: right;
                         min-width: 100px;
                         font-weight: 700;
@@ -166,7 +167,7 @@
 
                 <!-- Customer Info Card -->
                 <div class="custom-card">
-                    <div class="custom-card-header">👤 Información del Cliente</div>
+                    <div class="custom-card-header">Informacion del Cliente</div>
                     <div class="custom-card-body">
                         <table class="info-table" style="width:100%">
                             <tr>
@@ -197,7 +198,7 @@
 
                 <!-- Transactions Table Card -->
                 <div class="custom-card">
-                    <div class="custom-card-header">📋 Movimientos de Cuenta</div>
+                    <div class="custom-card-header">Movimientos de Cuenta</div>
                     <div class="custom-card-body" style="padding: 0;">
                         <table class="statement-table">
                             <thead>
@@ -242,7 +243,7 @@
 
                 <!-- Summary Section Card -->
                 <div class="custom-card">
-                    <div class="custom-card-header">💰 Resumen Financiero</div>
+                    <div class="custom-card-header">Resumen Financiero</div>
                     <div class="custom-card-body">
                         <div class="summary-row">
                             <span class="summary-label">Total Facturado:</span>
@@ -271,7 +272,7 @@
 
                 <!-- Aging Analysis Card (Always Show) -->
                 <div class="custom-card">
-                    <div class="custom-card-header">⏰ Análisis de Vencimiento (Aging)</div>
+                    <div class="custom-card-header">Analisis de Vencimiento (Aging)</div>
                     <div class="custom-card-body">
                         <div class="summary-row">
                             <span class="summary-label">0-30 días vencido:</span>

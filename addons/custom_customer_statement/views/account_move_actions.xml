@@ -10,16 +10,31 @@
         <field name="state">code</field>
         <field name="code">
 if records:
-    action = {
-        'name': 'Estado de Cuenta',
-        'type': 'ir.actions.act_window',
-        'res_model': 'customer.statement.wizard',
-        'view_mode': 'form',
-        'target': 'new',
-        'context': {
-            'default_move_ids': [(6, 0, records.ids)],
-        },
-    }
+    partners = records.mapped('partner_id')
+    if len(partners) == 1:
+        # Single customer - open individual wizard
+        action = {
+            'name': 'Estado de Cuenta',
+            'type': 'ir.actions.act_window',
+            'res_model': 'customer.statement.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_move_ids': [(6, 0, records.ids)],
+            },
+        }
+    else:
+        # Multiple customers - open batch wizard with those customers
+        action = {
+            'name': 'Estado de Cuenta Masivo',
+            'type': 'ir.actions.act_window',
+            'res_model': 'customer.statement.batch.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_partner_ids': [(6, 0, partners.ids)],
+            },
+        }
         </field>
     </record>
 

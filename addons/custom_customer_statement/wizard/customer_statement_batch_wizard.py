@@ -50,6 +50,15 @@ class CustomerStatementBatchWizard(models.TransientModel):
         if not self.partner_ids:
             raise ValidationError('Please select at least one customer.')
 
+        # Limit batch size to avoid wkhtmltopdf memory errors
+        MAX_BATCH = 30
+        if len(self.partner_ids) > MAX_BATCH:
+            raise ValidationError(
+                f'Se seleccionaron {len(self.partner_ids)} clientes. '
+                f'Por seguridad el limite es {MAX_BATCH} clientes por batch. '
+                f'Por favor filtre la seleccion e intente de nuevo.'
+            )
+
         # Create individual wizard records for each partner
         # Use a clean context that explicitly tells the single wizard to skip
         # invoice-list validation (active_model / active_ids may still leak
