@@ -83,14 +83,14 @@
                         background-color: #f3f4f6;
                         color: #2e4159;
                         border: 1px solid #d1d5db;
-                        padding: 12px;
+                        padding: 12px 14px;
                         text-align: left;
                         font-weight: 700;
                         text-transform: uppercase;
                         font-size: 10px;
                     }
                     .statement-table td {
-                        padding: 12px;
+                        padding: 12px 14px;
                         border: 1px solid #d1d5db;
                         color: #374151;
                     }
@@ -107,6 +107,7 @@
                         text-align: right;
                         font-weight: 600;
                         color: #2e4159;
+                        padding-right: 16px;
                     }
 
                     /* Summary Section */

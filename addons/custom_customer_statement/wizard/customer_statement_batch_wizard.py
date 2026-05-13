@@ -113,16 +113,6 @@ class CustomerStatementBatchWizard(models.TransientModel):
         if not self.partner_ids:
             raise ValidationError('Please select at least one customer.')
 
-        # Limit to 30 clients to avoid proxy timeout (502)
-        if len(self.partner_ids) > 30:
-            raise ValidationError(
-                'El PDF detallado por cliente tiene un limite de 30 clientes '
-                'para evitar timeout del servidor.\n\n'
-                'Opciones:\n'
-                '1. Use "Generar PDF Consolidado" para ver todos de una vez.\n'
-                '2. Seleccione maximo 30 clientes para el detallado.'
-            )
-
         # Create individual wizard records for each partner
         ctx = dict(self.env.context)
         ctx.pop('active_ids', None)
@@ -145,7 +135,7 @@ class CustomerStatementBatchWizard(models.TransientModel):
         report_ref = 'custom_customer_statement.report_customer_statement'
         
         pdf_chunks = []
-        chunk_size = 15  # wkhtmltopdf handles 15 pages comfortably
+        chunk_size = 25  # wkhtmltopdf handles 25 pages comfortably
         for i in range(0, len(wizard_ids), chunk_size):
             chunk_ids = wizard_ids[i:i + chunk_size]
             pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(

@@ -67,9 +67,10 @@ class ResPartner(models.Model):
             if move.move_type != 'out_invoice':
                 continue
             for line in move.line_ids.filtered(lambda l: l.account_type == 'asset_receivable'):
-                # Credits to this receivable line = customer payments
+                # matched_credit_ids: this line is the debit side, the payment is the credit side
                 for partial in line.matched_credit_ids:
-                    payment_move = partial.debit_move_id.move_id
+                    payment_line = partial.credit_move_id
+                    payment_move = payment_line.move_id
                     if payment_move.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'):
                         continue
                     if payment_move.id == move.id:
@@ -83,9 +84,10 @@ class ResPartner(models.Model):
                         'amount': abs(partial.amount),
                         'move_id': payment_move.id,
                     })
-                # Debits to this receivable line = refunds applied
+                # matched_debit_ids: this line is the credit side, the payment is the debit side
                 for partial in line.matched_debit_ids:
-                    payment_move = partial.credit_move_id.move_id
+                    payment_line = partial.debit_move_id
+                    payment_move = payment_line.move_id
                     if payment_move.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'):
                         continue
                     if payment_move.id == move.id:
