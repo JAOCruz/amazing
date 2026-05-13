@@ -211,10 +211,10 @@
                         <table class="statement-table">
                             <thead>
                                 <tr>
-                                    <th>Fecha</th>
-                                    <th>Tipo</th>
-                                    <th>Vencimiento</th>
-                                    <th>Comprobante</th>
+                                    <th style="padding-left: 16px;">Fecha</th>
+                                    <th style="padding-left: 16px;">Tipo</th>
+                                    <th style="padding-left: 16px;">Vencimiento</th>
+                                    <th style="padding-left: 16px;">Comprobante</th>
                                     <th style="text-align: right; padding-right: 16px;">Débito</th>
                                     <th style="text-align: right; padding-right: 16px;">Crédito</th>
                                     <th style="text-align: right; padding-right: 16px;">Saldo</th>
@@ -223,18 +223,18 @@
                             <tbody>
                                 <t t-foreach="statement['transactions']" t-as="trans">
                                     <tr t-att-class="'overdue' if trans['is_overdue'] else 'payment' if trans['type'] == 'payment' else 'paid' if trans['residual'] == 0 else ''">
-                                        <td><t t-esc="trans['date'].strftime('%d/%m/%Y')"/></td>
-                                        <td>
+                                        <td style="padding-left: 16px;"><t t-esc="trans['date'].strftime('%d/%m/%Y')"/></td>
+                                        <td style="padding-left: 16px;">
                                             <t t-if="trans['type'] == 'invoice'">Factura</t>
                                             <t t-if="trans['type'] == 'refund'">Nota de Credito</t>
                                             <t t-if="trans['type'] == 'payment'">Pago / Abono</t>
                                         </td>
-                                        <td>
+                                        <td style="padding-left: 16px;">
                                             <t t-if="trans['due_date']">
                                                 <t t-esc="trans['due_date'].strftime('%d/%m/%Y')"/>
                                             </t>
                                         </td>
-                                        <td><strong><t t-esc="trans['document']"/></strong></td>
+                                        <td style="padding-left: 16px;"><strong><t t-esc="trans['document']"/></strong></td>
                                         <td class="amount-right" style="padding-right: 16px;">
                                             <t t-if="trans['debit'] &gt; 0">
                                                 RD$ <t t-esc="'{:,.2f}'.format(trans['debit'])"/>
@@ -416,6 +416,7 @@
                     .summary-grid .label {
                         color: #6b7280;
                         font-weight: 600;
+                        padding-left: 10px;
                     }
                     .summary-grid .value {
                         text-align: right;
@@ -440,7 +441,7 @@
                 <table class="consolidated-table">
                     <thead>
                         <tr>
-                            <th>Cliente</th>
+                            <th style="padding-left: 16px;">Cliente</th>
                             <th style="text-align: right; padding-right: 16px;">Facturado</th>
                             <th style="text-align: right; padding-right: 16px;">Pagos</th>
                             <th style="text-align: right; padding-right: 16px;">Notas de Credito</th>
@@ -450,7 +451,7 @@
                     <tbody>
                         <t t-foreach="data['lines']" t-as="line">
                             <tr>
-                                <td><t t-esc="line['partner_name']"/></td>
+                                <td style="padding-left: 16px;"><t t-esc="line['partner_name']"/></td>
                                 <td class="amount-right" style="padding-right: 16px;">RD$ <t t-esc="'{:,.2f}'.format(line['total_debit'])"/></td>
                                 <td class="amount-right" style="padding-right: 16px;">RD$ <t t-esc="'{:,.2f}'.format(line['total_payments'])"/></td>
                                 <td class="amount-right" style="padding-right: 16px;">RD$ <t t-esc="'{:,.2f}'.format(line['total_credit'] - line['total_payments'])"/></td>
@@ -459,7 +460,7 @@
                             </tr>
                         </t>
                         <tr class="total-row">
-                            <td>TOTALES</td>
+                            <td style="padding-left: 16px;">TOTALES</td>
                             <td class="amount-right" style="padding-right: 16px;">RD$ <t t-esc="'{:,.2f}'.format(data['totals']['total_debit'])"/></td>
                             <td class="amount-right" style="padding-right: 16px;">RD$ <t t-esc="'{:,.2f}'.format(data['totals']['total_payments'])"/></td>
                             <td class="amount-right" style="padding-right: 16px;">RD$ <t t-esc="'{:,.2f}'.format(data['totals']['total_credit'] - data['totals']['total_payments'])"/></td>
