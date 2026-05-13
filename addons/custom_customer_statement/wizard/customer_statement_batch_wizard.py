@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import base64
+import io
+
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
@@ -45,24 +48,30 @@ class CustomerStatementBatchWizard(models.TransientModel):
         
         return res
 
+    def _merge_pdfs(self, pdf_bytes_list):
+        """Merge multiple PDF byte strings into a single PDF."""
+        try:
+            from pypdf import PdfWriter, PdfReader
+        except ImportError:
+            # Fallback for older PyPDF2 naming
+            from PyPDF2 import PdfFileWriter as PdfWriter, PdfFileReader as PdfReader
+
+        writer = PdfWriter()
+        for pdf_bytes in pdf_bytes_list:
+            reader = PdfReader(io.BytesIO(pdf_bytes))
+            for page in reader.pages:
+                writer.add_page(page)
+
+        output = io.BytesIO()
+        writer.write(output)
+        return output.getvalue()
+
     def action_generate_statements(self):
         """Generate PDF statements for all selected customers."""
         if not self.partner_ids:
             raise ValidationError('Please select at least one customer.')
 
-        # Limit batch size to avoid wkhtmltopdf memory errors
-        MAX_BATCH = 30
-        if len(self.partner_ids) > MAX_BATCH:
-            raise ValidationError(
-                f'Se seleccionaron {len(self.partner_ids)} clientes. '
-                f'Por seguridad el limite es {MAX_BATCH} clientes por batch. '
-                f'Por favor filtre la seleccion e intente de nuevo.'
-            )
-
         # Create individual wizard records for each partner
-        # Use a clean context that explicitly tells the single wizard to skip
-        # invoice-list validation (active_model / active_ids may still leak
-        # through Odoo's RPC layer even after pop()).
         ctx = dict(self.env.context)
         ctx.pop('active_ids', None)
         ctx.pop('active_model', None)
@@ -80,14 +89,31 @@ class CustomerStatementBatchWizard(models.TransientModel):
             })
             wizard_ids.append(wizard.id)
         
-        # Call the existing report for all wizard records
+        # Generate PDFs in small chunks to avoid wkhtmltopdf memory errors
+        report = self.env['ir.actions.report']._get_report_from_name(
+            'custom_customer_statement.report_customer_statement'
+        )
+        
+        pdf_chunks = []
+        chunk_size = 15  # wkhtmltopdf handles 15 pages comfortably
+        for i in range(0, len(wizard_ids), chunk_size):
+            chunk_ids = wizard_ids[i:i + chunk_size]
+            pdf_content, _ = report._render_qweb_pdf(chunk_ids)
+            pdf_chunks.append(pdf_content)
+        
+        # Merge all chunks into one PDF
+        merged_pdf = self._merge_pdfs(pdf_chunks)
+        
+        # Create attachment for download
+        attachment = self.env['ir.attachment'].create({
+            'name': 'Estados_de_Cuenta.pdf',
+            'type': 'binary',
+            'datas': base64.b64encode(merged_pdf),
+            'mimetype': 'application/pdf',
+        })
+        
         return {
-            'type': 'ir.actions.report',
-            'report_name': 'custom_customer_statement.report_customer_statement',
-            'report_type': 'qweb-pdf',
-            'data': {},
-            'context': {
-                'active_ids': wizard_ids,
-                'active_model': 'customer.statement.wizard',
-            },
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{attachment.id}?download=1',
+            'target': 'self',
         }
