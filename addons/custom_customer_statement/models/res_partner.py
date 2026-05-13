@@ -62,28 +62,43 @@ class ResPartner(models.Model):
             })
 
         # Strategy B: payments reconciled against invoices (catches manual entries)
-        # Look at reconciliation partials on the invoice receivable lines
+        # Look at matched credits/debits on the invoice receivable lines
         for move in moves:
             if move.move_type != 'out_invoice':
                 continue
-            for partial, amount, counterpart_line in move._get_reconciled_invoices_partials():
-                payment_move = counterpart_line.move_id
-                # Skip if it's another invoice/refund (we already have those)
-                if payment_move.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'):
-                    continue
-                # Skip if it's the same move (self-reconciliation)
-                if payment_move.id == move.id:
-                    continue
-                # Only take it if we haven't seen it yet (by move id)
-                if any(p.get('move_id') == payment_move.id for p in payments_found):
-                    continue
-                payments_found.append({
-                    'date': payment_move.date,
-                    'document': payment_move.name or 'Pago',
-                    'description': payment_move.ref or 'Abono / Pago recibido',
-                    'amount': abs(amount),
-                    'move_id': payment_move.id,
-                })
+            for line in move.line_ids.filtered(lambda l: l.account_type == 'asset_receivable'):
+                # Credits to this receivable line = customer payments
+                for partial in line.matched_credit_ids:
+                    payment_move = partial.debit_move_id.move_id
+                    if payment_move.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'):
+                        continue
+                    if payment_move.id == move.id:
+                        continue
+                    if any(p.get('move_id') == payment_move.id for p in payments_found):
+                        continue
+                    payments_found.append({
+                        'date': payment_move.date,
+                        'document': payment_move.name or 'Pago',
+                        'description': payment_move.ref or 'Abono / Pago recibido',
+                        'amount': abs(partial.amount),
+                        'move_id': payment_move.id,
+                    })
+                # Debits to this receivable line = refunds applied
+                for partial in line.matched_debit_ids:
+                    payment_move = partial.credit_move_id.move_id
+                    if payment_move.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'):
+                        continue
+                    if payment_move.id == move.id:
+                        continue
+                    if any(p.get('move_id') == payment_move.id for p in payments_found):
+                        continue
+                    payments_found.append({
+                        'date': payment_move.date,
+                        'document': payment_move.name or 'Pago',
+                        'description': payment_move.ref or 'Abono / Pago recibido',
+                        'amount': abs(partial.amount),
+                        'move_id': payment_move.id,
+                    })
 
         # --- 3. Build unified transaction list ---
         raw_transactions = []
