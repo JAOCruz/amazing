@@ -231,3 +231,91 @@ class ResPartner(models.Model):
             t['credit'] for t in data['transactions'] if t['type'] == 'payment'
         )
         return data
+
+    def get_aged_receivable_data(self, date_from=None, date_to=None):
+        """
+        Generate Aged Receivable data for this partner.
+        Returns invoice lines grouped by aging buckets (0-30, 31-60, 61-90, 90+).
+        Each line shows: date, invoice, payments, and residual distributed by bucket.
+        """
+        self.ensure_one()
+
+        today = datetime.now().date()
+        if date_from:
+            date_from = datetime.strptime(date_from, '%Y-%m-%d').date() if isinstance(date_from, str) else date_from
+        if date_to:
+            date_to = datetime.strptime(date_to, '%Y-%m-%d').date() if isinstance(date_to, str) else date_to
+
+        # Only invoices (not credit notes) for aged receivable
+        domain = [
+            ('partner_id', '=', self.id),
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+        ]
+        if date_from:
+            domain.append(('invoice_date', '>=', date_from))
+        if date_to:
+            domain.append(('invoice_date', '<=', date_to))
+
+        moves = self.env['account.move'].search(domain, order='invoice_date asc')
+
+        lines = []
+        totals = {
+            'payments': 0.0,
+            '0_30': 0.0,
+            '31_60': 0.0,
+            '61_90': 0.0,
+            '90_plus': 0.0,
+            'total': 0.0,
+        }
+
+        for move in moves:
+            # Calculate payments applied to this invoice
+            payments = 0.0
+            for line in move.line_ids.filtered(lambda l: l.account_type == 'asset_receivable'):
+                for partial in line.matched_credit_ids:
+                    payments += partial.amount
+
+            residual = move.amount_residual
+            if residual <= 0 and payments <= 0:
+                continue  # skip fully paid invoices with no residual
+
+            # Aging based on days since invoice date
+            days = (today - move.invoice_date).days if move.invoice_date else 0
+
+            buckets = {'0_30': 0.0, '31_60': 0.0, '61_90': 0.0, '90_plus': 0.0}
+            if residual > 0:
+                if days <= 30:
+                    buckets['0_30'] = residual
+                elif days <= 60:
+                    buckets['31_60'] = residual
+                elif days <= 90:
+                    buckets['61_90'] = residual
+                else:
+                    buckets['90_plus'] = residual
+
+            lines.append({
+                'date': move.invoice_date,
+                'document': move.name,
+                'amount_total': move.amount_total,
+                'payments': payments,
+                'residual': residual,
+                'days': days,
+                **buckets,
+            })
+
+            totals['payments'] += payments
+            totals['0_30'] += buckets['0_30']
+            totals['31_60'] += buckets['31_60']
+            totals['61_90'] += buckets['61_90']
+            totals['90_plus'] += buckets['90_plus']
+            totals['total'] += residual
+
+        return {
+            'partner_id': self.id,
+            'partner_name': self.name,
+            'partner_ref': self.ref or '',
+            'partner_phone': self.phone or self.mobile or '',
+            'lines': lines,
+            'totals': totals,
+        }
