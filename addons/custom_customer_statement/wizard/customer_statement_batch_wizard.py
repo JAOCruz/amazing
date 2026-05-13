@@ -132,15 +132,15 @@ class CustomerStatementBatchWizard(models.TransientModel):
             wizard_ids.append(wizard.id)
         
         # Generate PDFs in small chunks to avoid wkhtmltopdf memory errors
-        report = self.env['ir.actions.report']._get_report_from_name(
-            'custom_customer_statement.report_customer_statement'
-        )
+        report_ref = 'custom_customer_statement.report_customer_statement'
         
         pdf_chunks = []
         chunk_size = 15  # wkhtmltopdf handles 15 pages comfortably
         for i in range(0, len(wizard_ids), chunk_size):
             chunk_ids = wizard_ids[i:i + chunk_size]
-            pdf_content, _ = report._render_qweb_pdf(chunk_ids)
+            pdf_content, _ = self.env['ir.actions.report']._render_qweb_pdf(
+                report_ref, res_ids=chunk_ids
+            )
             pdf_chunks.append(pdf_content)
         
         # Merge all chunks into one PDF
