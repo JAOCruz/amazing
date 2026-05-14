@@ -232,7 +232,7 @@ class ResPartner(models.Model):
         )
         return data
 
-    def get_aged_receivable_data(self, date_from=None, date_to=None):
+    def get_aged_receivable_data(self, move_ids=None, date_from=None, date_to=None):
         """
         Generate Aged Receivable data for this partner.
         Returns invoice lines grouped by aging buckets (0-30, 31-60, 61-90, 90+).
@@ -258,6 +258,8 @@ class ResPartner(models.Model):
             domain.append(('invoice_date', '<=', date_to))
 
         moves = self.env['account.move'].search(domain, order='invoice_date asc')
+        if move_ids:
+            moves = moves.filtered(lambda m: m.id in move_ids)
 
         lines = []
         totals = {
