@@ -279,8 +279,8 @@ class ResPartner(models.Model):
                     payments += partial.amount
 
             residual = move.amount_residual
-            if residual <= 0 and payments <= 0:
-                continue  # skip fully paid invoices with no residual
+            if residual <= 0:
+                continue  # skip fully paid invoices
 
             # Aging based on days since invoice date
             days = (today - move.invoice_date).days if move.invoice_date else 0
