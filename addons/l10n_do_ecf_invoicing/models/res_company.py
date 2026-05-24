@@ -49,7 +49,7 @@ class ResCompany(models.Model):
     )
     l10n_do_ecf_auto_send_default = fields.Boolean(
         string="Enviar a DGII por defecto",
-        default=True,
+        default=False,
         help="Si está activado, las nuevas facturas se marcarán automáticamente para envío a DGII. Desactívalo para usar el sistema dual donde decides factura por factura.",
     )
 

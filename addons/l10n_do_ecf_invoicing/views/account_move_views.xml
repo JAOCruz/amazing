@@ -13,7 +13,10 @@
 
             <!-- e-CF toggle and status badge in the header -->
             <xpath expr="//header" position="inside">
-                <field name="l10n_do_send_to_dgii" invisible="state != 'draft'"/>
+                <group invisible="state != 'draft'" col="2">
+                    <field name="l10n_latam_document_type_id" readonly="1" options="{'no_open': True}"/>
+                    <field name="l10n_do_send_to_dgii"/>
+                </group>
                 <field name="l10n_do_ecf_status" widget="badge"
                        decoration-info="l10n_do_ecf_status == 'generated'"
                        decoration-warning="l10n_do_ecf_status == 'sent'"
