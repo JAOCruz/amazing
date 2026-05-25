@@ -11,18 +11,22 @@
         <field name="priority">100</field>
         <field name="arch" type="xml">
 
-            <!-- e-CF toggle and status badge in the header -->
+            <!-- e-CF status badge in the header -->
             <xpath expr="//header" position="inside">
-                <group invisible="state != 'draft'" col="2">
-                    <field name="l10n_do_b_code" readonly="1"/>
-                    <field name="l10n_do_send_to_dgii"/>
-                </group>
                 <field name="l10n_do_ecf_status" widget="badge"
                        decoration-info="l10n_do_ecf_status == 'generated'"
                        decoration-warning="l10n_do_ecf_status == 'sent'"
                        decoration-success="l10n_do_ecf_status == 'accepted'"
                        decoration-danger="l10n_do_ecf_status in ('rejected', 'error')"
                        invisible="not is_ecf_invoice"/>
+            </xpath>
+
+            <!-- B01/B02 type and DGII toggle below the title -->
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <group invisible="state != 'draft' or move_type not in ('out_invoice', 'out_refund')" col="2">
+                    <field name="l10n_do_b_code" readonly="1"/>
+                    <field name="l10n_do_send_to_dgii"/>
+                </group>
             </xpath>
 
             <!-- e-CF action buttons in the header -->

@@ -80,6 +80,18 @@ class AccountMove(models.Model):
         help="Si está marcado, esta factura se enviará a DGII para obtener un Comprobante Fiscal electrónico (e-CF). Si no, será una factura normal sin NCF electrónico.",
     )
 
+    l10n_do_b_code = fields.Char(
+        string="Tipo (B01/B02)",
+        compute="_compute_l10n_do_b_code",
+        store=True,
+    )
+
+    @api.depends("l10n_latam_document_type_id")
+    def _compute_l10n_do_b_code(self):
+        for move in self:
+            ncf = move.l10n_latam_document_type_id.l10n_do_ncf_type
+            move.l10n_do_b_code = {"e-31": "B01", "e-32": "B02"}.get(ncf, "")
+
     @api.depends("l10n_latam_document_type_id", "l10n_do_send_to_dgii")
     def _compute_is_ecf_invoice(self):
         for move in self:
