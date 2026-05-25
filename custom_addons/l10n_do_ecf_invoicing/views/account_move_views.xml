@@ -97,4 +97,60 @@
         </field>
     </record>
 
+    <!-- ================================================================== -->
+    <!-- account.move search view: e-CF filters and grouping                 -->
+    <!-- ================================================================== -->
+    <record id="view_account_invoice_filter_ecf" model="ir.ui.view">
+        <field name="name">account.invoice.filter.ecf</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="l10n_do_b_code" string="Tipo (B01/B02)"/>
+                <field name="l10n_do_ecf_status" string="Estado e-CF"/>
+
+                <separator/>
+                <filter string="Enviar a DGII" name="ecf_send_to_dgii"
+                        domain="[('l10n_do_send_to_dgii', '=', True)]"/>
+                <filter string="Sin DGII" name="ecf_no_dgii"
+                        domain="[('l10n_do_send_to_dgii', '=', False)]"/>
+
+                <separator/>
+                <filter string="e-CF" name="ecf_is_ecf"
+                        domain="[('is_ecf_invoice', '=', True)]"/>
+                <filter string="No e-CF" name="ecf_not_ecf"
+                        domain="[('is_ecf_invoice', '=', False)]"/>
+
+                <separator/>
+                <filter string="B01 (Crédito Fiscal)" name="ecf_b01"
+                        domain="[('l10n_do_b_code', '=', 'B01')]"/>
+                <filter string="B02 (Consumo)" name="ecf_b02"
+                        domain="[('l10n_do_b_code', '=', 'B02')]"/>
+
+                <separator/>
+                <filter string="e-CF: Borrador" name="ecf_status_draft"
+                        domain="[('l10n_do_ecf_status', '=', 'draft')]"/>
+                <filter string="e-CF: XML Generado" name="ecf_status_generated"
+                        domain="[('l10n_do_ecf_status', '=', 'generated')]"/>
+                <filter string="e-CF: Enviado" name="ecf_status_sent"
+                        domain="[('l10n_do_ecf_status', '=', 'sent')]"/>
+                <filter string="e-CF: Aceptado" name="ecf_status_accepted"
+                        domain="[('l10n_do_ecf_status', '=', 'accepted')]"/>
+                <filter string="e-CF: Rechazado" name="ecf_status_rejected"
+                        domain="[('l10n_do_ecf_status', '=', 'rejected')]"/>
+                <filter string="e-CF: Error" name="ecf_status_error"
+                        domain="[('l10n_do_ecf_status', '=', 'error')]"/>
+
+                <group expand="0" string="Agrupar por">
+                    <filter string="Tipo e-CF" name="group_by_b_code"
+                            context="{'group_by': 'l10n_do_b_code'}"/>
+                    <filter string="Estado e-CF" name="group_by_ecf_status"
+                            context="{'group_by': 'l10n_do_ecf_status'}"/>
+                    <filter string="Enviar a DGII" name="group_by_send_dgii"
+                            context="{'group_by': 'l10n_do_send_to_dgii'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>
