@@ -24,7 +24,7 @@
             <!-- B01/B02 type and DGII toggle below the title -->
             <xpath expr="//div[hasclass('oe_title')]" position="after">
                 <group invisible="state != 'draft' or move_type not in ('out_invoice', 'out_refund')" col="2">
-                    <field name="l10n_do_b_code" readonly="1"/>
+                    <field name="l10n_latam_document_type_id" options="{'no_open': True}"/>
                     <field name="l10n_do_send_to_dgii"/>
                 </group>
             </xpath>
