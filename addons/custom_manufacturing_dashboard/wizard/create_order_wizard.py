@@ -211,7 +211,7 @@ class CreateOrderWizard(models.TransientModel):
         ('D2', 'D2'),
         ('D3', 'D3'),
         ('D4', 'D4'),
-    ], string='Color Seleccionado', default='A2')
+    ], string='Color Seleccionado', default='Ninguno')
 
     material = fields.Selection([
         ('zirconia', 'Zirconia'),
