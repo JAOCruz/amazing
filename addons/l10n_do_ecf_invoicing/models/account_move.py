@@ -361,6 +361,10 @@ class AccountMove(models.Model):
                 and move.l10n_do_ecf_status == "draft"
             ):
                 try:
+                    _logger.info(
+                        "Auto-generating e-CF XML for %s (status=%s)",
+                        move.name, move.l10n_do_ecf_status
+                    )
                     move.action_generate_ecf_xml()
                 except Exception as e:
                     _logger.error(
@@ -385,7 +389,15 @@ class AccountMove(models.Model):
                 for fname in field_names:
                     if fname in move._fields:
                         vals[fname] = False if fname != 'l10n_do_ecf_status' else 'draft'
+                    else:
+                        _logger.warning(
+                            "Field %s not found in _fields for move %s, skipping",
+                            fname, move.name
+                        )
                 if vals:
+                    _logger.info(
+                        "Clearing e-CF data for %s: %s", move.name, list(vals.keys())
+                    )
                     move.write(vals)
         return res
 
