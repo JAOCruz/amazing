@@ -195,14 +195,15 @@ class DgiiApi(models.AbstractModel):
     # -------------------------------------------------------------------------
     # Send e-CF
     # -------------------------------------------------------------------------
-    def _send_ecf(self, company, unsigned_xml_bytes, filename, ecf_type_code=None):
+    def _send_ecf(self, company, xml_bytes, filename, ecf_type_code=None, already_signed=False):
         """Generate, sign, and send an e-CF XML to DGII.
 
         Args:
             company: res.company record
-            unsigned_xml_bytes: bytes of the unsigned XML document
+            xml_bytes: bytes of the XML document (unsigned or signed)
             filename: filename for the multipart upload
             ecf_type_code: str like '32', '44', etc. (determines RFCE vs regular endpoint)
+            already_signed: if True, xml_bytes is already signed; skip re-signing
 
         Returns:
             dict with keys: trackId, mensaje, estado, etc.
@@ -213,13 +214,16 @@ class DgiiApi(models.AbstractModel):
                 _("No e-CF certificate configured for company %s.", company.name)
             )
 
-        # Sign the e-CF XML (root element is always <ECF>)
-        signed_xml_bytes = self._sign_xml_with_node(
-            xml_bytes=unsigned_xml_bytes,
-            p12_bytes=p12_bytes,
-            password=password.decode("utf-8") if isinstance(password, bytes) else (password or ""),
-            root_el_name="ECF",
-        )
+        if already_signed:
+            signed_xml_bytes = xml_bytes
+        else:
+            # Sign the e-CF XML (root element is always <ECF>)
+            signed_xml_bytes = self._sign_xml_with_node(
+                xml_bytes=xml_bytes,
+                p12_bytes=p12_bytes,
+                password=password.decode("utf-8") if isinstance(password, bytes) else (password or ""),
+                root_el_name="ECF",
+            )
 
         token = self._authenticate(company)
         endpoints = company._get_l10n_do_ecf_endpoints()

@@ -236,7 +236,10 @@ class AccountMove(models.Model):
             xml_root, xml_declaration=True, encoding="UTF-8", pretty_print=True
         )
         signed_bytes = dgii_api._sign_xml_with_node(
-            unsigned_bytes, p12_bytes, password, "ECF"
+            xml_bytes=unsigned_bytes,
+            p12_bytes=p12_bytes,
+            password=password.decode("utf-8") if isinstance(password, bytes) else (password or ""),
+            root_el_name="ECF",
         )
         filename = f"{self.l10n_latam_document_number or self.name}.xml"
 
@@ -269,9 +272,13 @@ class AccountMove(models.Model):
 
         signed_xml_bytes = base64.b64decode(self.l10n_do_ecf_edi_file)
         filename = self.l10n_do_ecf_edi_file_name or "ecf.xml"
+        type_code = NCF_TYPE_TO_CODE.get(self.l10n_latam_document_type_id.l10n_do_ncf_type)
 
         dgii_api = self.env["l10n_do.dgii.api"]
-        result = dgii_api._send_ecf(self.company_id, signed_xml_bytes, filename)
+        result = dgii_api._send_ecf(
+            self.company_id, signed_xml_bytes, filename,
+            ecf_type_code=type_code, already_signed=True
+        )
 
         # Parse DGII response
         track_id = result.get("trackId", "")

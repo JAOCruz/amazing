@@ -83,6 +83,16 @@ def _add_element(parent, tag, text=None, attrib=None):
     return el
 
 
+# DGII structural rules extracted from certified scripts (paso2_send_ecf.py)
+HAS_FECHA_VENC     = {"31", "33", "41", "43", "44", "45", "46", "47"}  # NOT 32, 34
+HAS_TIPO_INGRESOS  = {"31", "32", "33", "34", "44", "45", "46"}         # NOT 41, 43, 47
+HAS_TABLA_FORMAS   = {"31", "32", "33", "41", "44", "45", "46", "47"}   # NOT 34, 43
+HAS_COMPRADOR      = {"31", "32", "33", "34", "41", "44", "45", "46", "47"}  # NOT 43
+HAS_ITEM_RET_REQ   = {"41", "47"}  # Retencion required in items
+HAS_ITEM_RET_OPT   = {"33", "34"}  # Retencion optional in items
+HAS_INFO_REF       = {"33", "34"}  # InformacionReferencia required
+
+
 class EcfXmlGenerator(models.AbstractModel):
     """Generates e-CF XML documents from account.move records."""
 
@@ -111,7 +121,10 @@ class EcfXmlGenerator(models.AbstractModel):
                 _("No XML builder implemented for e-CF type E%s.", type_code)
             )
 
-        root = etree.Element("ECF")
+        root = etree.Element("ECF", nsmap={
+            "xsd": "http://www.w3.org/2001/XMLSchema",
+            "xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        })
         builder(root, move, type_code)
         return root
 
@@ -120,75 +133,71 @@ class EcfXmlGenerator(models.AbstractModel):
     # -------------------------------------------------------------------------
     def _build_ecf_31(self, root, move, type_code):
         """E31: Factura de Crédito Fiscal (B2B)."""
-        self._build_encabezado(root, move, type_code, buyer_required=True)
-        self._build_detalles_items(root, move)
+        self._build_encabezado(root, move, type_code)
+        self._build_detalles_items(root, move, type_code)
         self._build_informacion_referencia(root, move)
         self._build_fecha_hora_firma(root)
 
     def _build_ecf_32(self, root, move, type_code):
         """E32: Factura de Consumo (B2C)."""
-        self._build_encabezado(root, move, type_code, buyer_required=False)
-        self._build_detalles_items(root, move)
+        self._build_encabezado(root, move, type_code)
+        self._build_detalles_items(root, move, type_code)
         self._build_informacion_referencia(root, move)
         self._build_fecha_hora_firma(root)
 
     def _build_ecf_33(self, root, move, type_code):
         """E33: Nota de Débito."""
-        self._build_encabezado(root, move, type_code, buyer_required=True)
-        self._build_detalles_items(root, move)
+        self._build_encabezado(root, move, type_code)
+        self._build_detalles_items(root, move, type_code)
         self._build_informacion_referencia(root, move, required=True)
         self._build_fecha_hora_firma(root)
 
     def _build_ecf_34(self, root, move, type_code):
         """E34: Nota de Crédito."""
-        self._build_encabezado(root, move, type_code, buyer_required=True)
-        self._build_detalles_items(root, move)
+        self._build_encabezado(root, move, type_code)
+        self._build_detalles_items(root, move, type_code)
         self._build_informacion_referencia(root, move, required=True)
         self._build_fecha_hora_firma(root)
 
     def _build_ecf_41(self, root, move, type_code):
         """E41: Comprobante de Compras (informal supplier)."""
-        self._build_encabezado(root, move, type_code, buyer_required=True)
-        self._build_detalles_items(root, move)
+        self._build_encabezado(root, move, type_code)
+        self._build_detalles_items(root, move, type_code)
         self._build_informacion_referencia(root, move)
         self._build_fecha_hora_firma(root)
 
     def _build_ecf_43(self, root, move, type_code):
         """E43: Gastos Menores."""
-        self._build_encabezado(root, move, type_code, buyer_required=False)
-        self._build_detalles_items(root, move)
+        self._build_encabezado(root, move, type_code)
+        self._build_detalles_items(root, move, type_code)
         self._build_informacion_referencia(root, move)
         self._build_fecha_hora_firma(root)
 
     def _build_ecf_44(self, root, move, type_code):
         """E44: Regímenes Especiales."""
-        self._build_encabezado(root, move, type_code, buyer_required=True)
-        self._build_detalles_items(root, move)
+        self._build_encabezado(root, move, type_code)
+        self._build_detalles_items(root, move, type_code)
         self._build_informacion_referencia(root, move)
         self._build_fecha_hora_firma(root)
 
     def _build_ecf_45(self, root, move, type_code):
         """E45: Gubernamental."""
-        self._build_encabezado(root, move, type_code, buyer_required=True)
-        self._build_detalles_items(root, move)
+        self._build_encabezado(root, move, type_code)
+        self._build_detalles_items(root, move, type_code)
         self._build_informacion_referencia(root, move)
         self._build_fecha_hora_firma(root)
 
     def _build_ecf_46(self, root, move, type_code):
         """E46: Exportaciones."""
-        self._build_encabezado(
-            root, move, type_code, buyer_required=True, export_info=True
-        )
-        self._build_detalles_items(root, move)
+        self._build_encabezado(root, move, type_code, export_info=True)
+        self._build_detalles_items(root, move, type_code)
         self._build_informacion_referencia(root, move)
         self._build_fecha_hora_firma(root)
 
     def _build_ecf_47(self, root, move, type_code):
         """E47: Pagos al Exterior."""
-        self._build_encabezado(
-            root, move, type_code, buyer_required=True, exterior=True
-        )
-        self._build_detalles_items(root, move)
+        self._build_encabezado(root, move, type_code, exterior=True)
+        self._build_detalles_items(root, move, type_code)
         self._build_informacion_referencia(root, move)
         self._build_fecha_hora_firma(root)
 
@@ -196,7 +205,7 @@ class EcfXmlGenerator(models.AbstractModel):
     # Encabezado (Header)
     # -------------------------------------------------------------------------
     def _build_encabezado(
-        self, root, move, type_code, buyer_required=True,
+        self, root, move, type_code,
         export_info=False, exterior=False
     ):
         encabezado = _add_element(root, "Encabezado")
@@ -204,8 +213,8 @@ class EcfXmlGenerator(models.AbstractModel):
 
         self._build_id_doc(encabezado, move, type_code)
         self._build_emisor(encabezado, move)
-        if buyer_required or move.partner_id.vat:
-            self._build_comprador(encabezado, move, exterior=exterior)
+        if type_code in HAS_COMPRADOR:
+            self._build_comprador(encabezado, move, type_code, exterior=exterior)
         if export_info:
             self._build_informaciones_adicionales(encabezado, move)
         self._build_totales(encabezado, move, type_code)
@@ -218,39 +227,47 @@ class EcfXmlGenerator(models.AbstractModel):
         _add_element(id_doc, "TipoeCF", type_code)
         _add_element(id_doc, "eNCF", move.l10n_latam_document_number)
 
-        # Sequence expiration date
-        exp_date = self._get_sequence_expiration(move)
-        if exp_date:
-            _add_element(id_doc, "FechaVencimientoSecuencia", _fmt_date(exp_date))
+        # E34: IndicadorNotaCredito right after eNCF
+        if type_code == "34":
+            _add_element(id_doc, "IndicadorNotaCredito", "0")
 
-        # Deferred indicator
-        deferred = "1" if move.company_id.l10n_do_ecf_deferred_submissions else "0"
-        _add_element(id_doc, "IndicadorEnvioDiferido", deferred)
+        # Sequence expiration date — NOT for types 32, 34
+        if type_code in HAS_FECHA_VENC:
+            exp_date = self._get_sequence_expiration(move)
+            if exp_date:
+                _add_element(id_doc, "FechaVencimientoSecuencia", _fmt_date(exp_date))
 
-        # Tax indicator: 0 = prices include ITBIS
-        _add_element(id_doc, "IndicadorMontoGravado", "0")
+        # Deferred indicator — NOT for type 43
+        if type_code != "43":
+            deferred = "1" if move.company_id.l10n_do_ecf_deferred_submissions else "0"
+            _add_element(id_doc, "IndicadorEnvioDiferido", deferred)
 
-        # Income type (for sales types)
-        if type_code in ("31", "32", "44", "45", "46"):
+        # Tax indicator — NOT for types 43, 47
+        if type_code not in ("43", "47"):
+            _add_element(id_doc, "IndicadorMontoGravado", "0")
+
+        # Income type
+        if type_code in HAS_TIPO_INGRESOS:
             income_type = move.l10n_do_income_type or "01"
-            _add_element(id_doc, "TipoIngresos", income_type)
+            _add_element(id_doc, "TipoIngresos", income_type.zfill(2))
 
         # Payment type
         payment_type = self._get_payment_type(move)
         _add_element(id_doc, "TipoPago", payment_type)
 
-        # Payment due date for credit
-        if payment_type == "2" and move.invoice_date_due:
+        # Payment due date for credit — NOT for type 43
+        if payment_type == "2" and move.invoice_date_due and type_code != "43":
             _add_element(
                 id_doc, "FechaLimitePago", _fmt_date(move.invoice_date_due)
             )
-            if move.invoice_payment_term_id:
+            if move.invoice_payment_term_id and type_code != "34":
                 _add_element(
                     id_doc, "TerminoPago", move.invoice_payment_term_id.name[:50]
                 )
 
-        # Payment methods table
-        self._build_payment_methods(id_doc, move)
+        # Payment methods table — NOT for types 34, 43
+        if type_code in HAS_TABLA_FORMAS:
+            self._build_payment_methods(id_doc, move)
 
         _add_element(id_doc, "TotalPaginas", "1")
 
@@ -285,8 +302,13 @@ class EcfXmlGenerator(models.AbstractModel):
         _add_element(emisor, "FechaEmision", _fmt_date(move.invoice_date))
 
     # --- Comprador (Buyer) ---
-    def _build_comprador(self, encabezado, move, exterior=False):
+    def _build_comprador(self, encabezado, move, type_code, exterior=False):
         partner = move.commercial_partner_id
+
+        # Type 43 (Gastos Menores) has NO Comprador section
+        if type_code == "43":
+            return
+
         comprador = _add_element(encabezado, "Comprador")
 
         if exterior and not partner.vat:
@@ -418,16 +440,16 @@ class EcfXmlGenerator(models.AbstractModel):
     # -------------------------------------------------------------------------
     # DetallesItems (Line Items)
     # -------------------------------------------------------------------------
-    def _build_detalles_items(self, root, move):
+    def _build_detalles_items(self, root, move, type_code):
         detalles = _add_element(root, "DetallesItems")
         line_number = 0
         for line in move.invoice_line_ids.filtered(
             lambda l: l.display_type == "product"
         ):
             line_number += 1
-            self._build_item(detalles, line, line_number, move)
+            self._build_item(detalles, line, line_number, move, type_code)
 
-    def _build_item(self, detalles, line, line_number, move):
+    def _build_item(self, detalles, line, line_number, move, type_code):
         item = _add_element(detalles, "Item")
         _add_element(item, "NumeroLinea", str(line_number))
 
@@ -444,23 +466,26 @@ class EcfXmlGenerator(models.AbstractModel):
                     cod, "CodigoItem", str(line.product_id.default_code or line.product_id.id)[:35]
                 )
 
-        # Tax indicator (IndicadorFacturacion)
+        # Tax indicator (IndicadorFacturacion) — BEFORE NombreItem per XSD
         itbis_indicator = self._get_line_tax_indicator(line)
         _add_element(item, "IndicadorFacturacion", itbis_indicator)
 
-        # Retention info
+        # Retention info — required for 41/47, optional for 33/34
         retention = self._get_line_retention(line)
-        if retention["itbis_retenido"] or retention["isr_retenido"]:
+        ret_ind = "1" if (retention["itbis_retenido"] or retention["isr_retenido"]) else "0"
+        if type_code in HAS_ITEM_RET_REQ or (type_code in HAS_ITEM_RET_OPT and ret_ind == "1"):
             ret_el = _add_element(item, "Retencion")
-            _add_element(ret_el, "IndicadorAgenteRetencionoPercepcion", "1")
-            _add_element(
-                ret_el, "MontoITBISRetenido",
-                _fmt_amount(retention["itbis_retenido"])
-            )
-            _add_element(
-                ret_el, "MontoISRRetenido",
-                _fmt_amount(retention["isr_retenido"])
-            )
+            _add_element(ret_el, "IndicadorAgenteRetencionoPercepcion", ret_ind)
+            if retention["itbis_retenido"]:
+                _add_element(
+                    ret_el, "MontoITBISRetenido",
+                    _fmt_amount(retention["itbis_retenido"])
+                )
+            if retention["isr_retenido"]:
+                _add_element(
+                    ret_el, "MontoISRRetenido",
+                    _fmt_amount(retention["isr_retenido"])
+                )
 
         # Item name and description
         _add_element(item, "NombreItem", (line.name or line.product_id.name or "")[:80])
@@ -469,17 +494,19 @@ class EcfXmlGenerator(models.AbstractModel):
         if line.product_id:
             bien_servicio = "2" if line.product_id.type == "service" else "1"
         else:
-            bien_servicio = "2"
+            bien_servicio = "1"
         _add_element(item, "IndicadorBienoServicio", bien_servicio)
 
         if line.name and len(line.name) > 80:
             _add_element(item, "DescripcionItem", line.name[:1000])
 
-        _add_element(item, "CantidadItem", _fmt_amount(line.quantity))
+        # KEY FIX: CantidadItem as integer string
+        _add_element(item, "CantidadItem", str(int(line.quantity)))
 
         # Unit of measure
         uom_code = self._get_uom_code(line)
-        _add_element(item, "UnidadMedida", str(uom_code))
+        if uom_code:
+            _add_element(item, "UnidadMedida", str(uom_code))
 
         _add_element(item, "PrecioUnitarioItem", _fmt_amount(line.price_unit))
 
@@ -533,6 +560,19 @@ class EcfXmlGenerator(models.AbstractModel):
 
         mod_code = move.l10n_do_ecf_modification_code or "1"
         _add_element(info_ref, "CodigoModificacion", mod_code)
+
+        if move.l10n_do_ecf_modification_code:
+            reasons = {
+                "1": "Anulación",
+                "2": "Corrección de Precio",
+                "3": "Devolución",
+                "4": "Descuento",
+                "5": "Ajuste de Precio",
+                "6": "Otros",
+            }
+            razon = reasons.get(move.l10n_do_ecf_modification_code, "")
+            if razon:
+                _add_element(info_ref, "RazonModificacion", razon)
 
     # -------------------------------------------------------------------------
     # FechaHoraFirma
@@ -734,10 +774,15 @@ class EcfXmlGenerator(models.AbstractModel):
 
     @api.model
     def _get_line_tax_indicator(self, line):
-        """Return DGII IndicadorFacturacion code for a line."""
+        """Return DGII IndicadorFacturacion code for a line.
+
+        1 = ITBIS 18%, 2 = ITBIS 16%, 3 = ITBIS 0%, 4 = Exempt / No ITBIS
+        """
         rate = self._get_line_itbis_rate(line)
-        if rate is None or rate == 0:
-            return "3"
+        if rate is None:
+            return "4"  # Exempt (no ITBIS tax at all)
+        if rate == 0:
+            return "3"  # ITBIS 0%
         return ITBIS_RATE_MAP.get(rate, "1")
 
     @api.model
