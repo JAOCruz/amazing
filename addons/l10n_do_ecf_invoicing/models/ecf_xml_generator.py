@@ -202,6 +202,33 @@ class EcfXmlGenerator(models.AbstractModel):
         self._build_fecha_hora_firma(root)
 
     # -------------------------------------------------------------------------
+    # Helpers
+    # -------------------------------------------------------------------------
+    def _format_encf(self, document_number, type_code):
+        """Format eNCF to DGII standard: E{type}{10-digit-sequence}.
+
+        Examples:
+          - Input: "3062" → Output: "E310000003062"
+          - Input: "E310000003062" → Output: "E310000003062" (already formatted)
+        """
+        if not document_number:
+            return ""
+
+        expected_prefix = f"E{type_code}"
+        if document_number.startswith(expected_prefix) and len(document_number) == 13:
+            return document_number
+
+        try:
+            seq = int(document_number)
+            return f"E{type_code}{seq:010d}"
+        except ValueError:
+            _logger.warning(
+                "eNCF format invalid: %s (expected numeric or E%s...)",
+                document_number, type_code
+            )
+            return document_number
+
+    # -------------------------------------------------------------------------
     # Encabezado (Header)
     # -------------------------------------------------------------------------
     def _build_encabezado(
@@ -225,7 +252,10 @@ class EcfXmlGenerator(models.AbstractModel):
     def _build_id_doc(self, encabezado, move, type_code):
         id_doc = _add_element(encabezado, "IdDoc")
         _add_element(id_doc, "TipoeCF", type_code)
-        _add_element(id_doc, "eNCF", move.l10n_latam_document_number)
+
+        # Format eNCF: must be E{type}{10-digit-sequence} e.g. E310000003062
+        encf = self._format_encf(move.l10n_latam_document_number, type_code)
+        _add_element(id_doc, "eNCF", encf)
 
         # E34: IndicadorNotaCredito right after eNCF
         if type_code == "34":
