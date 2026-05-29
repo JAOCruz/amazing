@@ -235,7 +235,10 @@ class DgiiApi(models.AbstractModel):
             send_url = endpoints["send_ecf"]
 
         headers = {"Authorization": f"Bearer {token}"}
-        _logger.info("DGII Send: posting e-CF (%s) to %s", filename, send_url)
+        _logger.info(
+            "DGII Send: posting e-CF (%s) to %s (type_code=%s, size=%d bytes)",
+            filename, send_url, ecf_type_code, len(signed_xml_bytes)
+        )
 
         try:
             resp = requests.post(
@@ -250,10 +253,17 @@ class DgiiApi(models.AbstractModel):
             ) from e
 
         if resp.status_code == 401:
+            _logger.error(
+                "DGII Send: 401 Unauthorized. URL=%s, Response body=%s",
+                send_url, resp.text
+            )
             raise UserError(
                 _(
                     "DGII authentication expired or invalid. "
-                    "Check your certificate and try again."
+                    "URL: %s\n"
+                    "Response: %s\n"
+                    "Check your certificate and try again.",
+                    send_url, resp.text[:500]
                 )
             )
 
