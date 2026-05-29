@@ -316,6 +316,12 @@ class EcfXmlGenerator(models.AbstractModel):
             address = self._build_address_string(company)
             _add_element(emisor, "DireccionEmisor", address[:100])
 
+        # Municipio and Provincia — default 010101 (Santo Domingo, Distrito Nacional)
+        municipality_code = getattr(company, 'l10n_do_municipality_code', None) or "010101"
+        if len(municipality_code) >= 6:
+            _add_element(emisor, "Municipio", municipality_code[:6])
+            _add_element(emisor, "Provincia", municipality_code[:6])
+
         if company.phone:
             phones = _add_element(emisor, "TablaTelefonoEmisor")
             _add_element(phones, "TelefonoEmisor", company.phone[:20])
