@@ -225,19 +225,18 @@ class AccountMove(models.Model):
         except Exception as e:
             _logger.warning("XSD validation warning: %s", e)
 
-        # Sign the XML
+        # Sign the XML using Node.js (same method as certification scripts)
         dgii_api = self.env["l10n_do.dgii.api"]
         p12_bytes, password = self.company_id._get_l10n_do_ecf_certificate_data()
         if not p12_bytes:
             raise UserError(
                 _("No e-CF certificate configured. Go to Settings > e-CF.")
             )
-        private_key, certificate, _chain = dgii_api._load_p12(p12_bytes, password)
-        dgii_api._sign_xml(xml_root, private_key, certificate)
-
-        # Store the signed XML
-        signed_bytes = etree.tostring(
+        unsigned_bytes = etree.tostring(
             xml_root, xml_declaration=True, encoding="UTF-8", pretty_print=True
+        )
+        signed_bytes = dgii_api._sign_xml_with_node(
+            unsigned_bytes, p12_bytes, password, "ECF"
         )
         filename = f"{self.l10n_latam_document_number or self.name}.xml"
 
