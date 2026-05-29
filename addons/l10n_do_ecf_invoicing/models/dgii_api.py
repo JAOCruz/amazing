@@ -185,11 +185,15 @@ class DgiiApi(models.AbstractModel):
                 _("DGII certificate validation failed: %s", str(e))
             ) from e
 
-        token = resp.text.strip().strip('"')
+        try:
+            data = resp.json()
+            token = data.get("token", "").strip().strip('"') if isinstance(data, dict) else resp.text.strip().strip('"')
+        except Exception:
+            token = resp.text.strip().strip('"')
         if not token:
             raise UserError(_("DGII returned an empty authentication token."))
 
-        _logger.info("DGII Auth: obtained token (length=%d)", len(token))
+        _logger.info("DGII Auth: obtained token (length=%d, prefix=%s)", len(token), token[:20])
         return token
 
     # -------------------------------------------------------------------------
@@ -254,8 +258,8 @@ class DgiiApi(models.AbstractModel):
 
         if resp.status_code == 401:
             _logger.error(
-                "DGII Send: 401 Unauthorized. URL=%s, Response body=%s",
-                send_url, resp.text
+                "DGII Send: 401 Unauthorized. URL=%s, Headers sent=%s, Response headers=%s, Response body=%s",
+                send_url, dict(headers), dict(resp.headers), resp.text
             )
             raise UserError(
                 _(
