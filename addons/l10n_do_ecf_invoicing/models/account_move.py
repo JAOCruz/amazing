@@ -374,16 +374,19 @@ class AccountMove(models.Model):
         res = super().button_draft()
         for move in self:
             if move.is_ecf_invoice and move.l10n_do_ecf_status not in ("accepted",):
-                vals = {"l10n_do_ecf_status": "draft"}
-                if hasattr(move, 'l10n_do_ecf_edi_file'):
-                    vals["l10n_do_ecf_edi_file"] = False
-                if hasattr(move, 'l10n_do_ecf_edi_file_name'):
-                    vals["l10n_do_ecf_edi_file_name"] = False
-                if hasattr(move, 'l10n_do_ecf_track_id'):
-                    vals["l10n_do_ecf_track_id"] = False
-                if hasattr(move, 'l10n_do_ecf_dgii_message'):
-                    vals["l10n_do_ecf_dgii_message"] = False
-                move.write(vals)
+                vals = {}
+                field_names = [
+                    'l10n_do_ecf_status',
+                    'l10n_do_ecf_edi_file',
+                    'l10n_do_ecf_edi_file_name',
+                    'l10n_do_ecf_track_id',
+                    'l10n_do_ecf_dgii_message',
+                ]
+                for fname in field_names:
+                    if fname in move._fields:
+                        vals[fname] = False if fname != 'l10n_do_ecf_status' else 'draft'
+                if vals:
+                    move.write(vals)
         return res
 
     # -------------------------------------------------------------------------
