@@ -222,10 +222,14 @@ class EcfXmlGenerator(models.AbstractModel):
             seq = int(document_number)
             return f"E{type_code}{seq:010d}"
         except ValueError:
-            _logger.warning(
-                "eNCF format invalid: %s (expected numeric or E%s...)",
-                document_number, type_code
-            )
+            # Try extracting trailing digits (handles corrupt names like "False False False 3086")
+            import re
+            match = re.search(r'(\d+)$', document_number.strip())
+            if match:
+                seq = int(match.group(1))
+                _logger.warning("eNCF extracted from corrupt name '%s' → %d", document_number, seq)
+                return f"E{type_code}{seq:010d}"
+            _logger.warning("eNCF format invalid, cannot parse: %s", document_number)
             return document_number
 
     # -------------------------------------------------------------------------
