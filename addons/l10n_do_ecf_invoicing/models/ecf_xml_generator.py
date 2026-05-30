@@ -261,11 +261,15 @@ class EcfXmlGenerator(models.AbstractModel):
         if type_code == "34":
             _add_element(id_doc, "IndicadorNotaCredito", "0")
 
-        # Sequence expiration date — NOT for types 32, 34
+        # Sequence expiration date — NOT for types 32, 34 (required by DGII when present)
         if type_code in HAS_FECHA_VENC:
+            from datetime import date, timedelta
             exp_date = self._get_sequence_expiration(move)
-            if exp_date:
-                _add_element(id_doc, "FechaVencimientoSecuencia", _fmt_date(exp_date))
+            if not exp_date:
+                # Default: 1 year from invoice date (DGII requires this field for E31 and others)
+                base = move.invoice_date or date.today()
+                exp_date = base.replace(year=base.year + 1)
+            _add_element(id_doc, "FechaVencimientoSecuencia", _fmt_date(exp_date))
 
         # Deferred indicator — NOT for type 43
         if type_code != "43":
