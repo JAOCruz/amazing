@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="seq_ecf_e31" model="ir.sequence">
-        <field name="name">e-CF E31 Crédito Fiscal</field>
-        <field name="code">l10n_do.ecf.e-31</field>
-        <field name="number_next">1</field>
-        <field name="number_increment">1</field>
-        <field name="padding">1</field>
-        <field name="company_id" eval="False"/>
-    </record>
-    <record id="seq_ecf_e32" model="ir.sequence">
-        <field name="name">e-CF E32 Consumo</field>
-        <field name="code">l10n_do.ecf.e-32</field>
-        <field name="number_next">1</field>
-        <field name="number_increment">1</field>
-        <field name="padding">1</field>
-        <field name="company_id" eval="False"/>
-    </record>
+    <!-- noupdate="1" prevents these counters from being reset on module upgrade -->
+    <data noupdate="1">
+        <record id="seq_ecf_e31" model="ir.sequence">
+            <field name="name">e-CF E31 Crédito Fiscal</field>
+            <field name="code">l10n_do.ecf.e-31</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="padding">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_ecf_e32" model="ir.sequence">
+            <field name="name">e-CF E32 Consumo</field>
+            <field name="code">l10n_do.ecf.e-32</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="padding">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
 </odoo>
