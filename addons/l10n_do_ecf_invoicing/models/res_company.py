@@ -52,6 +52,10 @@ class ResCompany(models.Model):
         default=False,
         help="Si está activado, las nuevas facturas se marcarán automáticamente para envío a DGII. Desactívalo para usar el sistema dual donde decides factura por factura.",
     )
+    l10n_do_ecf_sequence_expiration_date = fields.Date(
+        string="Fecha Vencimiento Secuencia e-CF",
+        help="Fecha de vencimiento de la secuencia autorizada por DGII (FechaVencimientoSecuencia).",
+    )
 
     def _get_l10n_do_ecf_endpoints(self):
         """Return a dict of DGII API endpoint URLs based on the configured environment.
