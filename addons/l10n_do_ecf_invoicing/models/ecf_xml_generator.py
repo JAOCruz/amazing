@@ -271,7 +271,7 @@ class EcfXmlGenerator(models.AbstractModel):
             if not exp_date:
                 exp_date = move.company_id.l10n_do_ecf_sequence_expiration_date
             if exp_date:
-                _add_element(id_doc, "FechaVencimientoSecuencia", _fmt_date(exp_date))
+                _add_element(id_doc, "FechaVencimientoSecuencia", exp_date.strftime("%Y-%m-%d") if hasattr(exp_date, 'strftime') else str(exp_date))
 
         # Deferred indicator — NOT for type 43
         if type_code != "43":
