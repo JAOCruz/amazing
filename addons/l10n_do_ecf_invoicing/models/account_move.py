@@ -287,10 +287,38 @@ class AccountMove(models.Model):
             ecf_type_code=type_code, already_signed=True
         )
 
-        # Parse DGII response
-        track_id = result.get("trackId", "")
-        mensaje = result.get("mensaje", result.get("message", ""))
-        estado = result.get("estado", "")
+        # Parse DGII response — field names differ between ECF and RFCE endpoints
+        track_id = result.get("trackId", result.get("TrackId", ""))
+        estado = result.get("estado", result.get("Estado", ""))
+        mensaje = result.get(
+            "mensaje",
+            result.get("mensajeDeGestion", result.get("message", "")),
+        )
+
+        # Collect error codes from either endpoint format
+        error_codes = result.get("codigosDeError", result.get("codigos", result.get("codigosRespuesta", [])))
+        if error_codes and isinstance(error_codes, list):
+            code_lines = []
+            for c in error_codes:
+                if isinstance(c, dict):
+                    code_lines.append(f"{c.get('codigo','')}: {c.get('descripcion', c.get('description',''))}")
+                else:
+                    code_lines.append(str(c))
+            if code_lines:
+                mensaje = (mensaje + "\n" if mensaje else "") + "\n".join(code_lines)
+
+        # If still no message, store the full raw response for diagnosis
+        if not mensaje and not track_id:
+            import json as _json
+            try:
+                mensaje = _json.dumps(result, ensure_ascii=False)[:500]
+            except Exception:
+                mensaje = str(result)[:500]
+
+        _logger.info(
+            "DGII response — estado=%s, trackId=%s, mensaje=%s",
+            estado, track_id, mensaje
+        )
 
         status = DGII_STATUS_MAP.get(estado, "sent")
         if not track_id and "error" in str(mensaje).lower():

@@ -271,12 +271,16 @@ class DgiiApi(models.AbstractModel):
                 )
             )
 
+        _logger.info(
+            "DGII Send: HTTP %s, body=%s",
+            resp.status_code, resp.text[:2000]
+        )
         try:
             result = resp.json()
         except ValueError:
             result = {"status": resp.status_code, "message": resp.text}
 
-        _logger.info("DGII Send: response=%s", result)
+        _logger.info("DGII Send: parsed response=%s", result)
         return result
 
     # -------------------------------------------------------------------------
