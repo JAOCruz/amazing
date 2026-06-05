@@ -416,6 +416,13 @@ class AccountMove(models.Model):
                     move.write(vals)
         return res
 
+    def _inverse_l10n_latam_document_number(self):
+        """Override to prevent name corruption when journal does not use l10n_latam documents."""
+        for rec in self:
+            if not rec.journal_id.l10n_latam_use_documents:
+                return
+        super()._inverse_l10n_latam_document_number()
+
     # -------------------------------------------------------------------------
     # Cron: batch poll status
     # -------------------------------------------------------------------------
