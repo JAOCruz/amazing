@@ -21,6 +21,7 @@
     },
     "data": [
         "data/l10n_do_document_types.xml",
+        "data/ecf_sequences.xml",
         "data/cron_jobs.xml",
         "views/res_config_settings_views.xml",
         "views/account_move_views.xml",

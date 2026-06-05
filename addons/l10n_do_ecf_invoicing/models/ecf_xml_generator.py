@@ -257,8 +257,12 @@ class EcfXmlGenerator(models.AbstractModel):
         id_doc = _add_element(encabezado, "IdDoc")
         _add_element(id_doc, "TipoeCF", type_code)
 
-        # Format eNCF: must be E{type}{10-digit-sequence} e.g. E310000003062
-        encf = self._format_encf(move.l10n_latam_document_number, type_code)
+        # Use DGII-assigned sequence number if available, else fall back to document number
+        dgii_seq = move.l10n_do_ecf_sequence_number
+        if dgii_seq:
+            encf = f"E{type_code}{dgii_seq:010d}"
+        else:
+            encf = self._format_encf(move.l10n_latam_document_number, type_code)
         _add_element(id_doc, "eNCF", encf)
 
         # E34: IndicadorNotaCredito right after eNCF

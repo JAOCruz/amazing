@@ -40,6 +40,13 @@ DGII_STATUS_MAP = {
 class AccountMove(models.Model):
     _inherit = "account.move"
 
+    # --- e-CF DGII sequence number (separate from Odoo's internal invoice number) ---
+    l10n_do_ecf_sequence_number = fields.Integer(
+        string="Número Secuencia DGII",
+        copy=False,
+        help="Número de secuencia dentro del rango autorizado por DGII (e.g. 1, 2, 3...).",
+    )
+
     # --- Base e-CF fields (self-contained, no l10n_do_accounting needed) ---
     is_ecf_invoice = fields.Boolean(
         string="Is e-CF Invoice",
@@ -360,6 +367,14 @@ class AccountMove(models.Model):
                 and move.company_id.l10n_do_ecf_issuer
                 and move.l10n_do_ecf_status == "draft"
             ):
+                # Assign DGII sequence number if not already set
+                if not move.l10n_do_ecf_sequence_number:
+                    seq_code = f"l10n_do.ecf.{move.l10n_latam_document_type_id.l10n_do_ncf_type or 'e-32'}"
+                    seq_num = move.env['ir.sequence'].next_by_code(seq_code) or "1"
+                    try:
+                        move.l10n_do_ecf_sequence_number = int(seq_num)
+                    except (ValueError, TypeError):
+                        move.l10n_do_ecf_sequence_number = 1
                 try:
                     _logger.info(
                         "Auto-generating e-CF XML for %s (status=%s)",
