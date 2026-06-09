@@ -387,19 +387,30 @@ class EcfXmlGenerator(models.AbstractModel):
         tax_totals = self._compute_tax_totals(move)
 
         _add_element(totales, "MontoGravadoTotal", _fmt_amount(tax_totals["gravado_total"]))
-        _add_element(totales, "MontoGravadoI1", _fmt_amount(tax_totals["gravado_18"]))
-        _add_element(totales, "MontoGravadoI2", _fmt_amount(tax_totals["gravado_16"]))
-        _add_element(totales, "MontoGravadoI3", _fmt_amount(tax_totals["gravado_0"]))
-        _add_element(totales, "MontoExento", _fmt_amount(tax_totals["exento"]))
+        if tax_totals["gravado_18"]:
+            _add_element(totales, "MontoGravadoI1", _fmt_amount(tax_totals["gravado_18"]))
+        if tax_totals["gravado_16"]:
+            _add_element(totales, "MontoGravadoI2", _fmt_amount(tax_totals["gravado_16"]))
+        if tax_totals["gravado_0"]:
+            _add_element(totales, "MontoGravadoI3", _fmt_amount(tax_totals["gravado_0"]))
+        if tax_totals["exento"]:
+            _add_element(totales, "MontoExento", _fmt_amount(tax_totals["exento"]))
 
-        _add_element(totales, "ITBIS1", "18")
-        _add_element(totales, "ITBIS2", "16")
-        _add_element(totales, "ITBIS3", "0")
+        # ITBIS rates: only include if corresponding gravado exists
+        if tax_totals["gravado_18"]:
+            _add_element(totales, "ITBIS1", "18")
+        if tax_totals["gravado_16"]:
+            _add_element(totales, "ITBIS2", "16")
+        if tax_totals["gravado_0"]:
+            _add_element(totales, "ITBIS3", "0")
 
         _add_element(totales, "TotalITBIS", _fmt_amount(tax_totals["itbis_total"]))
-        _add_element(totales, "TotalITBIS1", _fmt_amount(tax_totals["itbis_18"]))
-        _add_element(totales, "TotalITBIS2", _fmt_amount(tax_totals["itbis_16"]))
-        _add_element(totales, "TotalITBIS3", _fmt_amount(tax_totals["itbis_0"]))
+        if tax_totals["itbis_18"]:
+            _add_element(totales, "TotalITBIS1", _fmt_amount(tax_totals["itbis_18"]))
+        if tax_totals["itbis_16"]:
+            _add_element(totales, "TotalITBIS2", _fmt_amount(tax_totals["itbis_16"]))
+        if tax_totals["itbis_0"]:
+            _add_element(totales, "TotalITBIS3", _fmt_amount(tax_totals["itbis_0"]))
 
         # Additional taxes
         if tax_totals.get("impuesto_adicional"):

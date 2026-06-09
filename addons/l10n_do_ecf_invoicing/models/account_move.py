@@ -424,6 +424,7 @@ class AccountMove(models.Model):
                 vals = {}
                 field_names = [
                     'l10n_do_ecf_status',
+                    'l10n_do_ecf_sequence_number',
                     'l10n_do_ecf_edi_file',
                     'l10n_do_ecf_edi_file_name',
                     'l10n_do_ecf_track_id',
