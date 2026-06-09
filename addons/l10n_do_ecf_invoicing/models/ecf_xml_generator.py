@@ -507,6 +507,10 @@ class EcfXmlGenerator(models.AbstractModel):
         for line in move.invoice_line_ids.filtered(
             lambda l: l.display_type == "product"
         ):
+            # Skip lines with no valid name — XSD requires NombreItem minLength=1
+            item_name = (line.name or line.product_id.name or "").strip()
+            if not item_name:
+                continue
             line_number += 1
             self._build_item(detalles, line, line_number, move, type_code)
 
@@ -549,7 +553,10 @@ class EcfXmlGenerator(models.AbstractModel):
                 )
 
         # Item name and description
-        _add_element(item, "NombreItem", (line.name or line.product_id.name or "")[:80])
+        item_name = (line.name or line.product_id.name or "Item").strip()
+        if not item_name:
+            item_name = "Item"
+        _add_element(item, "NombreItem", item_name[:80])
 
         # Good vs Service indicator
         if line.product_id:
