@@ -278,9 +278,9 @@ class EcfXmlGenerator(models.AbstractModel):
                 _add_element(id_doc, "FechaVencimientoSecuencia", exp_date.strftime("%Y-%m-%d") if hasattr(exp_date, 'strftime') else str(exp_date))
 
         # Deferred indicator — NOT for type 43
-        if type_code != "43":
-            deferred = "1" if move.company_id.l10n_do_ecf_deferred_submissions else "0"
-            _add_element(id_doc, "IndicadorEnvioDiferido", deferred)
+        # XSD only accepts "1", so only include if deferred submissions are enabled
+        if type_code != "43" and move.company_id.l10n_do_ecf_deferred_submissions:
+            _add_element(id_doc, "IndicadorEnvioDiferido", "1")
 
         # Tax indicator — NOT for types 43, 47
         if type_code not in ("43", "47"):
@@ -309,7 +309,11 @@ class EcfXmlGenerator(models.AbstractModel):
         if type_code in HAS_TABLA_FORMAS:
             self._build_payment_methods(id_doc, move)
 
-        _add_element(id_doc, "TotalPaginas", "1")
+        # TotalPaginas — XSD requires value > 1 (minExclusive="1"), so omit for single-page invoices
+        # Only include if explicitly needed for multi-page documents
+        # total_paginas = 1  # Default single page — omitted to satisfy XSD
+        # if total_paginas > 1:
+        #     _add_element(id_doc, "TotalPaginas", str(total_paginas))
 
     # --- Emisor (Issuer) ---
     def _build_emisor(self, encabezado, move):
