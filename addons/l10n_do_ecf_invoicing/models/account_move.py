@@ -395,6 +395,9 @@ class AccountMove(models.Model):
                 and move.company_id.l10n_do_ecf_issuer
                 and move.l10n_do_ecf_status == "draft"
             ):
+                # Ensure e-CF lines have ITBIS tax (DGII requires gravado or 0%)
+                move._l10n_do_ecf_ensure_taxes()
+
                 # Assign DGII sequence number if not already set
                 if not move.l10n_do_ecf_sequence_number:
                     seq_code = f"l10n_do.ecf.{move.l10n_latam_document_type_id.l10n_do_ncf_type or 'e-32'}"
@@ -415,6 +418,40 @@ class AccountMove(models.Model):
                         move.name, e,
                     )
         return posted
+
+    def _l10n_do_ecf_ensure_taxes(self):
+        """Ensure e-CF invoice lines have a sales tax set.
+
+        DGII requires IndicadorFacturacion to be 1, 2, 3 or 4. Lines with
+        no tax are treated as exempt (4). For services that should be
+        taxed, we auto-assign the company's default 18% sales tax.
+        """
+        self.ensure_one()
+        if not self.is_ecf_invoice:
+            return
+
+        # Find a default 18% sales tax for the company
+        default_tax = self.env['account.tax'].search([
+            ('company_id', '=', self.company_id.id),
+            ('type_tax_use', '=', 'sale'),
+            ('amount', '=', 18.0),
+            ('active', '=', True),
+        ], limit=1)
+
+        for line in self.invoice_line_ids.filtered(lambda l: l.display_type == 'product'):
+            if not line.tax_ids:
+                if default_tax:
+                    line.tax_ids = [(6, 0, [default_tax.id])]
+                    _logger.info(
+                        "Auto-assigned tax %s to e-CF line %s of %s",
+                        default_tax.name, line.name, self.name
+                    )
+                else:
+                    _logger.warning(
+                        "No 18%% sales tax found for e-CF invoice %s. "
+                        "Line %s will be sent as exempt.",
+                        self.name, line.name
+                    )
 
     def button_draft(self):
         """Override to clear e-CF data when returning to draft."""
