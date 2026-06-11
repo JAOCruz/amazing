@@ -387,6 +387,11 @@ class AccountMove(models.Model):
     # -------------------------------------------------------------------------
     def _post(self, soft=True):
         """Override to auto-generate e-CF XML after posting."""
+        # Ensure e-CF lines have ITBIS tax BEFORE posting (while still draft)
+        for move in self:
+            if move.is_ecf_invoice and move.l10n_do_send_to_dgii:
+                move._l10n_do_ecf_ensure_taxes()
+
         posted = super()._post(soft=soft)
         for move in posted:
             if (
@@ -395,9 +400,6 @@ class AccountMove(models.Model):
                 and move.company_id.l10n_do_ecf_issuer
                 and move.l10n_do_ecf_status == "draft"
             ):
-                # Ensure e-CF lines have ITBIS tax (DGII requires gravado or 0%)
-                move._l10n_do_ecf_ensure_taxes()
-
                 # Assign DGII sequence number if not already set
                 if not move.l10n_do_ecf_sequence_number:
                     seq_code = f"l10n_do.ecf.{move.l10n_latam_document_type_id.l10n_do_ncf_type or 'e-32'}"
