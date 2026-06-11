@@ -17,9 +17,9 @@ _logger = logging.getLogger(__name__)
 XMLDSIG_NS = "http://www.w3.org/2000/09/xmldsig#"
 
 # Path to the generic signing script (mounted into the Docker container)
-# On the host: /tmp/dgii-sign/sign_generic_sha1.mjs
-# Inside container: /dgii-sign/sign_generic_sha1.mjs
-_SIGN_SCRIPT = os.environ.get("DGII_SIGN_SCRIPT", "/dgii-sign/sign_generic_sha1.mjs")
+# On the host: /tmp/dgii-sign/sign_generic.mjs
+# Inside container: /dgii-sign/sign_generic.mjs
+_SIGN_SCRIPT = os.environ.get("DGII_SIGN_SCRIPT", "/dgii-sign/sign_generic.mjs")
 _NODE_BIN = os.environ.get("NODE_BIN", "/usr/local/bin/node")
 
 REQUEST_TIMEOUT = 30
