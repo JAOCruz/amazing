@@ -5,8 +5,8 @@
  * rejects signatures that don't use SHA-1.
  *
  * This script:
- * 1. Parses the XML and sorts namespace attributes alphabetically
- *    (the critical DGII hack from dgii-ecf's Digest class)
+ * 1. For ECF documents: sorts namespace attributes alphabetically
+ *    (the critical DGII hack) before signing
  * 2. Signs using xml-crypto with SHA-1 for both signature and digest
  *
  * Usage: node sign_generic_sha1.mjs <input.xml> <output.xml> <p12file> <password> <rootElName>
@@ -41,6 +41,7 @@ if (!certs.key || !certs.cert) {
 const xml = readFileSync(inputFile, 'utf-8');
 
 // --- DGII Namespace Sorting Hack ---
+// Only apply to ECF documents, NOT to SemillaModel (authentication seed)
 // DGII requires namespace attributes to be sorted alphabetically
 // before computing the digest. Without this, the digest won't match.
 function sortNamespaces(xmlString) {
@@ -62,7 +63,8 @@ function sortNamespaces(xmlString) {
   return new XMLSerializer().serializeToString(doc);
 }
 
-const sortedXml = sortNamespaces(xml);
+// Only sort namespaces for ECF, not for SemillaModel
+const xmlToSign = rootElName === 'ECF' ? sortNamespaces(xml) : xml;
 
 // --- Sign with SHA-1 ---
 const sig = new SignedXml({
@@ -79,7 +81,7 @@ sig.addReference({
   isEmptyUri: true
 });
 
-sig.computeSignature(sortedXml);
+sig.computeSignature(xmlToSign);
 writeFileSync(outputFile, sig.getSignedXml(), 'utf-8');
 process.stdout.write(`✅ Signed ${rootElName} with SHA-1 → ${outputFile}\n`);
 process.exit(0);
