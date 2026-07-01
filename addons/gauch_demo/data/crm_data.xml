@@ -26,7 +26,28 @@
             <field name="is_won">True</field>
         </record>
 
-        <!-- Tags -->
+        <!-- Categorías de contacto -->
+        <record id="category_residential" model="res.partner.category">
+            <field name="name">Residencial</field>
+            <field name="color">1</field>
+        </record>
+
+        <record id="category_commercial" model="res.partner.category">
+            <field name="name">Comercial</field>
+            <field name="color">2</field>
+        </record>
+
+        <record id="category_industrial" model="res.partner.category">
+            <field name="name">Industrial</field>
+            <field name="color">3</field>
+        </record>
+
+        <record id="category_restaurant" model="res.partner.category">
+            <field name="name">Restaurante</field>
+            <field name="color">4</field>
+        </record>
+
+        <!-- Tags CRM -->
         <record id="tag_residential" model="crm.tag">
             <field name="name">Residencial</field>
             <field name="color">1</field>
@@ -55,7 +76,7 @@
             <field name="street">Calle Duarte #45, Gazcue</field>
             <field name="city">Santo Domingo</field>
             <field name="country_id" ref="base.do"/>
-            <field name="category_id" eval="[(6,0,[ref('tag_residential')])]"/>
+            <field name="category_id" eval="[(6,0,[ref('category_residential')])]"/>
         </record>
 
         <record id="partner_maria_fernandez" model="res.partner">
@@ -65,7 +86,7 @@
             <field name="street">Av. Sarasota, Bella Vista</field>
             <field name="city">Santo Domingo</field>
             <field name="country_id" ref="base.do"/>
-            <field name="category_id" eval="[(6,0,[ref('tag_residential')])]"/>
+            <field name="category_id" eval="[(6,0,[ref('category_residential')])]"/>
         </record>
 
         <record id="partner_restaurante_sabor" model="res.partner">
@@ -76,7 +97,7 @@
             <field name="city">Santo Domingo</field>
             <field name="country_id" ref="base.do"/>
             <field name="is_company">True</field>
-            <field name="category_id" eval="[(6,0,[ref('tag_commercial'), ref('tag_restaurant')])]"/>
+            <field name="category_id" eval="[(6,0,[ref('category_commercial'), ref('category_restaurant')])]"/>
         </record>
 
         <record id="partner_hotel_caribe" model="res.partner">
@@ -87,7 +108,7 @@
             <field name="city">Santo Domingo</field>
             <field name="country_id" ref="base.do"/>
             <field name="is_company">True</field>
-            <field name="category_id" eval="[(6,0,[ref('tag_commercial')])]"/>
+            <field name="category_id" eval="[(6,0,[ref('category_commercial')])]"/>
         </record>
 
         <record id="partner_fabrica_polonia" model="res.partner">
@@ -98,7 +119,7 @@
             <field name="city">Santo Domingo</field>
             <field name="country_id" ref="base.do"/>
             <field name="is_company">True</field>
-            <field name="category_id" eval="[(6,0,[ref('tag_industrial')])]"/>
+            <field name="category_id" eval="[(6,0,[ref('category_industrial')])]"/>
         </record>
 
         <!-- Oportunidades CRM -->
