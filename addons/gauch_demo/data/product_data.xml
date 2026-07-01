@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Categoría de productos -->
+        <record id="category_propane" model="product.category">
+            <field name="name">Propano</field>
+            <field name="parent_id" ref="product.product_category_all"/>
+        </record>
+
+        <record id="category_tanks" model="product.category">
+            <field name="name">Tanques Retornables</field>
+            <field name="parent_id" ref="product.product_category_all"/>
+        </record>
+
+        <!-- Productos de propano -->
+        <record id="product_propane_20lb" model="product.product">
+            <field name="name">Gas Propano 20 lbs</field>
+            <field name="categ_id" ref="category_propane"/>
+            <field name="type">consu</field>
+            <field name="list_price">650.00</field>
+            <field name="standard_price">480.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="default_code">PROP-20</field>
+            <field name="description_sale">Cilindro de gas propano de 20 libras, listo para entregar.</field>
+        </record>
+
+        <record id="product_propane_100lb" model="product.product">
+            <field name="name">Gas Propano 100 lbs</field>
+            <field name="categ_id" ref="category_propane"/>
+            <field name="type">consu</field>
+            <field name="list_price">2800.00</field>
+            <field name="standard_price">2100.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="default_code">PROP-100</field>
+            <field name="description_sale">Cilindro de gas propano de 100 libras, listo para entregar.</field>
+        </record>
+
+        <!-- Tanques retornables (deposito) -->
+        <record id="product_tank_20lb_empty" model="product.product">
+            <field name="name">Tanque 20 lbs vacío (retornable)</field>
+            <field name="categ_id" ref="category_tanks"/>
+            <field name="type">consu</field>
+            <field name="list_price">2500.00</field>
+            <field name="standard_price">1800.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="default_code">TANK-20-EMP</field>
+            <field name="description_sale">Tanque de 20 libras vacío para retornar. Se cobra depósito si no hay cambio.</field>
+        </record>
+
+        <record id="product_tank_100lb_empty" model="product.product">
+            <field name="name">Tanque 100 lbs vacío (retornable)</field>
+            <field name="categ_id" ref="category_tanks"/>
+            <field name="type">consu</field>
+            <field name="list_price">6500.00</field>
+            <field name="standard_price">4800.00</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="default_code">TANK-100-EMP</field>
+            <field name="description_sale">Tanque de 100 libras vacío para retornar. Se cobra depósito si no hay cambio.</field>
+        </record>
+    </data>
+</odoo>

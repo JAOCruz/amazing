@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_gauch_propane_order_tree" model="ir.ui.view">
+        <field name="name">gauch.propane.order.tree</field>
+        <field name="model">gauch.propane.order</field>
+        <field name="arch" type="xml">
+            <tree string="Entregas de Propano">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date"/>
+                <field name="total_full_delivered"/>
+                <field name="total_empty_returned"/>
+                <field name="total_empty_pending"/>
+                <field name="state" decoration-muted="state == 'cancel'" decoration-info="state == 'draft'" decoration-success="state in ('returned','done')" decoration-warning="state in ('confirmed','delivered')" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_gauch_propane_order_form" model="ir.ui.view">
+        <field name="name">gauch.propane.order.form</field>
+        <field name="model">gauch.propane.order</field>
+        <field name="arch" type="xml">
+            <form string="Entrega de Propano">
+                <header>
+                    <button name="action_confirm" string="Confirmar" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_deliver" string="Marcar Entregada" type="object" class="oe_highlight" invisible="state != 'confirmed'"/>
+                    <button name="action_return" string="Marcar Devuelta" type="object" invisible="state != 'delivered'"/>
+                    <button name="action_done" string="Finalizar Entrega" type="object" class="oe_highlight" invisible="state != 'delivered'"/>
+                    <button name="action_reset_draft" string="Volver a Borrador" type="object" invisible="state in ('draft', 'done', 'cancel')"/>
+                    <button name="action_cancel" string="Cancelar" type="object" invisible="state == 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,delivered,returned,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="total_full_delivered"/>
+                            <field name="total_empty_returned"/>
+                            <field name="total_empty_pending"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Líneas de Entrega">
+                            <field name="line_ids">
+                                <tree editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="quantity_full"/>
+                                    <field name="quantity_empty_returned"/>
+                                    <field name="notes"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_gauch_propane_order_search" model="ir.ui.view">
+        <field name="name">gauch.propane.order.search</field>
+        <field name="model">gauch.propane.order</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <filter string="Borrador" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Confirmadas" name="confirmed" domain="[('state','=','confirmed')]"/>
+                <filter string="Entregadas" name="delivered" domain="[('state','=','delivered')]"/>
+                <filter string="Devueltas" name="returned" domain="[('state','=','returned')]"/>
+                <filter string="Finalizadas" name="done" domain="[('state','=','done')]"/>
+                <filter string="Pendientes de devolución" name="pending_return" domain="[('total_empty_pending','>',0)]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter string="Cliente" name="group_partner" context="{'group_by':'partner_id'}"/>
+                    <filter string="Estado" name="group_state" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_gauch_propane_order" model="ir.actions.act_window">
+        <field name="name">Entregas de Propano</field>
+        <field name="res_model">gauch.propane.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_gauch_propane_order_search"/>
+    </record>
+</odoo>

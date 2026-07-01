@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Actualizar la empresa principal con datos de Gauch -->
+        <record id="base.main_company" model="res.company">
+            <field name="name">Gauch Gas Propano</field>
+            <field name="street">Avenida Principal #123</field>
+            <field name="city">Santo Domingo</field>
+            <field name="zip">10101</field>
+            <field name="country_id" ref="base.do"/>
+            <field name="phone">+1 (809) 555-0100</field>
+            <field name="email">info@gauch.com.do</field>
+            <field name="website">https://gauch.com.do</field>
+            <field name="currency_id" ref="base.DOP"/>
+        </record>
+
+        <!-- Secuencia para órdenes de propano -->
+        <record id="seq_gauch_propane_order" model="ir.sequence">
+            <field name="name">Gauch Propane Order</field>
+            <field name="code">gauch.propane.order</field>
+            <field name="prefix">GAU-</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+    </data>
+</odoo>

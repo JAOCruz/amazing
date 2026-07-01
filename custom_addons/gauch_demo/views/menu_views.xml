@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem id="menu_gauch_root"
+              name="Gauch"
+              sequence="10"/>
+
+    <menuitem id="menu_gauch_propane"
+              name="Propano"
+              parent="menu_gauch_root"
+              sequence="10"/>
+
+    <menuitem id="menu_gauch_propane_orders"
+              name="Entregas"
+              parent="menu_gauch_propane"
+              action="action_gauch_propane_order"
+              sequence="10"/>
+</odoo>

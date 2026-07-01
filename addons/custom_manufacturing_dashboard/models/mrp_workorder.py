@@ -34,6 +34,8 @@ class MrpWorkorderCustom(models.Model):
         ('Adaptación de Pilares', 'Adaptación de Pilares'),
         ('Personalización de pilares metales', 'Personalización de pilares metales'),
         ('Elección de pilares en biblioteca', 'Elección de pilares en biblioteca'),
+        ('Facturación', 'Facturación'),
+        ('Seguimiento', 'Seguimiento'),
     ], string='Operación', required=True, index=True)
 
     time_status = fields.Selection(

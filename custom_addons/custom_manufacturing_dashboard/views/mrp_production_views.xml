@@ -399,6 +399,14 @@
                             groups="custom_manufacturing_dashboard.group_manufacturing_manager"
                             invisible="state in ('draft', 'cancel')"/>
                 </xpath>
+                <xpath expr="//header" position="inside">
+                    <button name="action_add_billing_tracking_operations"
+                            type="object"
+                            string="➕ Agregar Facturación/Seguimiento"
+                            class="btn-secondary"
+                            groups="custom_manufacturing_dashboard.group_manufacturing_manager"
+                            invisible="state in ('draft', 'cancel', 'done')"/>
+                </xpath>
                 <xpath expr="//div[@name='button_box']" position="inside">
                     <button name="action_view_bills"
                             type="object"

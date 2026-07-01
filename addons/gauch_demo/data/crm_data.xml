@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Etapas del pipeline para Gauch -->
+        <record id="stage_new" model="crm.stage">
+            <field name="name">Nuevo Lead</field>
+            <field name="sequence">1</field>
+            <field name="is_won">False</field>
+        </record>
+
+        <record id="stage_qualified" model="crm.stage">
+            <field name="name">Calificado</field>
+            <field name="sequence">2</field>
+            <field name="is_won">False</field>
+        </record>
+
+        <record id="stage_proposal" model="crm.stage">
+            <field name="name">Propuesta Enviada</field>
+            <field name="sequence">3</field>
+            <field name="is_won">False</field>
+        </record>
+
+        <record id="stage_won" model="crm.stage">
+            <field name="name">Ganado</field>
+            <field name="sequence">4</field>
+            <field name="is_won">True</field>
+        </record>
+
+        <!-- Tags -->
+        <record id="tag_residential" model="crm.tag">
+            <field name="name">Residencial</field>
+            <field name="color">1</field>
+        </record>
+
+        <record id="tag_commercial" model="crm.tag">
+            <field name="name">Comercial</field>
+            <field name="color">2</field>
+        </record>
+
+        <record id="tag_industrial" model="crm.tag">
+            <field name="name">Industrial</field>
+            <field name="color">3</field>
+        </record>
+
+        <record id="tag_restaurant" model="crm.tag">
+            <field name="name">Restaurante</field>
+            <field name="color">4</field>
+        </record>
+
+        <!-- Contactos / Clientes -->
+        <record id="partner_carlos_martinez" model="res.partner">
+            <field name="name">Carlos Martínez</field>
+            <field name="phone">(809) 555-0201</field>
+            <field name="email">carlos.martinez@email.do</field>
+            <field name="street">Calle Duarte #45, Gazcue</field>
+            <field name="city">Santo Domingo</field>
+            <field name="country_id" ref="base.do"/>
+            <field name="category_id" eval="[(6,0,[ref('tag_residential')])]"/>
+        </record>
+
+        <record id="partner_maria_fernandez" model="res.partner">
+            <field name="name">María Fernández</field>
+            <field name="phone">(809) 555-0202</field>
+            <field name="email">maria.fernandez@email.do</field>
+            <field name="street">Av. Sarasota, Bella Vista</field>
+            <field name="city">Santo Domingo</field>
+            <field name="country_id" ref="base.do"/>
+            <field name="category_id" eval="[(6,0,[ref('tag_residential')])]"/>
+        </record>
+
+        <record id="partner_restaurante_sabor" model="res.partner">
+            <field name="name">Restaurante Sabor Criollo</field>
+            <field name="phone">(809) 555-0203</field>
+            <field name="email">admin@saborcriollo.do</field>
+            <field name="street">Calle El Conde #112, Zona Colonial</field>
+            <field name="city">Santo Domingo</field>
+            <field name="country_id" ref="base.do"/>
+            <field name="is_company">True</field>
+            <field name="category_id" eval="[(6,0,[ref('tag_commercial'), ref('tag_restaurant')])]"/>
+        </record>
+
+        <record id="partner_hotel_caribe" model="res.partner">
+            <field name="name">Hotel Caribeño SRL</field>
+            <field name="phone">(809) 555-0204</field>
+            <field name="email">compras@hotelcaribeno.do</field>
+            <field name="street">Av. George Washington #200</field>
+            <field name="city">Santo Domingo</field>
+            <field name="country_id" ref="base.do"/>
+            <field name="is_company">True</field>
+            <field name="category_id" eval="[(6,0,[ref('tag_commercial')])]"/>
+        </record>
+
+        <record id="partner_fabrica_polonia" model="res.partner">
+            <field name="name">Fábrica La Polonia</field>
+            <field name="phone">(809) 555-0205</field>
+            <field name="email">logistica@lapolonia.do</field>
+            <field name="street">Autopista Duarte Km 15, Herrera</field>
+            <field name="city">Santo Domingo</field>
+            <field name="country_id" ref="base.do"/>
+            <field name="is_company">True</field>
+            <field name="category_id" eval="[(6,0,[ref('tag_industrial')])]"/>
+        </record>
+
+        <!-- Oportunidades CRM -->
+        <record id="lead_carlos_martinez" model="crm.lead">
+            <field name="name">Pedido mensual 20 lbs - Carlos Martínez</field>
+            <field name="partner_id" ref="partner_carlos_martinez"/>
+            <field name="stage_id" ref="stage_qualified"/>
+            <field name="expected_revenue">1950.00</field>
+            <field name="probability">50</field>
+            <field name="tag_ids" eval="[(6,0,[ref('tag_residential')])]"/>
+            <field name="description">Cliente interesado en entrega mensual de 3 cilindros de 20 lbs. Tiene tanque propio.</field>
+        </record>
+
+        <record id="lead_maria_fernandez" model="crm.lead">
+            <field name="name">Nueva cliente - 20 lbs quincenal</field>
+            <field name="partner_id" ref="partner_maria_fernandez"/>
+            <field name="stage_id" ref="stage_new"/>
+            <field name="expected_revenue">1300.00</field>
+            <field name="probability">30</field>
+            <field name="tag_ids" eval="[(6,0,[ref('tag_residential')])]"/>
+            <field name="description">Llamó preguntando precios. Necesita 2 cilindros de 20 lbs cada 15 días.</field>
+        </record>
+
+        <record id="lead_restaurante_sabor" model="crm.lead">
+            <field name="name">Contrato restaurante - 100 lbs semanal</field>
+            <field name="partner_id" ref="partner_restaurante_sabor"/>
+            <field name="stage_id" ref="stage_proposal"/>
+            <field name="expected_revenue">11200.00</field>
+            <field name="probability">70</field>
+            <field name="tag_ids" eval="[(6,0,[ref('tag_commercial'), ref('tag_restaurant')])]"/>
+            <field name="description">Restaurante necesita 4 cilindros de 100 lbs por semana. Esperando aprobación de propuesta.</field>
+        </record>
+
+        <record id="lead_hotel_caribe" model="crm.lead">
+            <field name="name">Hotel Caribeño - suministro mensual</field>
+            <field name="partner_id" ref="partner_hotel_caribe"/>
+            <field name="stage_id" ref="stage_qualified"/>
+            <field name="expected_revenue">28000.00</field>
+            <field name="probability">45</field>
+            <field name="tag_ids" eval="[(6,0,[ref('tag_commercial')])]"/>
+            <field name="description">Hotel con 120 habitaciones. Requiere 10 cilindros de 100 lbs mensuales.</field>
+        </record>
+
+        <record id="lead_fabrica_polonia" model="crm.lead">
+            <field name="name">Fábrica La Polonia - industrial 100 lbs</field>
+            <field name="partner_id" ref="partner_fabrica_polonia"/>
+            <field name="stage_id" ref="stage_won"/>
+            <field name="expected_revenue">56000.00</field>
+            <field name="probability">100</field>
+            <field name="tag_ids" eval="[(6,0,[ref('tag_industrial')])]"/>
+            <field name="description">Contrato ganado. Entrega de 20 cilindros de 100 lbs mensuales para línea de producción.</field>
+        </record>
+    </data>
+</odoo>

@@ -369,6 +369,8 @@ class CreateOrderWizard(models.TransientModel):
             {'name': 'Área de Cerámica', 'duration': 18, 'department': 'ceramica'},
             {'name': 'Colado/Prensado', 'duration': 16, 'department': 'prensado'},
             {'name': 'Área de Metal', 'duration': 20, 'department': 'produccion'},
+            {'name': 'Facturación', 'duration': 2, 'department': 'facturacion'},
+            {'name': 'Seguimiento', 'duration': 1, 'department': 'seguimiento'},
         ]
 
         sequence = 1
@@ -572,6 +574,8 @@ class CreateOrderWizardOperation(models.TransientModel):
         ('Adaptación de Pilares', 'Adaptación de Pilares'),
         ('Personalización de pilares metales', 'Personalización de pilares metales'),
         ('Elección de pilares en biblioteca', 'Elección de pilares en biblioteca'),
+        ('Facturación', 'Facturación'),
+        ('Seguimiento', 'Seguimiento'),
     ], string='Nombre de Operación', required=True)
     duration = fields.Float('Duración Estimada (horas)', default=8.0, required=True)
 
@@ -585,6 +589,8 @@ class CreateOrderWizardOperation(models.TransientModel):
         ('sistema', 'Sistema'),
         ('printer', 'Printer'),
         ('mensajeria', 'Mensajería'),
+        ('facturacion', 'Facturación'),
+        ('seguimiento', 'Seguimiento'),
     ], string='Departamento')
 
     employee_id = fields.Many2one('res.users', string='Empleado Asignado')

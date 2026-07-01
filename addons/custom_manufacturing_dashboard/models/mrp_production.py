@@ -444,6 +444,64 @@ class MrpProducciónCustom(models.Model):
 
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
+    def action_add_billing_tracking_operations(self):
+        """
+        Agrega las operaciones de Facturación y Seguimiento a una orden
+        de manufactura existente si aún no existen.
+        """
+        self.ensure_one()
+
+        if not self.env.user.has_group(
+            'custom_manufacturing_dashboard.group_manufacturing_manager'
+        ):
+            raise AccessError("Solo un gerente puede agregar operaciones a una orden.")
+
+        default_workcenter = self.env['mrp.workcenter'].search([], limit=1)
+
+        new_operations = [
+            {'name': 'Facturación', 'duration': 2.0, 'sequence': 100},
+            {'name': 'Seguimiento', 'duration': 1.0, 'sequence': 101},
+        ]
+
+        created = False
+        for op_data in new_operations:
+            existing = self.env['mrp.workorder'].search([
+                ('production_id', '=', self.id),
+                ('name', '=', op_data['name']),
+            ], limit=1)
+            if existing:
+                continue
+
+            self.env['mrp.workorder'].create({
+                'production_id': self.id,
+                'name': op_data['name'],
+                'workcenter_id': default_workcenter.id if default_workcenter else False,
+                'product_id': self.product_id.id,
+                'product_uom_id': self.product_uom_id.id,
+                'state': 'pending',
+                'duration_expected': op_data['duration'] * 60.0,
+                'alert_time_hours': op_data['duration'],
+                'sequence_in_user_queue': op_data['sequence'],
+                'date_start': self.date_start,
+            })
+            created = True
+
+        message = (
+            "Operaciones de Facturación y Seguimiento agregadas correctamente."
+            if created else
+            "Las operaciones de Facturación y Seguimiento ya existen en esta orden."
+        )
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': 'success' if created else 'warning',
+                'message': message,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
+
     # ============================================
     # COMPUTED FIELDS
     # ============================================

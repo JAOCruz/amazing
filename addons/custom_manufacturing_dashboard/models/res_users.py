@@ -24,6 +24,8 @@ class ResUsersCustom(models.Model):
             ('sistema', 'Sistema'),
             ('printer', 'Printer'),
             ('mensajeria', 'Mensajería'),
+            ('facturacion', 'Facturación'),
+            ('seguimiento', 'Seguimiento'),
         ],
         string='Departamento',
         help='Departamento al que pertenece el empleado en el laboratorio dental',
